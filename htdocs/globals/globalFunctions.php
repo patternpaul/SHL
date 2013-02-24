@@ -327,7 +327,7 @@ function getAutoloadString($arrayOfLocs) {
     $ls_autoLoad = "";
     //build the string
     foreach ($arrayOfLocs as $file) {
-        $ls_autoLoad = $ls_autoLoad . APPLICATION_PATH . $file . "; ";
+        $ls_autoLoad = $ls_autoLoad . BASE_PATH . $file . "; ";
     }
 
     return $ls_autoLoad;

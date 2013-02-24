@@ -9,6 +9,7 @@
 $config['gc_probability'] = 0;
 //define("APPLICATION_PATH", "/var/www/shl/htdocs/");
 define("APPLICATION_PATH", dirname(dirname(__FILE__)) . "/");
+define("BASE_PATH", dirname(dirname(dirname(__FILE__))));
 
 define("VIEW_DBERRORS", true);
 define("HANDLE_ERRORS", true); 

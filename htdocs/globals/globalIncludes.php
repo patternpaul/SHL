@@ -7,11 +7,11 @@
  */
 require_once(dirname(__FILE__).'/globalVars.php');
 require_once(dirname(__FILE__).'/globalFunctions.php');
-require_once(APPLICATION_PATH.'fatfree/lib/base.php');
-require_once(APPLICATION_PATH.'fatfree/lib/smtp.php');
+require_once(BASE_PATH.'/packages/fatfree/lib/base.php');
+require_once(BASE_PATH.'/packages/fatfree/lib/smtp.php');
 
-    F3::set('AUTOLOAD',getAutoloadString(array('/db/', '/globals/', '/objects/',
-        '/pageComponents/', '/generics/', '/smallff/')) . " /usr/share/php;");
+    F3::set('AUTOLOAD',getAutoloadString(array('/htdocs/db/', '/htdocs/globals/', '/htdocs/objects/',
+        '/htdocs/pageComponents/', '/htdocs/generics/')) . " /usr/share/php;");
 if(HANDLE_ERRORS){
     F3::set('ONERROR','myErrorHandler');
 }
