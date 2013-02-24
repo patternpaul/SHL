@@ -30,7 +30,7 @@
     
 
 
-    <title>SHL Test Pull</title>
+    <title>SHL</title>
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/base/jquery-ui.css" type="text/css" media="all" />
 
     <link rel="stylesheet" href="/styles/bootstrap.min.css" />
@@ -169,7 +169,7 @@
     <div class="topbar" id="topbar">
       <div class="fill">
         <div class="container">
-          <a class="brand" href="/">SHL</a>
+          <a class="brand" href="/">SHL TEST PULL</a>
           <ul class="nav">
               
             <?php 
