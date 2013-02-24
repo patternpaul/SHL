@@ -169,7 +169,7 @@
     <div class="topbar" id="topbar">
       <div class="fill">
         <div class="container">
-          <a class="brand" href="/">SHL TEST PULL</a>
+          <a class="brand" href="/">SHL</a>
           <ul class="nav">
               
             <?php 
