@@ -7,8 +7,8 @@
  */
 require_once(dirname(__FILE__).'/globalVars.php');
 require_once(dirname(__FILE__).'/globalFunctions.php');
-require_once(APPLICATION_PATH.'/fatfree/lib/base.php');
-require_once(APPLICATION_PATH.'/fatfree/lib/smtp.php');
+require_once(APPLICATION_PATH.'fatfree/lib/base.php');
+require_once(APPLICATION_PATH.'fatfree/lib/smtp.php');
 
     F3::set('AUTOLOAD',getAutoloadString(array('/db/', '/globals/', '/objects/',
         '/pageComponents/', '/generics/', '/smallff/')) . " /usr/share/php;");
