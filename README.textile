@@ -1,0 +1,44 @@
+h1. SHL
+
+By Paul Everton
+
+This is the codebase for the "SHL":http://www.shl-wpg.ca website. It's been a work in progress for about 3 years. I was experimenting and learning on the way so you will probably find stuff that scares the crap out of you. 
+
+h2. Getting Started
+
+* PHP
+* MySQL
+* A general config file located at /var/webini/shl.ini
+
+h2. SHL.ini config file
+
+[db_settings]
+user = "USERNAME"
+password = "USERPASSWORD"
+db_name = "DBNAME"
+host = "DBHOST"
+
+[error_email]
+from_email = "The FROM email address"
+from_email_pw = "the FROM email address password"
+to_email = "the TO email address"
+host = "server"
+port = "port"
+
+
+h2. General Info
+
+Most of the SQL is embeded into the code. There are some built stored procs that summarize the SHL data to make page loads faster. I'll try and get the procs and schema in the source files ASAP.
+
+Just as a note, I am using an old PHP db connection class. At some point I would like to migrate the codebase to the "FatFree":https://github.com/bcosca/fatfree framework to replace my aging DB connection and to convert the pages into something more sane (Please forgive me).
+
+
+h2. Future projects
+
+* Convert DB connection to FatFree Framework
+* Automate game recap article writting based on game data
+* un-suck codebase by using FatFree Framework
+
+h2. License
+
+See LICENSE.

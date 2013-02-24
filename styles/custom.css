@@ -1,0 +1,261 @@
+      /* Override some defaults */
+      html, body {
+        background-color: #eee;
+      }
+      body {
+        padding-top: 40px; /* 40px to make the container go all the way to the bottom of the topbar */
+      }
+      .container > footer p {
+        text-align: center; /* center align it with the container */
+      }
+      .container {
+        width: 820px; /* downsize our container to make the content feel a bit tighter and more cohesive. NOTE: this removes two full columns from the grid, meaning you only go to 14 columns and not 16. */
+      }
+
+      /* The white background content wrapper */
+      .content {
+        background-color: #fff;
+        padding: 20px;
+        margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
+        -webkit-border-radius: 0 0 6px 6px;
+           -moz-border-radius: 0 0 6px 6px;
+                border-radius: 0 0 6px 6px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                box-shadow: 0 1px 2px rgba(0,0,0,.15);
+      }
+
+      /* Page header tweaks */
+      .page-header {
+        background-color: #f5f5f5;
+        background-color: black;
+        color: white;
+        padding: 20px 20px 10px;
+        margin: -20px -20px 20px;
+      }
+
+      /* Styles you shouldn't keep as they are for displaying this base example only */
+      .content .span11,
+      .content .span3 {
+        min-height: 500px;
+
+      }
+      /* Give a quick and non-cross-browser friendly divider */
+      .content .right-content {
+        margin-left: 0;
+        padding-left: 19px;
+        border-left: 1px solid #eee;
+      }
+
+      .topbar .btn {
+        border: 0;
+      }
+
+
+
+	.page-banner {
+        background-color: white;
+        padding: 0px;
+        margin: -20px -20px 20px;
+      }
+      .article {
+          margin-bottom: 15px;
+      }
+      .article blockquote{
+          padding-top: 8px;
+          
+      }
+      .article blockquote p{
+          margin-top: 8px;
+          
+      }
+	.article h2 {
+
+		border-bottom: 1px solid #eee;
+	}
+
+	table.stats tbody tr td{
+		font-size: 0.9em;
+		padding: 0px;
+		padding-left: 3px;
+                padding-right: 3px;
+		text-align: center;
+	}
+        table.stats thead tr th{
+
+		text-align: center;
+		padding: 0px;
+		padding-left: 3px;
+                padding-right:3px;
+		
+	}
+	table.stats tbody tr td.name {
+		text-align: left;
+	}
+
+
+
+        
+
+        
+
+	table.player-info tbody tr td{
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+        table.stats tfoot tr td{
+		font-size: 0.9em;
+		padding: 0px;
+		padding-left: 3px;
+		text-align: center;
+        }
+
+        table.stats tfoot tr td{border-top:1px solid black;}
+
+
+	.alert-message.block-message.player{background-color: #DCDCDC;border-color: #A9A9A9;}
+        
+
+        
+        
+        
+        /* 
+ This css is part of the blue/style.css theme, shown as an example 
+ To work with the zebra widget, include the .odd and .even color definitions as well 
+ as definitions for the "primary", "secondary" and "tertiary" sorts. 
+*/ 
+/* Column Widget - column sort colors */ 
+table.tablesorter tbody td.primary, table.tablesorter tbody tr.odd td.primary { 
+    font-weight: 900;
+    background-color: #DBDBCE;
+    border-left: 1px solid #989898;
+    border-top: 1px solid #989898;
+    border-right: 1px solid #989898;
+    border-bottom: 0px solid #989898;
+} 
+
+table.tablesorter tbody tr.even td.primary { 
+    font-weight: 900;
+    background-color: #DBDBCE;
+    border-left: 1px solid #989898;
+    border-top: 1px solid #989898;
+    border-right: 1px solid #989898;
+    border-bottom: 0px solid #989898;
+} 
+ 
+table.tablesorter tbody td.secondary, table.tablesorter tbody tr.odd td.secondary {
+    font-weight: 900;
+    background-color: #DBDBCE;
+    border-left: 1px solid #989898;
+    border-top: 1px solid #989898;
+    border-right: 1px solid #989898;
+    border-bottom: 0px solid #989898;
+} 
+table.tablesorter tbody tr.even td.secondary {
+    font-weight: 900;
+    background-color: #DBDBCE;
+    border-left: 1px solid #989898;
+    border-top: 1px solid #989898;
+    border-right: 1px solid #989898;
+    border-bottom: 0px solid #989898;
+} 
+ 
+table.tablesorter tbody td.tertiary, table.tablesorter tbody tr.odd td.tertiary { 
+    font-weight: 900;
+    background-color: #DBDBCE;
+    border-left: 1px solid #989898;
+    border-top: 1px solid #989898;
+    border-right: 1px solid #989898;
+    border-bottom: 0px solid #989898;
+} 
+table.tablesorter tbody tr.even td.tertiary { 
+    font-weight: 900;
+    background-color: #DBDBCE;
+    border-left: 1px solid #989898;
+    border-top: 1px solid #989898;
+    border-right: 1px solid #989898;
+    border-bottom: 0px solid #989898;
+}
+
+
+
+
+
+
+
+table .mySortUnsort{cursor:pointer; background-color: #565656; color: #DBDBCE;}
+table .mySortUnsort:after{content:"";float:right;margin-top:7px;border-width:0 4px 4px;border-style:solid;border-color:#000 transparent;visibility:hidden;}
+table .mySortAsc,table .mySortDesc{background-color: #DBDBCE; text-shadow:0 1px 1px rgba(255, 255, 255, 0.75); color: black;}
+table .mySortUnsort:hover:after{visibility:visible;}
+table .mySortDesc:after,table .mySortDesc:hover:after{visibility:visible;filter:alpha(opacity=60);-khtml-opacity:0.6;-moz-opacity:0.6;opacity:0.6;}
+table .mySortAsc:after{border-bottom:none;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid #000;visibility:visible;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none;filter:alpha(opacity=60);-khtml-opacity:0.6;-moz-opacity:0.6;opacity:0.6;}
+table .blue{color:#049cdb;border-bottom-color:#049cdb;}
+table .mySortAsc.blue,table .mySortDesc.blue{background-color:#ade6fe;}
+table .green{color:#46a546;border-bottom-color:#46a546;}
+table .mySortAsc.green,table .mySortDesc.green{background-color:#cdeacd;}
+table .red{color:#9d261d;border-bottom-color:#9d261d;}
+table .mySortAsc.red,table .mySortDesc.red{background-color:#f4c8c5;}
+table .yellow{color:#ffc40d;border-bottom-color:#ffc40d;}
+table .mySortAsc.yellow,table .mySortDesc.yellow{background-color:#fff6d9;}
+table .orange{color:#f89406;border-bottom-color:#f89406;}
+table .mySortAsc.orange,table .mySortDesc.orange{background-color:#fee9cc;}
+table .purple{color:#7a43b6;border-bottom-color:#7a43b6;}
+table .mySortAsc.purple,table .mySortDesc.purple{background-color:#e2d5f0;}
+
+
+
+.zebra-striped thead tr { background-color: #565656; color: #DBDBCE;}
+.zebra-striped tbody tr:nth-child(odd) td, .zebra-striped tbody tr.odd td{background-color:white;}
+.zebra-striped tbody tr:nth-child(even) td, .zebra-striped tbody tr.even td{background-color:#EBF3F4;}
+
+
+.odd td{background-color:white;}
+.even td{background-color:#EBF3F4;}
+
+
+.zebra-striped tbody tr:hover td{
+    font-weight: 900;
+        background-color: #D3D9DF;
+        color: black;
+}
+
+.postdate {
+  position: relative;
+  width: 60px;
+  font-family: Georgia, serif;
+  color: #999;
+  margin: 0 auto;
+  float: left;
+ }
+ 
+.day, .month, .year {
+  position: absolute;
+  }
+ 
+.day { 
+  font-size: 25px;
+  top: 15px;
+  }
+ 
+.month { 
+  top: 0;
+  left: 0;  
+  font-size: 14px;
+  }
+ 
+.year { 
+  top: 10px;
+  right: 10px;
+  font-size: 14px;
+  rotation: -90deg !important;
+  /* ** Hacks ** */
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);  
+  }
+  
+  
+  .tabs>li>a{color:#808080;background-color:#EBF3F4;border:0px solid #ddd;border-bottom-color:transparent;}
+
+  .tabs>li>a:hover{
+        color: black;    
+  }
