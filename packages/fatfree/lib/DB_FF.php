@@ -16,7 +16,7 @@
 **/
 
 //! SQL data access layer
-class db extends Base {
+class db_ff extends Base {
 
 	//@{ Locale-specific error/exception messages
 	const

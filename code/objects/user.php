@@ -191,19 +191,20 @@ class user extends player{
     public function login($p_userName, $p_password){
         //variable declaration
         $returnLog = false;
-
+        $la_params = array();
         $passHash = $this->getHash($p_password);
-        //$passHash = $p_password;
-
-        //database connection
-        $d = new db(0);
-
-        //fetch the data
-        $data = $d->fetch("
+        $ls_sql = '
             SELECT  p.PlayerID
             FROM    Player AS p
-            WHERE   p.UserName = " . db::fmt($p_userName,0) .
-            " AND   p.Password = " . db::fmt($passHash,0));
+            WHERE   p.UserName = :userName
+            AND   p.Password = :password';
+
+        //set the params
+        $la_params[':userName'] = $p_userName;
+        $la_params[':password'] = $passHash;
+
+        //querry the DB
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
 
 
         if(count($data) == 1){
@@ -229,19 +230,21 @@ class user extends player{
      *
      */
     public function load(){
-
-        //database connection
-        $d = new db(0);
-
-        //fetch the data
-        $data1 = $d->fetch("
+        //variable declaration
+        $la_params = array();
+        $ls_sql = '
             SELECT  p.UserName, p.Password, p.Access, p.FacebookAccess, p.FacebookID
             FROM    Player AS p
-            WHERE   p.PlayerID = " . db::fmt($this->getPlayerID(),1));
+            WHERE   p.PlayerID = :playerID';
 
+        //set the params
+        $la_params[':playerID'] = $this->getPlayerID();
+
+        //querry the DB
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
 
         //fill the data
-        foreach($data1 as $row) {
+        foreach($data as $row) {
             $this->c_password = $row['Password'];
             $this->c_userName = $row['UserName'];
             $this->c_access = $row['Access'];
@@ -262,10 +265,12 @@ class user extends player{
      *
      */
     public function update(){
-
+        //variable declaration
+        $la_params = array();
+        $ls_sql = '';
+        
         //check the password confirm
         $this->checkPasswordConfirm();
-
 
         //check to ensure no errors occured
         if(!$this->hasError()){
@@ -273,29 +278,40 @@ class user extends player{
             //call the player class to update
             parent::update();
 
-
-            //database connection
-            $d = new db(0);
-
             if(trim($this->c_facebookAccess) != "" && trim($this->c_facebookID) != ""){
-                //update the data
-                $data = $d->exec("
+                $ls_sql = '
                     UPDATE  Player
-                    SET     UserName = " . db::fmt($this->c_userName,0) . ",
-                            Password = " . db::fmt($this->c_password,0) . ",
-                            FacebookAccess = " . db::fmt($this->c_facebookAccess,0) . ",
-                            FacebookID = " . db::fmt($this->c_facebookID,0) . "
-                    WHERE   PlayerID = " . db::fmt($this->getPlayerID(),1));
+                    SET     UserName = :userName,
+                            Password = :password,
+                            FacebookAccess = :facebookAccess,
+                            FacebookID = :facebookID
+                    WHERE   PlayerID = :playerID';
+
+                //set the params
+                $la_params[':userName'] = $this->c_userName;
+                $la_params[':password'] = $this->c_password;
+                $la_params[':facebookAccess'] = $this->c_facebookAccess;
+                $la_params[':facebookID'] = $this->c_facebookID;
+                $la_params[':playerID'] = $this->getPlayerID();
+
+                //querry the DB
+                $data = DBFac::getDB()->sql($ls_sql, $la_params);
             }else{
-                //update the data
-                $data = $d->exec("
+                $ls_sql = '
                     UPDATE  Player
-                    SET     UserName = " . db::fmt($this->c_userName,0) . ",
-                            Password = " . db::fmt($this->c_password,0) . "
-                    WHERE   PlayerID = " . db::fmt($this->getPlayerID(),1));
+                    SET     UserName = :userName,
+                            Password = :password
+                    WHERE   PlayerID = :playerID';
+
+                //set the params
+                $la_params[':userName'] = $this->c_userName;
+                $la_params[':password'] = $this->c_password;
+                $la_params[':playerID'] = $this->getPlayerID();
+
+                //querry the DB
+                $data = DBFac::getDB()->sql($ls_sql, $la_params);
             }
 
-            //$this->addDBMessage("User Updated", "User not updated! Database Error!", $data, $d);
         }
     }
 
@@ -307,6 +323,12 @@ class user extends player{
      *
      */
     public function insert(){
+        //variable declaration
+        $la_params = array();
+        $ls_sql = '';        
+        
+        
+        
         //check the password confirm
         $this->checkPasswordConfirm();
 
@@ -314,17 +336,22 @@ class user extends player{
         if(!$this->hasError()){
             //call the player class to insert
             parent::insert();
-
-            //database connection
-            $d = new db(0);
-
-            //update the data
-            $data = $d->exec("
+            
+            $ls_sql = '
                 UPDATE  Player
-                SET     UserName = " . db::fmt($this->c_userName,0) . ",
-                        Password = " . db::fmt($this->c_password,0) . ",
-                        FacebookAccess = " . db::fmt($this->c_facebookAccess,0) . "
-                WHERE   PlayerID = " . db::fmt($this->getPlayerID(),1));
+                SET     UserName = :userName,
+                        Password = :password,
+                        FacebookAccess = :facebookAccess
+                WHERE   PlayerID = :playerID';
+
+            //set the params
+            $la_params[':userName'] = $this->c_userName;
+            $la_params[':password'] = $this->c_password;
+            $la_params[':facebookAccess'] = $this->c_facebookAccess;
+            $la_params[':playerID'] = $this->getPlayerID();
+
+            //querry the DB
+            $data = DBFac::getDB()->sql($ls_sql, $la_params);
             
         }
     }
