@@ -47,19 +47,19 @@ class about extends object {
      *
      */
     public function load(){
-        //load the request bassed off the ID
-
-        //database connection
-        $d = new db(0);
-
-        //fetch the data
-        $data = $d->fetch("
+        //variable declaration
+        $la_params = array();
+        $ls_sql = '
             SELECT  a.AboutID,
                     a.DateCreated,
                     a.Content,
                     a.Poster
             FROM    About AS a
-            ORDER BY a.DateCreated DESC LIMIT 1 ");
+            ORDER BY a.DateCreated DESC LIMIT 1';
+        
+
+        //querry the DB
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
