@@ -8,9 +8,15 @@
 
 
 
-
+/**
+ * Indicates if this is live or not
+ * @return bool 
+ */
 function isLive(){
-    
+    if(($_SERVER['SERVER_NAME'] == "shl-wpg.ca") || ($_SERVER['SERVER_NAME'] == "www.shl-wpg.ca")){
+        return true;
+    }
+    return false;
 }
 
 /*

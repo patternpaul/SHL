@@ -18,6 +18,12 @@ password = "USERPASSWORD"
 db_name = "DBNAME"
 host = "DBHOST"
 
+[test_db_settings]
+user = "USERNAME"
+password = "USERPASSWORD"
+db_name = "TESTDBNAME"
+host = "DBHOST"
+
 [error_email]
 from_email = "The FROM email address"
 from_email_pw = "the FROM email address password"

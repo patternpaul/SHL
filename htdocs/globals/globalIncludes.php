@@ -13,7 +13,7 @@ require_once(BASE_PATH.'/packages/fatfree/lib/smtp.php');
         '/htdocs/pageComponents/')) . " /usr/share/php;");
     
     require_once(dirname(__FILE__).'/globalSecurity.php');
-if(HANDLE_ERRORS){
+if(isLive()){
     F3::set('ONERROR','myErrorHandler');
 }
 
