@@ -14,7 +14,7 @@ class DBFac {
         if(!self::$vars[$ps_dbName]){
             $configs = getIniConfigs();
             //instantiate the DB
-            self::$vars[$ps_dbName] = makeDB($configs["db_settings"]["host"], $configs["db_settings"]["db_name"], $configs["db_settings"]["user"], $configs["db_settings"]["password"]);
+            self::$vars[$ps_dbName] = DBFac::makeDB($configs["db_settings"]["host"], $configs["db_settings"]["db_name"], $configs["db_settings"]["user"], $configs["db_settings"]["password"]);
                     
         }
         
