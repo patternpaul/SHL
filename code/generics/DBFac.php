@@ -14,16 +14,28 @@ class DBFac {
         if(!self::$vars[$ps_dbName]){
             $configs = getIniConfigs();
             //instantiate the DB
-            self::$vars[$ps_dbName] = new db_ff(
-                    'mysql:host=' . $configs["db_settings"]["host"] . 
-                    ';port=3306;dbname=' . $configs["db_settings"]["db_name"] ,
-                    $configs["db_settings"]["user"],
-                    $configs["db_settings"]["password"]
-            );
+            self::$vars[$ps_dbName] = makeDB($configs["db_settings"]["host"], $configs["db_settings"]["db_name"], $configs["db_settings"]["user"], $configs["db_settings"]["password"]);
+                    
         }
         
         //return the DB
         return self::$vars[$ps_dbName];
+    }
+    
+    /**
+     * Returns a premade DB
+     * @param string $ps_host host 
+     * @param string $ps_dbname the database name
+     * @param string $ps_user the login user
+     * @param string $ps_password password
+     */
+    private static function makeDB($ps_host, $ps_dbname, $ps_user, $ps_password){
+        return new db_ff(
+                    'mysql:host=' . $ps_host . 
+                    ';port=3306;dbname=' . $ps_dbname ,
+                    $ps_user,
+                    $ps_password
+            );
     }
     
     

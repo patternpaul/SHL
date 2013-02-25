@@ -15,7 +15,7 @@ class about_page_load_testc extends WebTestCase {
      * DESC:    tests that the record page loads
      */
     function testAboutPageLoad() {
-        print_r($_SERVER['SERVER_NAME']);
+        
         $this->get('http://'. $_SERVER['SERVER_NAME'] . '/aboutPage.php');
         $this->assertText('Posted By', 'The text was not found.');
     }

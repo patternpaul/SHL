@@ -7,9 +7,11 @@
  */
 
 
+print_r($_SERVER['SERVER_NAME']);
 
-
-
+function isLive(){
+    
+}
 
 /*
  * NAME:    getIniConfigs
