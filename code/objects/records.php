@@ -182,7 +182,7 @@ ORDER BY r.RecordID, RHI.RepresentativeID, RHI.IDTypeID
         $this->playoffLongestGames(); 
         $this->playoffNoOTLongestGames();
         
-   
+        
         //get all changed records
         $record_change = $d->fetch("
             SELECT DISTINCT r.RecordID, RHI.RepresentativeID, RHI.IDTypeID
@@ -3603,7 +3603,7 @@ WHERE ColorSelector.ColorCount > 1
 
         //set up the sql
         $sql = "  SELECT G.GameID, G.SeasonID, TS.Score, G.GameNum, GS.BlackPoints, GS.WhitePoints, BTP.PlayerID AS BlackGoalieID, WTP.PlayerID AS WhiteGoalieID
-                FROM TeamScores AS TS
+                FROM QuickTeamScores AS TS
                 INNER JOIN Game AS G ON TS.GameID = G.GameID
                 INNER JOIN QuickGameScores AS GS ON G.GameID = GS.GameID
                 INNER JOIN TeamPlayer AS BTP ON G.GameID = BTP.GameID
@@ -3618,8 +3618,8 @@ WHERE ColorSelector.ColorCount > 1
         
         $sql = $sql . " AND TS.Score = (
                     SELECT MAX(Score)
-                    FROM TeamScores
-                    INNER JOIN Game ON  TeamScores.GameID = Game.GameID";
+                    FROM QuickTeamScores
+                    INNER JOIN Game ON  QuickTeamScores.GameID = Game.GameID";
         if($p_playoff >= 0){
             $sql = $sql . " WHERE Game.Playoff = " . db::fmt($p_playoff,1);
         }
@@ -3633,7 +3633,7 @@ WHERE ColorSelector.ColorCount > 1
         //fetch the data
         $data = $d->fetch($sql);
 
-   
+        
         
         //fill the data
         foreach($data as $row) {
@@ -3978,7 +3978,7 @@ WHERE ColorSelector.ColorCount > 1
 
         //set up the sql
         $sql = " SELECT G.GameID, G.SeasonID, GTL.GameSeconds, G.GameNum, GS.BlackPoints, GS.WhitePoints, BTP.PlayerID AS BlackGoalieID, WTP.PlayerID AS WhiteGoalieID
-                FROM GameTimeLength AS GTL
+                FROM QuickGameTimeLength AS GTL
                 INNER JOIN Game AS G ON GTL.GameID = G.GameID
                 INNER JOIN QuickGameScores AS GS ON G.GameID = GS.GameID
                 INNER JOIN TeamPlayer AS BTP ON G.GameID = BTP.GameID
@@ -4007,7 +4007,7 @@ WHERE ColorSelector.ColorCount > 1
         
         //fetch the data
         $data = $d->fetch($sql);
-
+        
         //fill the data
         foreach($data as $row) {
             

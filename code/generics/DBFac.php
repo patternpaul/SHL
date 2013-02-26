@@ -12,13 +12,13 @@ class DBFac {
 
     static function getDB($ps_dbName = 'shlDB'){
         if(!self::$vars[$ps_dbName]){
-            $configs = getIniConfigs();
+            $configs = iniconfig::getConfigs();
             $db_setting = "db_settings";
-//            if(isLive()){
-//                $db_setting = "db_settings";
-//            }else{
-//                $db_setting = "test_db_settings";
-//            }
+            if(isLive()){
+                $db_setting = "db_settings";
+            }else{
+                $db_setting = "test_db_settings";
+            }
 
             //instantiate the DB
             self::$vars[$ps_dbName] = DBFac::makeDB($configs[$db_setting]["host"], $configs[$db_setting]["db_name"], $configs[$db_setting]["user"], $configs[$db_setting]["password"]);

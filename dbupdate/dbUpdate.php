@@ -22,7 +22,7 @@ class dbUpdate {
         $result;
 
         $currentVersion =  $this->GetDbVersion();
-        $filepath = APPLICATION_PATH . '/db/scripts/';
+        $filepath = BASE_PATH . '/dbupdate/scripts/';
 
         //loop through all the script files in alphabetical order
         foreach($this->GetFiles($filepath) as $file) {
@@ -40,6 +40,7 @@ class dbUpdate {
 
     }
 
+    
     /*
      * NAME:    GetFiles
      * PARAMS:  $path
@@ -130,18 +131,19 @@ class dbUpdate {
     /**
      * Creates commands based off the file
      * @param string $ps_filePath
+     * @param string $ps_delim
      * @return array 
      */
-    private function GetComands($ps_filePath){
+    private function GetComands($ps_filePath, $ps_delim = "/;/"){
         //variable declaration
         $ls_fileContents = '';
         $la_commands = array();
-        
+ 
         //get the file contents
         $ls_fileContents = file_get_contents($ps_filePath);
         
         //create the commands
-        $la_commands = preg_split("/;/", $ls_fileContents, -1, PREG_SPLIT_NO_EMPTY);
+        $la_commands = preg_split($ps_delim, $ls_fileContents, -1, PREG_SPLIT_NO_EMPTY);
         
         //return the commands
         return $la_commands;
@@ -172,15 +174,11 @@ class dbUpdate {
      */
     public function ReloadData() {
         //variable declaration
-        $mra_filepath = BASE_PATH . '/resources/MraDbConverted.sql';
-        $add_filepath = BASE_PATH . '/resources/AdditionalTestData.sql';
+        $mra_filepath = BASE_PATH . '/dbupdate/testdata/shldata.sql';
         $mra_cmds;
         $mra_args = array();
-        $add_cmds;
-        $add_args = array();
         $ls_dbName = DBFac::getDB()->dbname;
         $lb_mra;
-        $lb_add;
 
         //empty out all tables
         $la_tableRows = DBFac::getDB()->sql("SHOW TABLES", array());
@@ -195,19 +193,13 @@ class dbUpdate {
         }
         
         //get the comands
-        $mra_cmds = $this->GetComands($mra_filepath);
+        $mra_cmds = $this->GetComands($mra_filepath,"/;--/");
         //create the args
         $mra_args = $this->GetComandArgs($mra_cmds);
         
-        //get the comands
-        $add_cmds = $this->GetComands($add_filepath);
-        //create the args
-        $add_args = $this->GetComandArgs($add_cmds);
-
         $lb_mra = DBFac::getDB()->sql($mra_cmds, $mra_args);
-        $lb_add = DBFac::getDB()->sql($add_cmds, $add_args);
         
-        return ($lb_mra && $lb_add);
+        return ($lb_mra);
     } 
 
     /*

@@ -19,21 +19,6 @@ function isLive(){
     return false;
 }
 
-/*
- * NAME:    getIniConfigs
-
- * PARAMS:  n/a
- * DESC:    will return the ini config array. Checks session for the array
- *
- */
-function getIniConfigs(){
-    if(!isset($_SESSION['shl_configs'])){
-        $_SESSION['shl_configs'] = parse_ini_file("/var/webini/shl.ini", true);
-    }
-    
-    return $_SESSION['shl_configs'];
-}
-
 
 /*
  * NAME:    headerDisplay

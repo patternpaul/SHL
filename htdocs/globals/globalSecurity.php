@@ -49,7 +49,7 @@ function myErrorHandler() {
 function sendErrorMessage($p_message) {
     //variable declaration
     $localMessage = $p_message;
-    $configs = getIniConfigs();
+    $configs = iniconfig::getConfigs();
     
     $from = $configs["error_email"]["from_email"];
     $to = $configs["error_email"]["to_email"];
@@ -89,6 +89,7 @@ function pageSecurityCheck() {
     $hasAccess = false;
     $message = "";
     //check access
+    if(isLive()){
     $hasAccess = $pageSecurity->hasAccessToPage();
     if($hasAccess){
         if(!CHECK_PAGE_SECURITY){
@@ -105,6 +106,7 @@ function pageSecurityCheck() {
             header( 'Location: /index.php' ) ;
             die();
         }
+    }
     }
 }
 

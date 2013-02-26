@@ -67,8 +67,14 @@ class db {
   */
   function connect() {
     $this->log .= "connect() called<br />";
-    $configs = getIniConfigs();
-    
+    $configs = iniconfig::getConfigs();
+    $db_setting = "db_settings";
+    if(isLive()){
+        $db_setting = "db_settings";
+    }else{
+        $db_setting = "test_db_settings";
+    }
+
     switch($this->cnn_id) {
       /*
       You can define all the database connections you need in this
@@ -76,10 +82,10 @@ class db {
       */
       case 0:
         $this->db_type = "mysql";
-        $this->server = $configs["db_settings"]["host"];
-        $user 		    = $configs["db_settings"]["user"];
-        $pwd 		      = $configs["db_settings"]["password"];
-        $this->db     = $configs["db_settings"]["db_name"];
+        $this->server = $configs[$db_setting]["host"];
+        $user 		    = $configs[$db_setting]["user"];
+        $pwd 		      = $configs[$db_setting]["password"];
+        $this->db     = $configs[$db_setting]["db_name"];
         break;
       case 1:
         $this->db_type = "mysql";

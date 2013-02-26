@@ -9,7 +9,7 @@
     //$oneThousandPointClub = $recordObj->getOneThousandPointClub();
     
     //record reset
-    //$recordObj->recordRefil();
+    $recordObj->recordRefil();
     //get record collection
     $recordCol = new recordCollection();
     $recordCol->load();

@@ -37,7 +37,7 @@ class player_details_page_load_test extends WebTestCase {
      */
     function testMainPlayerRecordsLoad() {
         $this->get('http://'. $_SERVER['SERVER_NAME'] . '/playerDetails.php?playerid=73&position=3');
-        $this->assertText('Eric Bissonnette ', 'The text was not found.'); 
+        $this->assertText('Player Records', 'The text was not found.'); 
     }
 }
 
