@@ -22,18 +22,6 @@ class DbUpdateTest extends UnitTestCase {
         $updater->Update();
 
     }
-/*
-     * NAME:    testReloadData
-     * PARAMS:  N/A
-     * DESC:    this function will reload the base data
-     */
-    function testReloadData() {
-        //variable declaration
-
-        $updater = new dbUpdate();
-        $updater->ReloadData();
-
-    }
 }
 
 

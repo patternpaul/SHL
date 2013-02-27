@@ -39,8 +39,8 @@
             $gameGet->setGameEnd($_POST["gameendhour"] . ":" . $_POST["gameendminute"] . " " . $_POST["gameendampm"]);
             $gameGet->setSeasonID($_POST["seasonid"]);
             $gameGet->setGameNum($_POST["gamenumber"]);
-            $gameGet->setPlayoff($_POST["gameplayoff"]);
-
+            $gameGet->setPlayoff($_POST["gameplayoff"]); 
+            
             //validate the entry
             $gameGet->validate();
             

@@ -3,7 +3,7 @@ DELIMITER $$
 -- Procedures
 --
 DROP PROCEDURE IF EXISTS `gameScoresProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `gameScoresProc`(PassedSeasonID int)
+CREATE PROCEDURE `gameScoresProc`(PassedSeasonID int)
 BEGIN
 
 DELETE FROM QuickGameScores 
@@ -29,7 +29,7 @@ GROUP by G.GameID;
 END$$
 
 DROP PROCEDURE IF EXISTS `gameTimeLengthProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `gameTimeLengthProc`(PassedSeasonID int)
+CREATE PROCEDURE `gameTimeLengthProc`(PassedSeasonID int)
 BEGIN
 	DELETE FROM QuickGameTimeLength WHERE GameID IN (
   SELECT GameID
@@ -45,7 +45,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `gameWinnersProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `gameWinnersProc`(PassedSeasonID int)
+CREATE PROCEDURE `gameWinnersProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickGameWinners WHERE GameID IN (
   SELECT GameID
@@ -66,7 +66,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `gameWinningGoalsProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `gameWinningGoalsProc`(PassedSeasonID int)
+CREATE PROCEDURE `gameWinningGoalsProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickGameWinningGoals WHERE GameID IN (
   SELECT GameID
@@ -121,7 +121,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `goalieDataProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `goalieDataProc`(PassedSeasonID int)
+CREATE PROCEDURE `goalieDataProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickGoalieDataTable WHERE SeasonID = PassedSeasonID;
   INSERT INTO QuickGoalieDataTable
@@ -156,7 +156,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `goalieGAAProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `goalieGAAProc`(PassedSeasonID int)
+CREATE PROCEDURE `goalieGAAProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickGoalieGAA WHERE SeasonID = PassedSeasonID;
   
@@ -173,7 +173,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `goalieGameTimeProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `goalieGameTimeProc`(PassedSeasonID int)
+CREATE PROCEDURE `goalieGameTimeProc`(PassedSeasonID int)
 BEGIN
 	DELETE FROM QuickGoalieGameTime WHERE SeasonID = PassedSeasonID;
   
@@ -194,7 +194,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `goalieShutOutProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `goalieShutOutProc`(PassedSeasonID int)
+CREATE PROCEDURE `goalieShutOutProc`(PassedSeasonID int)
 BEGIN
 	DELETE FROM QuickGoalieShutOut WHERE SeasonID = PassedSeasonID;
   INSERT INTO QuickGoalieShutOut
@@ -215,7 +215,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `hookupSummaryProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `hookupSummaryProc`(PassedSeasonID int)
+CREATE PROCEDURE `hookupSummaryProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickHookupSummary WHERE SeasonID = PassedSeasonID;
   
@@ -234,7 +234,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `masterUpdateProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `masterUpdateProc`(PassedSeasonID int)
+CREATE PROCEDURE `masterUpdateProc`(PassedSeasonID int)
 BEGIN
   /* FIRST LEVEL */
   CALL pointDetailProc(PassedSeasonID);
@@ -266,7 +266,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `playerDataProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `playerDataProc`(PassedSeasonID int)
+CREATE PROCEDURE `playerDataProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickPlayerDataTable WHERE SeasonID = PassedSeasonID;
   INSERT INTO QuickPlayerDataTable
@@ -296,7 +296,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `playerGameResultProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `playerGameResultProc`(PassedSeasonID int)
+CREATE PROCEDURE `playerGameResultProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickPlayerGameResult WHERE SeasonID = PassedSeasonID;
   INSERT INTO QuickPlayerGameResult
@@ -315,7 +315,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `playerGameWinningGoalsProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `playerGameWinningGoalsProc`(PassedSeasonID int)
+CREATE PROCEDURE `playerGameWinningGoalsProc`(PassedSeasonID int)
 BEGIN
 	DELETE FROM QuickPlayerGameWinningGoals WHERE SeasonID = PassedSeasonID;
   INSERT INTO QuickPlayerGameWinningGoals
@@ -331,7 +331,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `playerGoalsAssistsProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `playerGoalsAssistsProc`(PassedSeasonID int)
+CREATE PROCEDURE `playerGoalsAssistsProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickPlayerGoalsAssists WHERE SeasonID = PassedSeasonID;
   INSERT INTO QuickPlayerGoalsAssists
@@ -348,7 +348,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `playerHookupProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `playerHookupProc`(PassedSeasonID int)
+CREATE PROCEDURE `playerHookupProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickPlayerHookup WHERE SeasonID = PassedSeasonID;
   
@@ -362,7 +362,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `playerTeamScoresProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `playerTeamScoresProc`(PassedSeasonID int)
+CREATE PROCEDURE `playerTeamScoresProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickPlayerTeamScores WHERE SeasonID = PassedSeasonID;
 	INSERT INTO QuickPlayerTeamScores
@@ -380,7 +380,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `playerWinsLossesByPositionProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `playerWinsLossesByPositionProc`(PassedSeasonID int)
+CREATE PROCEDURE `playerWinsLossesByPositionProc`(PassedSeasonID int)
 BEGIN
 	DELETE FROM QuickPlayerWinsLossesByPosition WHERE SeasonID = PassedSeasonID;
   INSERT INTO QuickPlayerWinsLossesByPosition
@@ -399,7 +399,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `pointDetailProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `pointDetailProc`(PassedSeasonID int)
+CREATE PROCEDURE `pointDetailProc`(PassedSeasonID int)
 BEGIN
   DELETE FROM QuickPointDetail WHERE GameID IN (
   SELECT GameID
@@ -435,7 +435,7 @@ GROUP BY g.SeasonID, g.Playoff, p.PlayerID, tp.Position;
 END$$
 
 DROP PROCEDURE IF EXISTS `teamScoresProc`$$
-CREATE DEFINER=`shl`@`%` PROCEDURE `teamScoresProc`(PassedSeasonID int)
+CREATE PROCEDURE `teamScoresProc`(PassedSeasonID int)
 BEGIN
 	DELETE FROM QuickTeamScores WHERE GameID IN (
   SELECT GameID

@@ -1,0 +1,340 @@
+<?php
+
+/**
+ * NAME:    admin_navigation_test.php
+ * AUTHOR:  Paul Everton
+ * DATE:    Feb 26, 2013
+ * DESCRIPTION: tests checking admin functionality
+ */
+
+class admin_navigation_test extends WebTestCase {
+    
+    //Class Variables
+    private $cs_userName;
+    private $cs_userPassword;
+    private $cs_urlToUse;
+
+    //constructor
+    function admin_navigation_test(){
+        $this->cs_userName = "admin";
+        $this->cs_userPassword = "password";
+        $this->cs_urlToUse = "http://" . $_SERVER['SERVER_NAME'] . "/";
+    }
+    
+    
+    
+    
+    function testRandomClick(){
+        //variable declaration
+        $ls_url = $this->cs_urlToUse;
+        $li_pageClicks = 50;
+        
+        for ( $alpha = 0; $alpha < $li_pageClicks; $alpha += 1) {
+            $this->get($this->cs_urlToUse);
+            //check to make sure no internal error
+            $this->assertNoText("Internal Server Error");
+            
+            //get available URLs
+            $la_urls = $this->getBrowser()->getUrls();
+            //get a random URL
+            $ls_url = $la_urls[rand(0,count($la_urls)-1)];
+        }
+    }
+    
+    /*
+     * NAME:    testUserLogin
+     * PARAMS:  N/A
+     * DESC:    user flow to login
+     */
+    function testUserLogin() {
+        $this->get($this->cs_urlToUse);
+        $this->assertText('SHL', 'SHL was not found.');
+        
+        //fill out the login form
+        $this->setFieldById('username', $this->cs_userName);
+        $this->setFieldById('password', $this->cs_userPassword);
+        $this->clickSubmitById('loginsubmit');
+        
+        $this->assertText('Edit Profile', 'Edit Profile was not found.');
+    }
+
+    
+    /*
+     * NAME:    testUserLogin
+     * PARAMS:  N/A
+     * DESC:    user flow to login
+     */
+    function testAddRadomGames() {
+        //variable declaration
+        $li_gameCount = 16;
+        
+        //login
+        $this->testUserLogin();
+        
+        //add games
+        for ( $alpha = 0; $alpha < $li_gameCount; $alpha += 1) {
+            $this->AddGame($this->CreateRandomGame());
+        }
+    }  
+    
+    
+    
+    
+    
+    function CreateRandomGame(){
+        //variable declaration
+        $goaliePlayer = true;
+        $seasonID = 12;
+        $gameNum = 1;
+        $po_game = new game(0);
+        $teamWhite = new teamPlayerCollection();
+        $teamBlack = new teamPlayerCollection();
+        $teamWhiteGoalCount = 10;
+        $teamBlackGoalCount = 8;
+        
+        $la_params = array();
+        $ls_sql = '
+          SELECT GameNum
+          FROM Game
+          WHERE SeasonID = :seasonID
+          ORDER BY GameNum DESC
+          LIMIT 1';
+        
+        $la_params[':seasonID'] = $seasonID;
+        
+        //querry the DB
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+
+        //get the game num
+        foreach($data as $row) {
+            $gameNum = $row['GameNum'] + 1;
+        }
+        
+        $la_params = array();
+        
+        //set the game time
+        $po_game->setGameDate("2013-02-14");
+        $po_game->setGameStart("2:20 PM");
+        $po_game->setGameEnd("3:20 PM");
+        $po_game->setSeasonID($seasonID);
+        $po_game->setGameNum($gameNum);
+        $po_game->setPlayoff(0);  
+        
+        $ls_sql = '
+            SELECT  p.PlayerID
+            FROM    Player AS p
+            ORDER BY RAND()
+            LIMIT 5'; 
+        
+        //querry the DB
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+
+        //Setup the players
+        foreach($data as $row) {
+            //player selected, create player
+            $teamPlayerCreated = new teamPlayer(0);
+            $teamPlayerCreated->c_color = 2;
+            if($goaliePlayer){
+                $teamPlayerCreated->c_position = 1;
+                $goaliePlayer = false;
+            }else{
+                $teamPlayerCreated->c_position = 2;
+                
+            }
+            $teamPlayerCreated->setPlayerID($row['PlayerID']);
+            //load the object
+            $teamPlayerCreated->load();
+            //add the goalie
+            $teamWhite->add($teamPlayerCreated);
+        }      
+        $po_game->setTeamWhite($teamWhite);
+        
+        
+        
+        //querry the DB
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+
+        $goaliePlayer = true;
+        //Setup the players
+        foreach($data as $row) {
+            //player selected, create player
+            $teamPlayerCreated = new teamPlayer(0);
+            $teamPlayerCreated->c_color = 1;
+            if($goaliePlayer){
+                $teamPlayerCreated->c_position = 1;
+                $goaliePlayer = false;
+            }else{
+                $teamPlayerCreated->c_position = 2;                
+            }
+            $teamPlayerCreated->setPlayerID($row['PlayerID']);
+            //load the object
+            $teamPlayerCreated->load();
+            //add the goalie
+            $teamBlack->add($teamPlayerCreated);
+        }  
+        $po_game->setTeamBlack($teamBlack);
+        
+        
+        //for right now it will be white 10, black 8. TODO: Randomize
+        for ( $alpha = 1; $alpha <= $teamWhiteGoalCount; $alpha += 1) {
+
+            //create the point
+            $pointHolder = new point(0);
+            $pointHolder->c_pointType = 1;
+            $pointHolder->c_pointNum = $alpha;
+            //get random player
+            $po_game->getTeamWhite()->get(rand(0,$po_game->getTeamWhite()->count()-1))->getTeamPlayerPoints()->add($pointHolder);
+
+            //create the point
+            $pointHolder = new point(0);
+            $pointHolder->c_pointType = 2;
+            $pointHolder->c_pointNum = $alpha;
+            //get the player
+            $po_game->getTeamWhite()->get(rand(0,$po_game->getTeamWhite()->count()-1))->getTeamPlayerPoints()->add($pointHolder);
+        }
+        
+        for ( $alpha = 1; $alpha <= $teamBlackGoalCount; $alpha += 1) {
+
+            //create the point
+            $pointHolder = new point(0);
+            $pointHolder->c_pointType = 1;
+            $pointHolder->c_pointNum = $alpha;
+            //get the player
+            $po_game->getTeamBlack()->get(rand(0,$po_game->getTeamBlack()->count()-1))->getTeamPlayerPoints()->add($pointHolder);
+
+
+            //create the point
+            $pointHolder = new point(0);
+            $pointHolder->c_pointType = 2;
+            $pointHolder->c_pointNum = $alpha;
+            //get the player
+            $po_game->getTeamBlack()->get(rand(0,$po_game->getTeamBlack()->count()-1))->getTeamPlayerPoints()->add($pointHolder);
+        }
+
+        
+        return $po_game;
+    }
+    /*
+     * NAME:    AddGame
+     * PARAMS:  N/A
+     * DESC:    user flow to add a game. Assumes user logged in
+     */
+    function AddGame($po_game) {
+        $this->assertTrue($po_game instanceof game, "Game not passed in");
+        
+        $teamWhite = $po_game->getTeamWhite();
+        $teamBlack = $po_game->getTeamBlack();
+        
+        
+        $this->clickLink('Add Game');
+        $this->assertText('Add Game ', 'Add Game was not found.');
+        
+        $this->setFieldById('gamedate', $po_game->getGameDate());
+        
+        $this->setFieldById('gamestarthour', $po_game->getGameStartHour());
+        $this->setFieldById('gamestartminute', $po_game->getGameStartMinute());
+        $this->setFieldById('gamestartampm', $po_game->getGameStartAMPM());
+        
+        $this->setFieldById('gameendhour', $po_game->getGameEndHour());
+        $this->setFieldById('gameendminute', $po_game->getGameEndMinute());
+        $this->setFieldById('gameendampm', $po_game->getGameEndAMPM());    
+        
+        $this->setFieldById('gameplayoff', $po_game->getPlayoff()); 
+        
+        $this->setFieldById('seasonid', $po_game->getSeasonID()); 
+        
+        $this->setFieldById('gamenumber', $po_game->getGameNum()); 
+        $this->assertTrue($po_game->getGameNum() > 0);
+        
+        $this->clickSubmitById('submitnext');
+        
+        $this->assertText('Enter the Teams', 'Enter the Teams was not found.');
+        
+        //loop over the collection of players
+        $playerCount = 0;
+        for ( $beta = 0; $beta < $teamWhite->count(); $beta += 1) {
+            //the player to output
+            $teamPlayer = $teamWhite->get($beta);
+            $idSelector = "";
+
+            if($teamPlayer->c_position == 1){
+                $idSelector = "gwhite";
+            }else{
+                $idSelector = "whitep" . $playerCount;
+                $playerCount++;
+            }
+
+            $this->setFieldById($idSelector, $teamPlayer->getPlayerID()); 
+        }
+        
+        $playerCount = 0;
+        for ( $beta = 0; $beta < $teamBlack->count(); $beta += 1) {
+            //the player to output
+            $teamPlayer = $teamBlack->get($beta);
+            $idSelector = "";
+
+            if($teamPlayer->c_position == 1){
+                $idSelector = "gblack";
+            }else{
+                $idSelector = "blackp" . $playerCount;
+                $playerCount++;
+            }
+
+            $this->setFieldById($idSelector, $teamPlayer->getPlayerID()); 
+        }   
+        
+        
+        
+        $this->clickSubmitById('submitnext');
+        
+        $this->assertText('Team White Goals', 'Enter the Teams was not found.');
+        $this->assertText('Team Black Goals', 'Enter the Teams was not found.');
+
+       
+            
+        $teamWhite = $po_game->getTeamWhite();
+        $teamBlack = $po_game->getTeamBlack();
+       
+        //loop over the scores for display
+        for($beta = 0; $beta < $teamWhite->count(); $beta += 1){
+            $curPlayer = $teamWhite->get($beta);
+            $curPlayerPoints = $curPlayer->getTeamPlayerPoints();
+            $curPlayerID = $curPlayer->getPlayerID();
+            $this->assertTrue($curPlayerID > 0);
+            for($zeta = 0; $zeta < $curPlayerPoints->count(); $zeta += 1){
+                $curPoint = $curPlayerPoints->get($zeta);
+                if($curPoint->c_pointType == 1){
+                    $this->setFieldById("whiteg" . $curPoint->c_pointNum, $curPlayerID);
+                }else{
+                    $this->setFieldById("whitea" . $curPoint->c_pointNum, $curPlayerID);
+                }
+            }
+        }
+        
+        //loop over the scores for display
+        for($beta = 0; $beta < $teamBlack->count(); $beta += 1){
+            $curPlayer = $teamBlack->get($beta);
+            $curPlayerPoints = $curPlayer->getTeamPlayerPoints();
+            $curPlayerID = $curPlayer->getPlayerID();
+            $this->assertTrue($curPlayerID > 0);
+            for($zeta = 0; $zeta < $curPlayerPoints->count(); $zeta += 1){
+                $curPoint = $curPlayerPoints->get($zeta);
+                if($curPoint->c_pointType == 1){
+                    $this->setFieldById("blackg" . $curPoint->c_pointNum, $curPlayerID);
+                }else{
+                    $this->setFieldById("blacka" . $curPoint->c_pointNum, $curPlayerID);
+                }
+            }
+        }
+        
+        
+  
+
+        $this->clickSubmitById('submitnext');
+        $this->assertText('Game Added');
+        //$this->dump($this->getBrowser()->getContent());
+        
+    } 
+    
+}
+?>

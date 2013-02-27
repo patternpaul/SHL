@@ -20,8 +20,11 @@ require_once('simpletest/xml.php');
 class AllFileTests extends TestSuite {
     function __construct() {
         parent::__construct();
+        
+        $this->addFile(dirname(__FILE__) . '/unittests/db_update.php');
         if(!isLive()){
-            $this->addFile(dirname(__FILE__) . '/unittests/db_update.php');
+            $this->addFile(dirname(__FILE__) . '/unittests/db_reload.php');
+            $this->addFile(dirname(__FILE__) . '/unittests/admin_navigation.php');
         }
         $this->collect(dirname(__FILE__) . '/unittests', new SimplePatternCollector('/_test.php/'));
     }

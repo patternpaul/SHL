@@ -222,7 +222,7 @@
                     <input type="hidden" name="loginIndicator" value="1" />
                     <input class="input-small" type="text" name="username" id="username" placeholder="Username" />
                     <input class="input-small" type="password" name="password" id="password" placeholder="Password" />
-                    <button class="btn" type="submit">Sign in</button>
+                    <button class="btn" id="loginsubmit" type="submit">Sign in</button>
 
                 <?php } ?>
               
