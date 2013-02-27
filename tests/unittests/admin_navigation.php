@@ -36,6 +36,7 @@ class admin_navigation_test extends WebTestCase {
             
             //get available URLs
             $la_urls = $this->getBrowser()->getUrls();
+
             //get a random URL
             $ls_url = $la_urls[rand(0,count($la_urls)-1)];
         }

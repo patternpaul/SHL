@@ -24,9 +24,12 @@ class AllFileTests extends TestSuite {
         $this->addFile(dirname(__FILE__) . '/unittests/db_update.php');
         if(!isLive()){
             $this->addFile(dirname(__FILE__) . '/unittests/db_reload.php');
-            $this->addFile(dirname(__FILE__) . '/unittests/admin_navigation.php');
+            $this->addFile(dirname(__FILE__) . '/unittests/db_mass_update.php');
         }
         $this->collect(dirname(__FILE__) . '/unittests', new SimplePatternCollector('/_test.php/'));
+        if(!isLive()){
+            $this->addFile(dirname(__FILE__) . '/unittests/admin_navigation.php');
+        } 
     }
 }
 
