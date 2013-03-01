@@ -32,7 +32,7 @@ class admin_navigation_test extends WebTestCase {
         for ( $alpha = 0; $alpha < $li_pageClicks; $alpha += 1) {
             $this->get($this->cs_urlToUse);
             //check to make sure no internal error
-            $this->assertNoText("Internal Server Error");
+            $this->assertNoText("Internal Server Error", "Error Message");
             
             //get available URLs
             $la_urls = $this->getBrowser()->getUrls();
