@@ -7,9 +7,6 @@
  * DESCRIPTION: Object describing a game
  */
 
-//requires
-
-
 
 class game extends object implements iComparable {
     //class variables
@@ -32,7 +29,10 @@ class game extends object implements iComparable {
     private $c_quickBlackScores;
     
 
-    //Constructors
+    /**
+     * The Game constructor
+     * @param int $p_gameID The game ID
+     */
     function game($p_gameID){
         //set the class variable
         $this->c_gameID = $p_gameID;
@@ -48,24 +48,22 @@ class game extends object implements iComparable {
 
 
 
-      /*
-     * NAME:    getMaxSeason
-     * PARAMS:  N/A
-     * DESC:    gets the maximum season
-     *
+
+    /**
+     * Returns the latest game id
+     * @return int The latest game ID 
      */
     public static function getNewestGame(){
         //variable declaration
         $newestGame = 1;
-
-        //database connection
-        $d = new db(0);
-
-        //fetch the data
-        $data = $d->fetch("
+        $la_params = array();
+        $ls_sql = '
             SELECT  g.GameID
             FROM    Game AS g
-            ORDER BY g.SeasonID DESC, g.Playoff DESC, g.GameNum DESC");
+            ORDER BY g.SeasonID DESC, g.Playoff DESC, g.GameNum DESC';
+
+        //fetch the data
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
 
         $newestGame = $data[0]['GameID'];
 
@@ -73,24 +71,20 @@ class game extends object implements iComparable {
         return $newestGame;
     }
     
-      /*
-     * NAME:    getMaxSeason
-     * PARAMS:  N/A
-     * DESC:    gets the maximum season
-     *
+    /**
+     * Returns the latest season
+     * @return int the latest season
      */
     public static function getMaxSeason(){
         //variable declaration
         $maxSeason = 1;
-        
-        //database connection
-        $d = new db(0);
-
-        //fetch the data
-        $data = $d->fetch("
+        $la_params = array();
+        $ls_sql = "
             SELECT  MAX(g.SeasonID) AS 'MaxSeason'
-            FROM    Game AS g");
-
+            FROM    Game AS g";
+        
+        //fetch the data
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
@@ -102,20 +96,13 @@ class game extends object implements iComparable {
     }
 
 
-   /*
-     * NAME:    load
-     * PARAMS:  N/A
-     * DESC:    Loads the game based off the game ID
-     *
+    /**
+     * Loads the object based off the SQL
      */
     public function load(){
-        //load the game bassed off the ID
-
-        //database connection
-        $d = new db(0);
-
-        //fetch the data
-        $data = $d->fetch("
+        //variable declaration
+        $la_params = array();
+        $ls_sql = "
             SELECT  g.GameDate,
                     g.GameEnd,
                     g.GameID,
@@ -131,13 +118,15 @@ class game extends object implements iComparable {
             INNER JOIN QuickGameWinners AS gw ON g.GameID = gw.GameID
             INNER JOIN QuickGameTimeLength AS gtl ON g.GameID = gtl.GameID
             INNER JOIN QuickGameScores AS qgs ON g.GameID = qgs.GameID
-            WHERE   g.GameID = " . db::fmt($this->c_gameID,1));
-
+            WHERE   g.GameID = :gameID";
+        $la_params["gameID"] = $this->c_gameID;
+        
+        //get the data
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
             $this->c_gameID = $row['GameID'];
-            
             $this->c_gameDate = $row['GameDate'];
             $this->c_gameEnd = $row['GameEnd'];
             $this->c_gameNum = $row['GameNum'];
@@ -149,76 +138,79 @@ class game extends object implements iComparable {
             $this->c_gameSecondsTime = $row['GameSeconds'];
             $this->c_quickWhiteScores = $row['WhitePoints'];
             $this->c_quickBlackScores = $row['BlackPoints'];
-
         }
     }
 
-     /*
-     * NAME:    update
-     * PARAMS:  N/A
-     * DESC:    updates a game
-     *
+    /**
+     * Updates the Game
      */
     public function update(){
+        //variable declaration
+        $la_params = array();
+        $ls_sql = "UPDATE  Game
+                SET     GameDate = :gameDate,
+                        GameEnd = :gameEnd,
+                        GameNum = :gameNum,
+                        GameStart = :gameStart,
+                        Playoff = :gamePlayoff,
+                        SeasonID = :seasonID,
+                WHERE   GameID = :gameID";
+        
+        $la_params["gameDate"] = $this->c_gameDate;
+        $la_params["gameEnd"] = $this->c_gameEnd;
+        $la_params["gameNum"] = $this->c_gameNum;
+        $la_params["gameStart"] = $this->c_gameStart;
+        $la_params["gamePlayoff"] = $this->c_playoff;
+        $la_params["seasonID"] = $this->c_seasonID;
+        $la_params["gameID"] = $this->c_gameID;
+
+            
         //check to ensure no errors occured
         if(!$this->hasError()){
             //validate to see if data should be entered
             $this->validate();
-
-            //database connection
-            $d = new db(0);
-
-
-            //update the data
-            $data1 = $d->exec("
-                UPDATE  Game
-                SET     GameDate = " . db::fmt($this->c_gameDate,0) . ",
-                        GameEnd = " . db::fmt($this->c_gameEnd,3) . ",
-                        GameNum = " . db::fmt($this->c_gameNum,1) . ",
-                        GameStart = " . db::fmt($this->c_gameStart,3) . ",
-                        Playoff = " . db::fmt($this->c_playoff,1) . ",
-                        SeasonID = " . db::fmt($this->c_seasonID,1) . "
-                WHERE   GameID = " . db::fmt($this->c_gameID,1));
+            
+            //update
+            DBFac::getDB()->sql($ls_sql, $la_params);
 
             //indicate that the game was updated
-            $this->addDBMessage("Game Updated", "Game not Updated! Database Error!", $data1, $d);
-      
+            $this->addMessage("Game Updated");
         }
     }
 
 
-      /*
-     * NAME:   validate
-     * PARAMS:  N/A
-     * DESC:    validates to ensure game has not already been added
-     *
+    /**
+     * Validates to make sure the game has not already been added
      */
     public function validate(){
         //variable declaration
-        $sqlString = "";
-
+        $ls_sql = "";
+        $la_params = array();
         //build the string
-        $sqlString = "
+        $ls_sql = "
             SELECT  g.GameID
             FROM    Game AS g
-            WHERE   SeasonID = " . db::fmt($this->c_seasonID,1) . "
-            AND     GameNum = " . db::fmt($this->c_gameNum,1) . "
-            AND     Playoff = " . db::fmt($this->c_playoff,1);
+            WHERE   SeasonID = :seasonID
+            AND     GameNum = :gameNum
+            AND     Playoff = :gamePlayoff";
+        
+        $la_params["gamePlayoff"] = $this->c_playoff;
+        $la_params["seasonID"] = $this->c_seasonID;
+        $la_params["gameNum"] = $this->c_gameNum;
+        
         
         //do not include this game into the check
         if($this->c_gameID > 0){
             $sqlString = $sqlString . "
-                AND GameID != " . db::fmt($this->c_gameID,1);
+                AND GameID != :gameID";
+            $la_params["gameID"] = $this->c_gameID;
         }
 
-        //database connection
-        $d = new db(0);
-
         //fetch the data
-        $data = $d->fetch($sqlString);
+        $data = DBFac::getDB()->sql($ls_sql, $la_params);
 
         //check to see if any rows were returned
-        if($d->rows_affected > 0){
+        if(count($data) > 0){
             //this game has already been created, throw error
             $this->errorOccured();
             $this->addMessage("This game has already been entered into SHL. Please modify this entry.");

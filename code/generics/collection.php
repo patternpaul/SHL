@@ -12,6 +12,7 @@ class collection extends object {
     //class variables
     public $col_arr;
     public $sql_call;
+    public $sql_args;
     const base_sql = "";
     
     //Constructors

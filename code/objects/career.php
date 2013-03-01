@@ -15,7 +15,10 @@ class career extends statCollection {
     const   playoff = 1;
     const   regularSeason = 0;
 
-    //Constructors
+    /**
+     * The career Collection
+     * @param int $p_playerID the player id
+     */
     function career($p_playerID){
         //initialize class variables
         parent::__construct();
@@ -28,11 +31,17 @@ class career extends statCollection {
             FROM    Player AS p
             INNER JOIN TeamPlayer AS tp ON p.PlayerID = tp.PlayerID
             INNER JOIN Game AS g ON tp.GameID = g.GameID
-            WHERE   p.PlayerID = " . db::fmt($p_playerID,1) .
-            " AND    tp.Position = 2" .
-            " ORDER BY g.SeasonID DESC";
+            WHERE   p.PlayerID = :playerID
+            AND    tp.Position = 2 
+            ORDER BY g.SeasonID DESC";
+        $this->sql_args = array();
+        $this->sql_args["playerID"] = $this->c_playerID;
     }
 
+    /**
+     * Gets collection readdy for regular player's career 
+     * @param bit $p_playOff indicates if regular season or playoff
+     */
     function getPlayoff($p_playOff){
         $this->c_playoff = $p_playOff;
         $this->sql_call = "
@@ -40,12 +49,17 @@ class career extends statCollection {
             FROM    Player AS p
             INNER JOIN TeamPlayer AS tp ON p.PlayerID = tp.PlayerID
             INNER JOIN Game AS g ON tp.GameID = g.GameID
-            WHERE   p.PlayerID = " . db::fmt($this->c_playerID,1) .
-            " AND    g.Playoff = " . db::fmt($p_playOff,1) .
-            " AND    tp.Position = 2" .
-            " ORDER BY g.SeasonID DESC";
+            WHERE   p.PlayerID = :playerID
+            AND    g.Playoff = :playoff
+            AND    tp.Position = 2
+            ORDER BY g.SeasonID DESC";
+        $this->sql_args["playoff"] = $this->c_playoff;
     }
 
+    /**
+     * Sets the collection up for a goalie's career games, whether its regular season or playoffs
+     * @param int $p_playOff The playoff indicator
+     */
     function getGoaliePlayoff($p_playOff){
         $this->c_playoff = $p_playOff;
         $this->c_goalie = true;
@@ -54,12 +68,16 @@ class career extends statCollection {
             FROM    Player AS p
             INNER JOIN TeamPlayer AS tp ON p.PlayerID = tp.PlayerID
             INNER JOIN Game AS g ON tp.GameID = g.GameID
-            WHERE   p.PlayerID = " . db::fmt($this->c_playerID,1) .
-            " AND    g.Playoff = " . db::fmt($p_playOff,1) .
-            " AND    tp.Position = 1" .
-            " ORDER BY g.SeasonID DESC";
+            WHERE   p.PlayerID = :playerID
+            AND    g.Playoff = :playoff
+            AND    tp.Position = 1
+            ORDER BY g.SeasonID DESC";
+        $this->sql_args["playoff"] = $this->c_playoff;
     }
 
+    /**
+     * Set up collection to get all goalie career games.
+     */
     function getGoalieCareer(){
         $this->c_goalie = true;
         $this->sql_call = "
@@ -67,11 +85,14 @@ class career extends statCollection {
             FROM    Player AS p
             INNER JOIN TeamPlayer AS tp ON p.PlayerID = tp.PlayerID
             INNER JOIN Game AS g ON tp.GameID = g.GameID
-            WHERE   p.PlayerID = " . db::fmt($this->c_playerID,1) .
-            " AND    tp.Position = 1" .
-            " ORDER BY g.SeasonID DESC";
+            WHERE   p.PlayerID = :playerID
+            AND    tp.Position = 1
+            ORDER BY g.SeasonID DESC";
     }
 
+    /**
+     * Get all goalie games that were played as a player
+     */
     function getGoalieCareerAsPlayer(){
         $this->c_goalie = true;
         $this->c_asPlayer = true;
@@ -80,15 +101,13 @@ class career extends statCollection {
             FROM    Player AS p
             INNER JOIN TeamPlayer AS tp ON p.PlayerID = tp.PlayerID
             INNER JOIN Game AS g ON tp.GameID = g.GameID
-            WHERE   p.PlayerID = " . db::fmt($this->c_playerID,1) .
-            " AND    tp.Position = 1" .
-            " ORDER BY g.SeasonID DESC";
+            WHERE   p.PlayerID = :playerID
+            AND    tp.Position = 1
+            ORDER BY g.SeasonID DESC";
     }
 
-    /*
-     * NAME:    load
-     * PARAMS:  N/A
-     * DESC:    loads the collection based off the SQL call
+    /**
+     * Loads the collection
      */
     public function load(){
         //variable declaration
@@ -98,7 +117,7 @@ class career extends statCollection {
         $d = new db(0);
 
         //fetch the data
-        $data = $d->fetch($this->sql_call);
+        $data = DBFac::getDB()->sql($this->sql_call, $this->sql_args); 
 
 
         //fill the data
@@ -133,10 +152,8 @@ class career extends statCollection {
 
 
 
-    /*
-     * NAME:    fillScores
-     * PARAMS:  N/A
-     * DESC:    will fill the assist and goal counts
+    /**
+     * Fills the statCollection data collecting points
      */
     public function fillScores(){
         //variable definition
