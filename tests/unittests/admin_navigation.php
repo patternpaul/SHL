@@ -332,7 +332,7 @@ class admin_navigation_test extends WebTestCase {
   
 
         $this->clickSubmitById('submitnext');
-        $this->assertText('Game Added');
+        $this->assertText('Game Added', "Game Added was not found");
         //$this->dump($this->getBrowser()->getContent());
         
     } 
