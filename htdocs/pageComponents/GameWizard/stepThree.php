@@ -3,8 +3,8 @@
     $whiteTeam = $gameGet->getTeamWhite();
     $blackTeam = $gameGet->getTeamBlack();
     
-    $whitePoints = $gameGet->getWhiteScores();
-    $blackPoints = $gameGet->getBlackScores();
+    $whitePoints = $gameGet->getTeamWhiteScores();
+    $blackPoints = $gameGet->getTeamBlackScores();
 
     $foundPoint;
     $foundDefault = 0;

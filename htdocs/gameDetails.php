@@ -11,8 +11,8 @@
     $currentGame = new game($url_gameID);
     $teamWhite = $currentGame->getTeamWhite();
     $teamBlack = $currentGame->getTeamBlack();
-    $whiteScores = $currentGame->getWhiteScores();
-    $blackScores = $currentGame->getBlackScores();
+    $whiteScores = $currentGame->getTeamWhiteScores();
+    $blackScores = $currentGame->getTeamBlackScores();
 
     $teamPlayer;
 

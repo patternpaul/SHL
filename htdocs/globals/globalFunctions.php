@@ -20,6 +20,32 @@ function isLive(){
 }
 
 
+/**
+ * Custom assert failure function
+ * @param string $file
+ * @param int $line
+ * @param string $code
+ * @param string $desc 
+ */
+function my_assert_handler($file, $line, $code, $desc = null)
+{
+    echo "Assertion failed at $file:$line: $code";
+    if ($desc) {
+        echo ": $desc";
+    }
+    echo "\n";
+}
+
+
+/**
+ * Returns a string representation of a boolean
+ * @param boolean $pb_bool
+ * @return string 
+ */
+function boolToString($pb_bool){
+    return ($pb_bool) ? 'true' : 'false';
+}
+
 /*
  * NAME:    headerDisplay
  * PARAMS:  $p_id = the id indicating if it's an add or edit
