@@ -219,150 +219,103 @@ class game extends object implements iComparable {
 
 
 
-    /*
-     * NAME:    insert
-     * PARAMS:  N/A
-     * DESC:    inserts a new game
-     *
+    /**
+     * Inserts a game
      */
     public function insert(){
+        $ls_sql = "";
+        $la_params = array();
+        //build the string
+        $ls_sql = "
+            INSERT INTO  Game (GameDate, GameEnd, GameNum, GameStart, Playoff, SeasonID)
+            VALUES (:gameDate,
+                    :gameEnd,
+                    :gameNum,
+                    :gameStart,
+                    :playoff,
+                    :seasonID)";
+        
+        
         //check to ensure no errors occured
         if(!$this->hasError()){
             //validate to see if data should be entered
             $this->validate();
             
-            //database connection
-            $d = new db(0);
+            //set the params
+            $la_params["gameDate"] = $this->c_gameDate;
+            $la_params["gameEnd"] = $this->c_gameEnd;
+            $la_params["gameNum"] = $this->c_gameNum;
+            $la_params["gameStart"] = $this->c_gameStart;
+            $la_params["playoff"] = $this->c_playoff;
+            $la_params["seasonID"] = $this->c_seasonID;
 
-
-            //update the data
-            $data = $d->exec("
-                INSERT INTO  Game (GameDate, GameEnd, GameNum, GameStart, Playoff, SeasonID)
-                VALUES (" . db::fmt($this->c_gameDate,0) . ",
-                        " . db::fmt($this->c_gameEnd,3) . ",
-                        " . db::fmt($this->c_gameNum,1) . ",
-                        " . db::fmt($this->c_gameStart,3) . ",
-                        " . db::fmt($this->c_playoff,1) . ",
-                        " . db::fmt($this->c_seasonID,1) . ")");
+            //exec the querry on the DB
+            DBFac::getDB()->sql($ls_sql, $la_params);
 
             //set the id inserted
-            $this->c_gameID = $d->last_id;
+            $this->c_gameID = DBFac::getDB()->pdo->lastinsertid();
 
             //indicate that the game was inserted
-            $this->addDBMessage("Game Added", "Game not Added! Database Error!", $data, $d);
+            $this->addMessage("Game Added");
         }
     }
 
-    /*
-     * NAME:    UpdateMasterCall
-     * PARAMS:  N/A
-     * DESC:    calls the master update
-     *
+    
+    
+    /**
+     * Updates all summary data for the specific passed in season
+     * @param int $p_seasonID the season id
      */
     public function UpdateMasterCall($p_seasonID){
+        //variable declaration
+        $ls_sql = "";
+        $la_params = array();
+        //build the string
+        $ls_sql = "
+            CALL masterUpdateProc(:seasonID)";
+        
         //check to ensure no errors occured
         if(!$this->hasError()){
-
-            
-            //database connection
-            $d = new db(0);
-            //full update
-            $data = $d->exec("CALL masterUpdateProc(" . db::fmt($p_seasonID,1) . ")");
-
+            $la_params["seasonID"] = $p_seasonID;
+            //call the master update proc
+            DBFac::getDB()->sql($ls_sql, $la_params);
         }
     }    
-    
-    /*
-     * NAME:    UpdateQuickDataTable
-     * PARAMS:  N/A
-     * DESC:    updates the Quick Data Table with data from the view
-     *
-     */
-    public function UpdateQuickDataTable(){
-        //check to ensure no errors occured
-        if(!$this->hasError()){
-
-            
-            //database connection
-            $d = new db(0);
 
 
-            //empty the table
-            $data = $d->exec("DELETE FROM QuickPlayerDataTable");
-
-            //update the content
-            $data = $d->exec("INSERT INTO QuickPlayerDataTable (SeasonID, Playoff, PlayerID, Goals, Assists, Wins, Losses, WinningGoals)
-SELECT SeasonID, Playoff, PlayerID, Goals, Assists, Wins, Losses, WinningGoals
-FROM QuickPlayerData");
-        }
-    }    
-    
-    
-    
-
-
-
-
-     /*
-     * NAME:    UpdateQuickGoalieDataTable
-     * PARAMS:  N/A
-     * DESC:    updates the Quick Data Table with data from the view
-     *
-     */
-    public function UpdateQuickGoalieDataTable(){
-        //check to ensure no errors occured
-        if(!$this->hasError()){
-
-
-            //database connection
-            $d = new db(0);
-
-
-            //empty the table
-            $data = $d->exec("DELETE FROM QuickGoalieDataTable");
-
-            //update the content
-            $data = $d->exec("INSERT INTO QuickGoalieDataTable (PlayerID, SeasonID, Playoff, GoalsAgainst, Wins, Losses, Goals, Assists, ShutOutCount, TotalGameSeconds)
-SELECT PlayerID, SeasonID, Playoff, GoalsAgainst, Wins, Losses, Goals, Assists, ShutOutCount, TotalGameSeconds
-FROM QuickGoalieData");
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-    /*
-     * NAME:    fullGameUpdate
-     * PARAMS:  N/A
-     * DESC:    logic to do a full game update
-     *
+    /**
+     * The full game update flow
      */
     public function fullGameUpdate(){
+        //variable declaration
+        $ls_sql = "";
+        $la_params = array();
+
+        
         //delete all points and players associated with the game
         //check to ensure no errors occured
         if(!$this->hasError()){
-            //database connection
-            $d = new db(0);
-
-            //Delete the points
-            $data = $d->exec("
+            //build the string
+            $ls_sql = "
                 DELETE FROM Point
                 WHERE TeamPlayerID IN (
                     Select TeamPlayerID
                     FROM TeamPlayer
-                    WHERE GameID = " . $this->c_gameID . "
-                )");
+                    WHERE GameID = :gameID)";
+            $la_params["gameID"] = $this->c_gameID;
+            
+            //Delete the points
+            $data = DBFac::getDB()->sql($ls_sql, $la_params);
             
 
-            $data = $d->exec("
+            //delete any team players related to the game
+            $ls_sql = "
                 DELETE FROM TeamPlayer
-                WHERE GameID = " . $this->c_gameID);
+                WHERE GameID = :gameID)";
+            $la_params = array();
+            $la_params["gameID"] = $this->c_gameID;
+            
+            $data = DBFac::getDB()->sql($ls_sql, $la_params);
 
 
             //update the game
@@ -373,13 +326,8 @@ FROM QuickGoalieData");
             //insert black team collection
             $this->insertTeamCollection($this->getTeamBlack());
             
-            
-            
-            
-            //refresh the quick table
-            //$this->UpdateQuickDataTable();
-            //$this->UpdateQuickGoalieDataTable();
-            
+           
+            //Update 2 seasons if the game was changing seasons, if not only update 1
             if(($this->c_previousSeasonID != -1) && ($this->c_previousSeasonID != $this->c_seasonID)){
                 $this->UpdateMasterCall($this->c_seasonID);
                 $this->UpdateMasterCall($this->c_previousSeasonID);
@@ -387,13 +335,9 @@ FROM QuickGoalieData");
                 $this->UpdateMasterCall($this->c_seasonID);
             }
             
-            
-            
+            //refil the records
             $recordObj = new records();
             $recordObj->recordRefil();
-          
-            
-
         }
     }
 
