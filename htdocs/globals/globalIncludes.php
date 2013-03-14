@@ -15,6 +15,11 @@ require_once(BASE_PATH.'/packages/fatfree/lib/smtp.php');
     require_once(dirname(__FILE__).'/globalSecurity.php');
 if(isLive()){
     F3::set('ONERROR','myErrorHandler');
+    //set the assertions
+    assert_options(ASSERT_ACTIVE, 0);
+    assert_options(ASSERT_WARNING, 0);
+    assert_options(ASSERT_BAIL, 0);
+    
 }else{
     //set the assertions
     assert_options(ASSERT_ACTIVE, 1);
