@@ -527,7 +527,7 @@ class game extends object implements iComparable {
         
         //do not include this game into the check
         if($this->c_gameID > 0){
-            $sqlString = $sqlString . "
+            $ls_sql = $ls_sql . "
                 AND GameID != :gameID";
             $la_params["gameID"] = $this->c_gameID;
         }
