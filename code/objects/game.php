@@ -479,7 +479,7 @@ class game extends object implements iComparable {
                         GameNum = :gameNum,
                         GameStart = :gameStart,
                         Playoff = :gamePlayoff,
-                        SeasonID = :seasonID,
+                        SeasonID = :seasonID
                 WHERE   GameID = :gameID";
         
         $la_params["gameDate"] = $this->c_gameDate;
@@ -637,7 +637,7 @@ class game extends object implements iComparable {
             //delete any team players related to the game
             $ls_sql = "
                 DELETE FROM TeamPlayer
-                WHERE GameID = :gameID)";
+                WHERE GameID = :gameID";
             $la_params = array();
             $la_params["gameID"] = $this->c_gameID;
             
