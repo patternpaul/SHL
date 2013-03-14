@@ -1153,8 +1153,14 @@ class game extends object implements iComparable {
      * @param string $p_passedVal 
      */
     public function setGameDate($p_passedVal){
-        //set the value
-        $this->c_gameDate = $p_passedVal;
+        if(strtotime($p_passedVal)){
+            //set the value
+            $this->c_gameDate = $p_passedVal;
+        }else{
+            //game date is not a valid date
+            $this->errorOccured();
+            $this->addMessage("The Game date is not valid or set. It must be YYYY-MM-DD.");  
+        }
     }
 
     /**
