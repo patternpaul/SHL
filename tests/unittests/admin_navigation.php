@@ -65,24 +65,103 @@ class admin_navigation_test extends WebTestCase {
      * PARAMS:  N/A
      * DESC:    user flow to login
      */
-    function testAddRadomGames() {
+    function AddRadomGames() {
         //variable declaration
         $li_gameCount = 16;
+        $lo_randomGame;
+        $lo_randomTeam;
+        $lo_player;
+        $lo_playerFound;
+        $la_playerPoints;
+        $li_teamColor;
+        
+        
+        $lo_prePlayer;
+        $li_prePlayerGoals;
+        $li_prePlayerAssists;
+        $li_prePlayerPoints;
+        $ls_prePlayerName;
+        
         
         //login
         $this->testUserLogin();
         
-        //add games
-        for ( $alpha = 0; $alpha < $li_gameCount; $alpha += 1) {
-            $this->AddGame($this->CreateRandomGame());
+        
+        $lo_randomGame = $this->CreateRandomGame();
+        
+        $li_teamColor = game::getRandomTeamColor();
+        //get a random team
+        if($li_teamColor == game::TEAMBLACK){
+            $lo_randomTeam = $lo_randomGame->getTeamBlack();
+        }else{
+            $lo_randomTeam = $lo_randomGame->getTeamWhite();
         }
+        
+        //get a random player from that team
+        $lo_player = $lo_randomTeam->get(rand(0,$lo_randomTeam->count() - 1));
+        
+        //pre pull that players info
+        $lo_prePlayer = new player($lo_player->getPlayerID());
+        $this->dump($lo_player->getPlayerID());
+        $lo_prePlayer->load();
+        $lo_prePlayer->quickLoad(12, 0);
+        
+        $ls_prePlayerName = $lo_prePlayer->getShortName();
+        $this->dump("Name: " . $ls_prePlayerName);
+        $li_prePlayerGoals = $lo_prePlayer->getQuickGoalCount();
+        $this->dump("Goals: " . $li_prePlayerGoals);
+        $li_prePlayerAssists = $lo_prePlayer->getQuickAssistCount();
+        $this->dump("Assists: " . $li_prePlayerAssists);
+        
+        
+        $this->AddGame($lo_randomGame);     
+        
+        
+        //add games
+        for ( $alpha = 1; $alpha < $li_gameCount; $alpha += 1) {
+            $lo_randomGame = $this->CreateRandomGame();
+            
+            //find the player
+            $lo_playerFound = $lo_randomGame->getTeamBlack()->getPlayer($lo_player->getPlayerID());
+            if(is_null($lo_playerFound)){
+                $lo_playerFound = $lo_randomGame->getTeamWhite()->getPlayer($lo_player->getPlayerID());
+            }
+            
+            if(!is_null($lo_playerFound)){
+                //We found the player
+                $la_playerPoints = $lo_playerFound->getTeamPlayerPoints();
+                for($zeta = 0; $zeta < $la_playerPoints->count(); $zeta += 1){
+                    $lo_player->getTeamPlayerPoints()->add($la_playerPoints->get($zeta));
+                }
+            }
+            
+            $this->AddGame($lo_randomGame);
+        }
+        
+        //go and check that the points added for the player are properly added
+        $curPlayerPoints = $lo_player->getTeamPlayerPoints();
+        for($zeta = 0; $zeta < $curPlayerPoints->count(); $zeta += 1){
+            $curPoint = $curPlayerPoints->get($zeta);
+            if($curPoint->c_pointType == 1){
+                $li_prePlayerGoals++;
+            }else{
+                $li_prePlayerAssists++;
+            }
+        }
+
+        $ls_checkText = $ls_prePlayerName . " " . $li_prePlayerGoals . " " . $li_prePlayerAssists;
+        
+        $this->assertText($ls_checkText, $ls_checkText . ' was not found.');
     }  
     
     
     
     
-    
-    function CreateRandomGame(){
+    /**
+     * returns a randomly created game
+     * @return game the random game created
+     */
+    private function CreateRandomGame(){
         //variable declaration
         $goaliePlayer = true;
         $seasonID = 12;

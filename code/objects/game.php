@@ -109,6 +109,11 @@ class game extends object implements iComparable {
     private $c_quickBlackScores;
     
 
+    const TEAMBLACK = 1;
+    const TEAMWHITE = 2;
+    
+    
+    
     /**
      * The Game constructor
      * @param int $p_gameID The game ID
@@ -722,6 +727,19 @@ class game extends object implements iComparable {
     }
 
 
+    /**
+     * Returns a random team color
+     * @return int team color 
+     */
+    public static function getRandomTeamColor(){
+        $la_teamColors = array();
+        $la_teamColors[] = game::TEAMBLACK;
+        $la_teamColors[] = game::TEAMWHITE;
+        
+        return $la_teamColors[array_rand($la_teamColors)];
+    }
+    
+    
    /**
     * Returns the collection of Team White's team players
     * @return teamPlayerCollection collection of white team players 
@@ -730,7 +748,7 @@ class game extends object implements iComparable {
         //check to see if the collection has been created
         if(!isset($this->c_teamWhite)){
             //create the collection
-            $this->c_teamWhite = $this->getTeamCollection(2);
+            $this->c_teamWhite = $this->getTeamCollection(game::TEAMWHITE);
         }
 
         //return the team white collection
@@ -753,7 +771,7 @@ class game extends object implements iComparable {
         //check to see if the collection has been created
         if(!isset($this->c_teamBlack)){
             //create the collection
-            $this->c_teamBlack = $this->getTeamCollection(1);
+            $this->c_teamBlack = $this->getTeamCollection(game::TEAMBLACK);
         }
         //return the team white collection
         return $this->c_teamBlack;
@@ -772,7 +790,7 @@ class game extends object implements iComparable {
      * @param int $p_colorID the color id
      * @return teamPlayerCollection the team player collection
      */
-    private function getTeamCollection($p_colorID){
+    public function getTeamCollection($p_colorID){
         //variable declaration
         $returnCollection;
 
@@ -814,7 +832,7 @@ class game extends object implements iComparable {
         //check to see if the collection has been created
         if(!isset($this->c_blackScores)){
             //create the collection
-            $this->c_blackScores = $this->getTeamScoreCollection(1);
+            $this->c_blackScores = $this->getTeamScoreCollection(game::TEAMBLACK);
         }
 
         //return the team white collection
@@ -830,7 +848,7 @@ class game extends object implements iComparable {
         //check to see if the collection has been created
         if(!isset($this->c_whiteScores)){
             //create the collection
-            $this->c_whiteScores = $this->getTeamScoreCollection(2);
+            $this->c_whiteScores = $this->getTeamScoreCollection(game::TEAMWHITE);
         }
 
         //return the team white collection

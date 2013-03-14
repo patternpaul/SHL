@@ -222,7 +222,7 @@
                         <tr>
                             <td><a href='/seasonDetails.php?seasonid=<?php echo $currentSeason->c_seasonID; ?>'><?php echo $currentSeason->c_seasonID; ?></a></td>
                             <td>
-                                <a href=\"gameDetails.php?gameid=<?php echo $currentTeamPlayer->c_gameID; ?>\">
+                                <a href="/gameDetails.php?gameid=<?php echo $currentTeamPlayer->c_gameID; ?>">
                                     <?php echo $playoffChar . $currentGame->getGameNum(); ?>
                                 </a>
                             </td>
