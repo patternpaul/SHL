@@ -25,7 +25,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="description" content="SHL, Sunday Hockey League" />
     <meta name="keywords" content="shl, sunday, hockey, floor, floorhockey, league" />
-    <meta name="author" content="Paul Everton  / Original design: Andreas Viklund - http://andreasviklund.com/" />
+    <meta name="author" content="Paul Everton" />
     
 
 
