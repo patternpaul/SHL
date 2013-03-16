@@ -59,7 +59,7 @@ class about extends object {
         
 
         //querry the DB
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {

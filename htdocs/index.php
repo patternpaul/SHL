@@ -8,7 +8,7 @@
     $postCol->load();
 
     //potential
- 
+
 ?>
 
 <div class="span11">

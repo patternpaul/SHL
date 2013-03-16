@@ -24,8 +24,17 @@ class iniconfig {
         
         //return the DB
         return self::$vars[$ps_configs];
-
     }
-
+    static function getConfigsToUse(){
+        $db_setting = "db_settings";
+        if(isLive()){
+            $db_setting = "db_settings";
+        }else{
+            $db_setting = "test_db_settings";
+        }
+  
+        //return the DB
+        return $db_setting;
+    }
 }
 ?>

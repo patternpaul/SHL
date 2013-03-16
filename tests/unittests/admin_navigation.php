@@ -183,7 +183,7 @@ class admin_navigation_test extends WebTestCase {
         $la_params[':seasonID'] = $seasonID;
         
         //querry the DB
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //get the game num
         foreach($data as $row) {
@@ -207,7 +207,7 @@ class admin_navigation_test extends WebTestCase {
             LIMIT 5'; 
         
         //querry the DB
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //Setup the players
         foreach($data as $row) {
@@ -232,7 +232,7 @@ class admin_navigation_test extends WebTestCase {
         
         
         //querry the DB
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         $goaliePlayer = true;
         //Setup the players

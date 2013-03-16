@@ -13,12 +13,7 @@ class DBFac {
     static function getDB($ps_dbName = 'shlDB'){
         if(!self::$vars[$ps_dbName]){
             $configs = iniconfig::getConfigs();
-            $db_setting = "db_settings";
-            if(isLive()){
-                $db_setting = "db_settings";
-            }else{
-                $db_setting = "test_db_settings";
-            }
+            $db_setting = iniconfig::getConfigsToUse();
 
             //instantiate the DB
             self::$vars[$ps_dbName] = DBFac::makeDB($configs[$db_setting]["host"], $configs[$db_setting]["db_name"], $configs[$db_setting]["user"], $configs[$db_setting]["password"]);
@@ -37,7 +32,7 @@ class DBFac {
      * @param string $ps_password password
      */
     private static function makeDB($ps_host, $ps_dbname, $ps_user, $ps_password){
-        return new db_ff(
+        return new DB\SQL(
                     'mysql:host=' . $ps_host . 
                     ';port=3306;dbname=' . $ps_dbname ,
                     $ps_user,

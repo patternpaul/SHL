@@ -131,25 +131,25 @@ function getAutoloadString($arrayOfLocs) {
  * DESC:    Loads the player based off the player ID
  *
  */
-function __autoload($className) {
-    $possibilities = array(
-        APPLICATION_PATH.'db'.DIRECTORY_SEPARATOR.$className.'.php',
-        APPLICATION_PATH.'globals'.DIRECTORY_SEPARATOR.$className.'.php',
-        APPLICATION_PATH.'objects'.DIRECTORY_SEPARATOR.$className.'.php',
-        APPLICATION_PATH.'pageComponents'.DIRECTORY_SEPARATOR.$className.'.php',
-        APPLICATION_PATH.'generics'.DIRECTORY_SEPARATOR.$className.'.php',
-        APPLICATION_PATH.'smallff'.DIRECTORY_SEPARATOR.$className.'.php',
-        '/usr/share/php' .DIRECTORY_SEPARATOR.$className.'.php'
-    );
-    foreach ($possibilities as $file) {
-
-        if (file_exists($file)) {
-
-            require_once($file);
-        }
-    }
-
-}
+//function __autoload($className) {
+//    $possibilities = array(
+//        APPLICATION_PATH.'db'.DIRECTORY_SEPARATOR.$className.'.php',
+//        APPLICATION_PATH.'globals'.DIRECTORY_SEPARATOR.$className.'.php',
+//        APPLICATION_PATH.'objects'.DIRECTORY_SEPARATOR.$className.'.php',
+//        APPLICATION_PATH.'pageComponents'.DIRECTORY_SEPARATOR.$className.'.php',
+//        APPLICATION_PATH.'generics'.DIRECTORY_SEPARATOR.$className.'.php',
+//        APPLICATION_PATH.'smallff'.DIRECTORY_SEPARATOR.$className.'.php',
+//        '/usr/share/php' .DIRECTORY_SEPARATOR.$className.'.php'
+//    );
+//    foreach ($possibilities as $file) {
+//
+//        if (file_exists($file)) {
+//
+//            require_once($file);
+//        }
+//    }
+//
+//}
 
 /*
  * NAME:    gameAddEditGetGame

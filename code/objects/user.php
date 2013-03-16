@@ -204,7 +204,7 @@ class user extends player{
         $la_params[':password'] = $passHash;
 
         //querry the DB
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
 
         if(count($data) == 1){
@@ -241,7 +241,7 @@ class user extends player{
         $la_params[':playerID'] = $this->getPlayerID();
 
         //querry the DB
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
@@ -295,7 +295,7 @@ class user extends player{
                 $la_params[':playerID'] = $this->getPlayerID();
 
                 //querry the DB
-                $data = DBFac::getDB()->sql($ls_sql, $la_params);
+                $data = DBFac::getDB()->exec($ls_sql, $la_params);
             }else{
                 $ls_sql = '
                     UPDATE  Player
@@ -309,7 +309,7 @@ class user extends player{
                 $la_params[':playerID'] = $this->getPlayerID();
 
                 //querry the DB
-                $data = DBFac::getDB()->sql($ls_sql, $la_params);
+                $data = DBFac::getDB()->exec($ls_sql, $la_params);
             }
 
         }
@@ -351,7 +351,7 @@ class user extends player{
             $la_params[':playerID'] = $this->getPlayerID();
 
             //querry the DB
-            $data = DBFac::getDB()->sql($ls_sql, $la_params);
+            $data = DBFac::getDB()->exec($ls_sql, $la_params);
             
         }
     }

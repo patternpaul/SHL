@@ -39,7 +39,26 @@ function myErrorHandler() {
 
 } // end func myErrorHandler 
      
+ /*
+ * NAME:    myErrorHandlerTest
+ * PARAMS:  N/A
+ * DESC:    used to handle errors
+ */
+function myErrorHandlerTest() {
+    $errorMsg = '';
+    $errorAr = F3::get('ERROR');
+
+
+    //create the email string
+    $errorMsg = $errorMsg . "\r\n ERROR CODE: " . $errorAr['code'];
+    $errorMsg = $errorMsg . "\r\n ERROR TEXT: " . $errorAr['text'];
+    $errorMsg = $errorMsg . "\r\n ERROR Stack Trace: " . print_r($errorAr['trace']);
     
+    echo $errorMsg;
+    
+
+} // end func myErrorHandler 
+        
     
 /*
  * NAME:    sendErrorMessage

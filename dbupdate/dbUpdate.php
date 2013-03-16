@@ -86,7 +86,7 @@ class dbUpdate {
             LIMIT 1';
 
             //query the DB
-            $data = DBFac::getDB()->sql($ls_sql);
+            $data = DBFac::getDB()->exec($ls_sql);
 
             if ($data && count($data) > 0) {
                 $major = $data[0]['Major'];
@@ -177,18 +177,21 @@ class dbUpdate {
         $mra_filepath = BASE_PATH . '/dbupdate/testdata/shldata.sql';
         $mra_cmds;
         $mra_args = array();
-        $ls_dbName = DBFac::getDB()->dbname;
+        
+        $configs = iniconfig::getConfigs();
+        $db_setting = iniconfig::getConfigsToUse();
+        $ls_dbName = $configs[$db_setting]["db_name"];
         $lb_mra;
 
         //empty out all tables
-        $la_tableRows = DBFac::getDB()->sql("SHOW TABLES", array());
+        $la_tableRows = DBFac::getDB()->exec("SHOW TABLES", array());
         //loop over tables and empty them out
         foreach($la_tableRows as $la_row){
             //protect specific tables
             if(strpos($this->cs_protectedTables, $la_row['Tables_in_' . $ls_dbName]) > 0){
                 
             }else{
-                DBFac::getDB()->sql("TRUNCATE " . "`".$la_row['Tables_in_' . $ls_dbName]."`", array());
+                DBFac::getDB()->exec("TRUNCATE " . "`".$la_row['Tables_in_' . $ls_dbName]."`", array());
             }
         }
         
@@ -197,7 +200,7 @@ class dbUpdate {
         //create the args
         $mra_args = $this->GetComandArgs($mra_cmds);
         
-        $lb_mra = DBFac::getDB()->sql($mra_cmds, $mra_args);
+        $lb_mra = DBFac::getDB()->exec($mra_cmds, $mra_args);
         
         return ($lb_mra);
     } 
@@ -232,7 +235,7 @@ class dbUpdate {
         $cmds[] = $ls_sql;
         $args[count($cmds)-1] = $la_params;
 
-        return DBFac::getDB()->sql($cmds, $args);
+        return DBFac::getDB()->exec($cmds, $args);
     }
 
     /*
@@ -243,7 +246,7 @@ class dbUpdate {
     private function TableExists($tablename) {
 
         $ls_sql = 'SHOW TABLES LIKE "' . $tablename . '"';
-        $data = DBFac::getDB()->sql($ls_sql);
+        $data = DBFac::getDB()->exec($ls_sql);
 
         if ($data) {
             return true;

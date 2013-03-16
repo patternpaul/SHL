@@ -117,7 +117,7 @@ class career extends statCollection {
         $d = new db(0);
 
         //fetch the data
-        $data = DBFac::getDB()->sql($this->sql_call, $this->sql_args); 
+        $data = DBFac::getDB()->exec($this->sql_call, $this->sql_args); 
 
 
         //fill the data

@@ -25,7 +25,7 @@ class DbMassUpdateTest extends UnitTestCase {
         $li_maxSeason = 0;
         
         //querry the DB
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
         
         //get the season
         foreach($data as $row) {
@@ -38,7 +38,7 @@ class DbMassUpdateTest extends UnitTestCase {
         for ( $alpha = 1; $alpha <= $li_maxSeason; $alpha += 1) {
             $la_params["seasonID"] = $alpha;
             //full update
-            $data = DBFac::getDB()->sql($ls_sql, $la_params);
+            $data = DBFac::getDB()->exec($ls_sql, $la_params);
         }
         
         //reload the records

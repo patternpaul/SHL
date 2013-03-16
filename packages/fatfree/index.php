@@ -1,53 +1,70 @@
 <?php
 
-require __DIR__.'/lib/base.php';
+$f3=require('lib/base.php');
 
-F3::set('CACHE',TRUE);
-F3::set('DEBUG',1);
-F3::set('UI','ui/');
+$f3->set('DEBUG',3);
+$f3->set('UI','ui/');
 
-F3::route('GET /',
-	function() {
-		F3::set('modules',
-			array(
-				'apc'=>
-					'Cache engine',
-				'gd'=>
-					'Graphics plugin',
-				'hash'=>
-					'Framework core',
-				'imap'=>
-					'Authentication',
-				'json'=>
-					'Various plugins',
-				'ldap'=>
-					'Authentication',
-				'memcache'=>
-					'Cache engine',
-				'mongo'=>
-					'M2 MongoDB mapper',
-				'pcre'=>
-					'Framework core',
-				'pdo_mssql'=>
-					'SQL handler, Axon ORM, Authentication',
-				'pdo_mysql'=>
-					'SQL handler, Axon ORM, Authentication',
-				'pdo_pgsql'=>
-					'SQL handler, Axon ORM, Authentication',
-				'pdo_sqlite'=>
-					'SQL handler, Axon ORM, Authentication',
-				'session'=>
-					'Framework core',
-				'sockets'=>
-					'Network plugin',
-				'xcache'=>
-					'Cache engine'
-			)
+$f3->route('GET /',
+	function($f3) {
+		$classes=array(
+			'Base'=>
+				array(
+					'hash',
+					'json',
+					'session'
+				),
+			'Cache'=>
+				array(
+					'apc',
+					'memcache',
+					'wincache',
+					'xcache'
+				),
+			'DB\SQL'=>
+				array(
+					'pdo',
+					'pdo_dblib',
+					'pdo_mssql',
+					'pdo_mysql',
+					'pdo_odbc',
+					'pdo_pgsql',
+					'pdo_sqlite',
+					'pdo_sqlsrv'
+				),
+			'DB\Jig'=>
+				array('json'),
+			'DB\Mongo'=>
+				array(
+					'json',
+					'mongo'
+				),
+			'Auth'=>
+				array('ldap','pdo'),
+			'Image'=>
+				array('gd'),
+			'Lexicon'=>
+				array('iconv'),
+			'SMTP'=>
+				array('openssl'),
+			'Web'=>
+				array('curl','openssl','simplexml'),
+			'Web\Geo'=>
+				array('geoip','json'),
+			'Web\OpenID'=>
+				array('json','simplexml'),
+			'Web\Pingback'=>
+				array('dom','xmlrpc')
 		);
-		echo Template::serve('welcome.htm');
+		$f3->set('classes',$classes);
+		echo View::instance()->render('welcome.htm');
 	}
 );
 
-F3::run();
+$f3->route('GET /userref',
+	function() {
+		echo View::instance()->render('userref.htm');
+	}
+);
 
-?>
+$f3->run();

@@ -201,7 +201,7 @@ class game extends object implements iComparable {
             ORDER BY g.SeasonID DESC, g.Playoff DESC, g.GameNum DESC';
 
         //fetch the data
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         $newestGame = $data[0]['GameID'];
 
@@ -225,7 +225,7 @@ class game extends object implements iComparable {
             FROM    Game AS g";
         
         //fetch the data
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
@@ -257,7 +257,7 @@ class game extends object implements iComparable {
             LIMIT 1";
         
         //fetch the data
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
@@ -320,7 +320,7 @@ class game extends object implements iComparable {
         $la_params["seasonID"] = $pi_seasonID;
         
         //fetch the data
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
@@ -380,7 +380,7 @@ class game extends object implements iComparable {
         $la_params["seasonID"] = $pi_seasonID;
         
         //fetch the data
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
@@ -448,7 +448,7 @@ class game extends object implements iComparable {
         $la_params["gameID"] = $this->c_gameID;
         
         //get the data
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //fill the data
         foreach($data as $row) {
@@ -497,7 +497,7 @@ class game extends object implements iComparable {
             $this->validate();
             
             //update
-            DBFac::getDB()->sql($ls_sql, $la_params);
+            DBFac::getDB()->exec($ls_sql, $la_params);
 
             //indicate that the game was updated
             $this->addMessage("Game Updated");
@@ -533,7 +533,7 @@ class game extends object implements iComparable {
         }
 
         //fetch the data
-        $data = DBFac::getDB()->sql($ls_sql, $la_params);
+        $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
         //check to see if any rows were returned
         if(count($data) > 0){
@@ -576,7 +576,7 @@ class game extends object implements iComparable {
             $la_params["seasonID"] = $this->c_seasonID;
 
             //exec the querry on the DB
-            DBFac::getDB()->sql($ls_sql, $la_params);
+            DBFac::getDB()->exec($ls_sql, $la_params);
 
             //set the id inserted
             $this->c_gameID = DBFac::getDB()->pdo->lastinsertid();
@@ -604,7 +604,7 @@ class game extends object implements iComparable {
         if(!$this->hasError()){
             $la_params["seasonID"] = $p_seasonID;
             //call the master update proc
-            DBFac::getDB()->sql($ls_sql, $la_params);
+            DBFac::getDB()->exec($ls_sql, $la_params);
         }
     }    
 
@@ -631,7 +631,7 @@ class game extends object implements iComparable {
             $la_params["gameID"] = $this->c_gameID;
             
             //Delete the points
-            $data = DBFac::getDB()->sql($ls_sql, $la_params);
+            $data = DBFac::getDB()->exec($ls_sql, $la_params);
             
 
             //delete any team players related to the game
@@ -641,7 +641,7 @@ class game extends object implements iComparable {
             $la_params = array();
             $la_params["gameID"] = $this->c_gameID;
             
-            $data = DBFac::getDB()->sql($ls_sql, $la_params);
+            $data = DBFac::getDB()->exec($ls_sql, $la_params);
 
 
             //update the game
