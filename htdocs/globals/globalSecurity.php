@@ -15,30 +15,85 @@
  * PARAMS:  N/A
  * DESC:    used to handle errors
  */
-function myErrorHandler() {
+function myErrorHandlerZ() {
     $errorMsg = '';
     $errorAr = F3::get('ERROR');
-
+echo 'ERROR HANDLER!!!LOZL';
 
     //create the email string
-    $errorMsg = $errorMsg . "\r\n ERROR CODE: " . $errorAr['code'];
-    $errorMsg = $errorMsg . "\r\n ERROR TITLE: " . $errorAr['title'];
-    $errorMsg = $errorMsg . "\r\n ERROR TEXT: " . $errorAr['text'];
-    $errorMsg = $errorMsg . "\r\n ERROR Stack Trace: " . $errorAr['trace'];
-    $errorMsg = $errorMsg . "\r\n SERVER ARRAY \r\n". print_r($_SERVER, true);
-    
-    if($errorAr['code'] == '404'){
-        echo "<meta http-equiv=\"refresh\" content=\"0; url=/404.php\">";
-        die();
-    }else{
-       sendErrorMessage($errorMsg); 
-       echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
-        die();
-    }
+//    $errorMsg = $errorMsg . "\r\n ERROR CODE: " . $errorAr['code'];
+//    $errorMsg = $errorMsg . "\r\n ERROR TITLE: " . $errorAr['title'];
+//    $errorMsg = $errorMsg . "\r\n ERROR TEXT: " . $errorAr['text'];
+//    $errorMsg = $errorMsg . "\r\n ERROR Stack Trace: " . $errorAr['trace'];
+//    $errorMsg = $errorMsg . "\r\n SERVER ARRAY \r\n". print_r($_SERVER, true);
+$errorMsg = $errorMsg . "\r\n ERROR ARRAY \r\n". print_r($errorAr, true);
+    echo $errorMsg;
+//    if($errorAr['code'] == '404'){
+//        echo "<meta http-equiv=\"refresh\" content=\"0; url=/404.php\">";
+//        die();
+//    }else{
+//       sendErrorMessage($errorMsg); 
+//       echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
+//        die();
+//    }
     
 
 } // end func myErrorHandler 
      
+
+// error handler function
+function myErrorHandler($errno, $errstr, $errfile, $errline)
+{
+    if (!(error_reporting() & $errno)) {
+        // This error code is not included in error_reporting
+        return;
+    }
+
+    $errorMsg = '';
+    
+    switch ($errno) {
+    case E_USER_ERROR:
+        $errorMsg = $errorMsg . "<b>My ERROR</b> [$errno] $errstr<br />\n";
+        $errorMsg = $errorMsg . "  Fatal error on line $errline in file $errfile";
+        $errorMsg = $errorMsg . ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+        $errorMsg = $errorMsg . "Aborting...<br />\n";
+        echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
+        sendErrorMessage($errorMsg); 
+        exit(1);
+        die();
+        break;
+
+    case E_USER_WARNING:
+        $errorMsg = $errorMsg . "<b>My WARNING</b> [$errno] $errstr<br />\n";
+        sendErrorMessage($errorMsg); 
+        break;
+
+    case E_USER_NOTICE:
+        $errorMsg = $errorMsg . "<b>My NOTICE</b> [$errno] $errstr<br />\n";
+        sendErrorMessage($errorMsg); 
+        break;
+
+    default:
+        $errorMsg = $errorMsg . "Unknown error type: [$errno] $errstr<br />\n";
+        $errorMsg = $errorMsg . "  Fatal error on line $errline in file $errfile";
+        $errorMsg = $errorMsg . ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+        $errorMsg = $errorMsg . "Aborting...<br />\n";
+        echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
+        sendErrorMessage($errorMsg); 
+                exit(1);
+        die();
+        break;
+    }
+    echo "MESSAGE: " . $errorMsg;
+    /* Don't execute PHP internal error handler */
+    return true;
+}
+
+
+
+
+
+
  /*
  * NAME:    myErrorHandlerTest
  * PARAMS:  N/A
@@ -78,18 +133,13 @@ function sendErrorMessage($p_message) {
     $port = $configs["error_email"]["port"];
     $username = $configs["error_email"]["from_email"];
     $password = $configs["error_email"]["from_email_pw"];
-
-    $headers = array ('From' => $from,
-      'To' => $to,
-      'Subject' => $subject);
-    $smtp = Mail::factory('smtp',
-      array ('host' => $host,
-        'port' => $port,
-        'auth' => true,
-        'username' => $username,
-        'password' => $password));
-
-    $mail = $smtp->send($to, $headers, $body);
+     
+    $mail=new SMTP($host,$port,'SSL',$username,$password);
+    $mail->set('from','<'.$from.'>');
+    $mail->set('to','<'.$to.'>');
+    $mail->set('subject',$subject);
+    $mail->send($body);
+    
 }  
 
 

@@ -90,7 +90,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `getQuickPlayerData`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getQuickPlayerData`(	 
+CREATE PROCEDURE `getQuickPlayerData`(	 
 	  IN PlayerIDParm	int,
           IN PlayoffParm      int,
 	  IN SeasonIDParm    int
@@ -422,7 +422,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `simpleproc`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `simpleproc`()
+CREATE PROCEDURE `simpleproc`()
 BEGIN
 SELECT g.SeasonID, g.Playoff, p.PlayerID, tp.Position,
             SUM(CASE pt.PointType WHEN 1 THEN 1 ELSE 0 END) AS Goals,
@@ -457,7 +457,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `testProc`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `testProc`()
+CREATE PROCEDURE `testProc`()
 BEGIN
 
 SELECT g.SeasonID, g.Playoff, p.PlayerID, tp.Position,

@@ -859,6 +859,7 @@ final class Base {
 		);
 		if (ob_get_level())
 			ob_end_clean();
+
 		if ($this->hive['ONERROR'])
 			// Execute custom error handler
 			$this->call($this->hive['ONERROR'],$this);
