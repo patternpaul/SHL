@@ -10,6 +10,11 @@ class DBFac {
 
 
 
+    /**
+     *
+     * @param type $ps_dbName
+     * @return DB\SQL 
+     */
     static function getDB($ps_dbName = 'shlDB'){
         if(!self::$vars[$ps_dbName]){
             $configs = iniconfig::getConfigs();

@@ -65,7 +65,7 @@ class admin_navigation_test extends WebTestCase {
      * PARAMS:  N/A
      * DESC:    user flow to login
      */
-    function AddRadomGames() {
+    function testAddRadomGames() {
         //variable declaration
         $li_gameCount = 16;
         $lo_randomGame;
@@ -100,9 +100,14 @@ class admin_navigation_test extends WebTestCase {
         //get a random player from that team
         $lo_player = $lo_randomTeam->get(rand(0,$lo_randomTeam->count() - 1));
         
+        while($lo_player->c_position == 1){
+            $lo_player = $lo_randomTeam->get(rand(0,$lo_randomTeam->count() - 1));
+        }
+        
         //pre pull that players info
         $lo_prePlayer = new player($lo_player->getPlayerID());
-        $this->dump($lo_player->getPlayerID());
+        $li_prePlayerID = $lo_player->getPlayerID();
+        $this->dump("player ID: " . $li_prePlayerID);
         $lo_prePlayer->load();
         $lo_prePlayer->quickLoad(12, 0);
         
@@ -114,11 +119,28 @@ class admin_navigation_test extends WebTestCase {
         $this->dump("Assists: " . $li_prePlayerAssists);
         
         
+        $la_playerPoints = $lo_player->getTeamPlayerPoints();
+        $this->dump("Game #: " . $lo_randomGame->getGameNum());
+        $this->dump("Player ID : " . $lo_prePlayer->getPlayerID());
+        $this->dump("Team Player Points Count: " . $la_playerPoints->count());
+            for($zeta = 0; $zeta < $la_playerPoints->count(); $zeta += 1){
+                
+                $curPoint = $la_playerPoints->get($zeta);
+                $this->dump("Point Type: " . $curPoint->c_pointType);
+                if($curPoint->c_pointType == 1){
+                    $li_prePlayerGoals++;
+                }else{
+                    $li_prePlayerAssists++;
+                }
+            }
+
+        
         $this->AddGame($lo_randomGame);     
         
         
         //add games
         for ( $alpha = 1; $alpha < $li_gameCount; $alpha += 1) {
+            $lo_playerFound = null;
             $lo_randomGame = $this->CreateRandomGame();
             
             //find the player
@@ -128,30 +150,63 @@ class admin_navigation_test extends WebTestCase {
             }
             
             if(!is_null($lo_playerFound)){
-                //We found the player
-                $la_playerPoints = $lo_playerFound->getTeamPlayerPoints();
-                for($zeta = 0; $zeta < $la_playerPoints->count(); $zeta += 1){
-                    $lo_player->getTeamPlayerPoints()->add($la_playerPoints->get($zeta));
+                if($lo_playerFound->c_position != 1){
+                    $this->dump("Game #: " . $lo_randomGame->getGameNum());
+                    $this->dump("Player ID : " . $lo_prePlayer->getPlayerID());
+                    $this->dump("Player Name Found: " . $lo_playerFound->getShortName());
+                    //We found the player
+                    $la_playerPoints = $lo_playerFound->getTeamPlayerPoints();
+                    $this->dump("Team Player Points Count: " . $la_playerPoints->count());
+                    for($zeta = 0; $zeta < $la_playerPoints->count(); $zeta += 1){
+                        $curPoint = $la_playerPoints->get($zeta);
+                        $this->dump("Point Type: " . $curPoint->c_pointType);
+                        if($curPoint->c_pointType == 1){
+                            $li_prePlayerGoals++;
+                        }else{
+                            $li_prePlayerAssists++;
+                        }
+                    }
                 }
             }
             
             $this->AddGame($lo_randomGame);
         }
         
-        //go and check that the points added for the player are properly added
-        $curPlayerPoints = $lo_player->getTeamPlayerPoints();
-        for($zeta = 0; $zeta < $curPlayerPoints->count(); $zeta += 1){
-            $curPoint = $curPlayerPoints->get($zeta);
-            if($curPoint->c_pointType == 1){
-                $li_prePlayerGoals++;
-            }else{
-                $li_prePlayerAssists++;
-            }
-        }
+//        //go and check that the points added for the player are properly added
+//        $curPlayerPoints = $lo_player->getTeamPlayerPoints();
+//        for($zeta = 0; $zeta < $curPlayerPoints->count(); $zeta += 1){
+//            $curPoint = $curPlayerPoints->get($zeta);
+//            if($curPoint->c_pointType == 1){
+//                $li_prePlayerGoals++;
+//            }else{
+//                $li_prePlayerAssists++;
+//            }
+//        }
 
-        $ls_checkText = $ls_prePlayerName . " " . $li_prePlayerGoals . " " . $li_prePlayerAssists;
+        $lo_postPlayer = new player($li_prePlayerID);
+        $this->dump("player ID: " . $li_prePlayerID);
+        $lo_postPlayer->load();
+        $lo_postPlayer->quickLoad(12, 0);
         
-        $this->assertText($ls_checkText, $ls_checkText . ' was not found.');
+        $ls_postPlayerName = $lo_postPlayer->getShortName();
+        $this->dump("Name: " . $ls_postPlayerName);
+        $li_postPlayerGoals = $lo_postPlayer->getQuickGoalCount();
+        $this->dump("Goals: " . $li_postPlayerGoals);
+        $li_postPlayerAssists = $lo_postPlayer->getQuickAssistCount();
+        $this->dump("Assists: " . $li_postPlayerAssists);
+       
+
+        $this->dump("Name: " . $ls_prePlayerName);
+
+        $this->dump("Goals: " . $li_prePlayerGoals);
+
+        $this->dump("Assists: " . $li_prePlayerAssists);
+        
+        
+        $this->assertTrue($ls_prePlayerName == $ls_postPlayerName);
+        $this->assertTrue($li_prePlayerGoals == $li_postPlayerGoals);
+        $this->assertTrue($li_prePlayerAssists == $li_postPlayerAssists);
+        
     }  
     
     

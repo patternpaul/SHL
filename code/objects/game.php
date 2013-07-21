@@ -579,7 +579,7 @@ class game extends object implements iComparable {
             DBFac::getDB()->exec($ls_sql, $la_params);
 
             //set the id inserted
-            $this->c_gameID = DBFac::getDB()->pdo->lastinsertid();
+            $this->c_gameID = DBFac::getDB()->lastinsertid();
 
             //indicate that the game was inserted
             $this->addMessage("Game Added");
