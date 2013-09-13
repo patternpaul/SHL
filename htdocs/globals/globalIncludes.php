@@ -23,7 +23,7 @@ ini_set('error_reporting', E_ALL);
     
 
 if(isLive()){
-    $old_error_handler = set_error_handler("myErrorHandler");
+    $old_error_handler = set_error_handler("myErrorHandlerTest");
     //set the assertions
     assert_options(ASSERT_ACTIVE, 0);
     assert_options(ASSERT_WARNING, 0);
