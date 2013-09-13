@@ -105,9 +105,9 @@ function myErrorHandlerTest() {
 
 
     //create the email string
-    $errorMsg = $errorMsg . "\r\n ERROR CODE: " . $errorAr['code'];
-    $errorMsg = $errorMsg . "\r\n ERROR TEXT: " . $errorAr['text'];
-    $errorMsg = $errorMsg . "\r\n ERROR Stack Trace: " . print_r($errorAr['trace']);
+    $errorMsg = $errorMsg . "\r\n ERROR CODE: " . F3::get('ERROR.code');
+    $errorMsg = $errorMsg . "\r\n ERROR TEXT: " . F3::get('ERROR.title');
+    $errorMsg = $errorMsg . "\r\n ERROR Stack Trace: " . F3::get('ERROR.trace'));
         echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
         sendErrorMessage($errorMsg); 
                 exit(1);
