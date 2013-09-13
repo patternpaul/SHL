@@ -108,7 +108,10 @@ function myErrorHandlerTest() {
     $errorMsg = $errorMsg . "\r\n ERROR CODE: " . $errorAr['code'];
     $errorMsg = $errorMsg . "\r\n ERROR TEXT: " . $errorAr['text'];
     $errorMsg = $errorMsg . "\r\n ERROR Stack Trace: " . print_r($errorAr['trace']);
-    
+        echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
+        sendErrorMessage($errorMsg); 
+                exit(1);
+        die();
     echo $errorMsg;
     
 
