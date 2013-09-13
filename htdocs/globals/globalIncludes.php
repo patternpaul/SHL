@@ -23,6 +23,7 @@ ini_set('error_reporting', E_ALL);
     
 
 if(isLive()){
+    F3::set('DEBUG',3);
     $old_error_handler = set_error_handler("myErrorHandlerTest");
     //set the assertions
     assert_options(ASSERT_ACTIVE, 0);
