@@ -782,7 +782,7 @@ AND IDTypeID = 2");
                 if($row["GameResult"] == "W"){
                     $curCount++;
                 }else{
-                   $curCount = 0;
+                   $curCount = 1;
                 }   
             }
      
