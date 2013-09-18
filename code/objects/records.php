@@ -770,7 +770,7 @@ AND IDTypeID = 2");
                     $quickFlip = true;
                 }
                 $curID = $row["PlayerID"];
-                $curCount = 0;
+                $curCount = 1;
                 $shouldStore = false;
             }
             
