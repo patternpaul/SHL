@@ -30,8 +30,8 @@ class scoreCollection extends collection {
 
         parent::__construct();
         $this->sql_call = $this::base_sql .
-                            " AND tp.GameID = " . $this->c_gameID .
-                            " AND tp.Color = " . $this->c_color .
+                            " AND tp.GameID = " . db::fmt($this->c_gameID,1) .
+                            " AND tp.Color = " . db::fmt($this->c_color,1) .
                             " ORDER BY p.PointNum";
     }
 
