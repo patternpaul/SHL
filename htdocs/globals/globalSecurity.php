@@ -40,6 +40,27 @@ $errorMsg = $errorMsg . "\r\n ERROR ARRAY \r\n". print_r($errorAr, true);
 
 } // end func myErrorHandler 
      
+// error handler function
+function myErrorHandlerTwo($errno, $errstr, $errfile, $errline)
+{
+
+    default:
+        $errorMsg = $errorMsg . "Unknown error type: [$errno] $errstr<br />\n";
+        $errorMsg = $errorMsg . "  Fatal error on line $errline in file $errfile";
+        $errorMsg = $errorMsg . ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+            $errorMsg = $errorMsg . "\r\n SERVER ARRAY \r\n". print_r($_SERVER, true);
+            $errorMsg = $errorMsg . "\r\n SESSION ARRAY \r\n". print_r($_SESSION, true);
+            
+        $errorMsg = $errorMsg . "Aborting...<br />\n";
+ 
+        sendErrorMessage($errorMsg); 
+        F3::reroute('/error-404-admin.htm');
+        break;
+    }
+    /* Don't execute PHP internal error handler */
+    return true;
+}
+
 
 // error handler function
 function myErrorHandler($errno, $errstr, $errfile, $errline)
