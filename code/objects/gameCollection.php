@@ -14,12 +14,13 @@
 class gameCollection extends collection {
     //class variables
     const base_sql = "SELECT g.GameID FROM Game AS g ORDER BY g.SeasonID DESC, g.Playoff DESC, g.GameNum DESC";
-
+    $_sqlParams;
     //Constructors
     function gameCollection(){
         //initialize class variables
         parent::__construct();
         $this->sql_call = $this::base_sql;
+        $this->_sqlParams = array();
     }
 
     /*
@@ -32,7 +33,9 @@ class gameCollection extends collection {
             SELECT g.GameID
             FROM Game AS g
             ORDER BY g.SeasonID DESC, g.Playoff DESC, g.GameNum DESC
-            LIMIT " . $p_gameCount;
+            LIMIT :GameCount";
+        $this->_sqlParams = array();
+        $this->_sqlParams[":GameCount"] = $p_gameCount;
     }
 
     /*
@@ -44,10 +47,14 @@ class gameCollection extends collection {
         $this->sql_call = "
             SELECT g.GameID
             FROM Game AS g ";
+            $this->_sqlParams = array();
             if($p_seasonID > 0){
-                $this->sql_call = $this->sql_call . " WHERE g.SeasonID = " . $p_seasonID;
+                $this->sql_call = $this->sql_call . " WHERE g.SeasonID = :SeasonID";
+        
+                $this->_sqlParams[":SeasonID"] = $p_seasonID;
             }
             $this->sql_call = $this->sql_call . " ORDER BY g.SeasonID DESC, g.Playoff DESC, g.GameNum DESC";
+
     }
 
     /*
@@ -59,11 +66,9 @@ class gameCollection extends collection {
         //variable declaration
         $gameCreated;
 
-        //database connection
-        $d = new db(0);
 
         //fetch the data
-        $data = $d->fetch($this->sql_call);
+        $data = DBFac::getDB()->exec($this->sql_call, $this->_sqlParams);
 
 
         //fill the data
