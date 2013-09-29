@@ -63,7 +63,7 @@ class recordCollection extends collection {
             FROM Record AS r
             INNER JOIN RecordHolder AS RH ON r.RecordID = RH.RecordID
             INNER JOIN RecordHolderID AS RHI ON RH.RecordHolderID = RHI.RecordHolderID
-            WHERE RHI.RepresentativeID = " . $p_playerID .
+            WHERE RHI.RepresentativeID = " .  db::fmt($p_playerID ,1) .
             " AND RHI.IDTypeID = 2";
         //database connection
         $d = new db(0);
