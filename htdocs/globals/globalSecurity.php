@@ -80,8 +80,9 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
                     $errorMsg = $errorMsg . "\r\n SERVER ARRAY \r\n". print_r($_SERVER, true);
             $errorMsg = $errorMsg . "\r\n SESSION ARRAY \r\n". print_r($_SESSION, true);
         $errorMsg = $errorMsg . "Aborting...<br />\n";
-        echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
-        sendErrorMessage($errorMsg); 
+        //echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
+        sendErrorMessage($errorMsg);
+        F3::reroute('/errorPage.php');
         exit(1);
         die();
         break;
@@ -103,8 +104,9 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
                     $errorMsg = $errorMsg . "\r\n SERVER ARRAY \r\n". print_r($_SERVER, true);
             $errorMsg = $errorMsg . "\r\n SESSION ARRAY \r\n". print_r($_SESSION, true);
         $errorMsg = $errorMsg . "Aborting...<br />\n";
-        echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
+        //echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
         sendErrorMessage($errorMsg); 
+        F3::reroute('/errorPage.php');
                 exit(1);
         die();
         break;
