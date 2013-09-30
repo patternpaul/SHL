@@ -44,7 +44,7 @@ $errorMsg = $errorMsg . "\r\n ERROR ARRAY \r\n". print_r($errorAr, true);
 function myErrorHandlerTwo($errno, $errstr, $errfile, $errline)
 {
 
-    default:
+
         $errorMsg = $errorMsg . "Unknown error type: [$errno] $errstr<br />\n";
         $errorMsg = $errorMsg . "  Fatal error on line $errline in file $errfile";
         $errorMsg = $errorMsg . ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
@@ -54,9 +54,9 @@ function myErrorHandlerTwo($errno, $errstr, $errfile, $errline)
         $errorMsg = $errorMsg . "Aborting...<br />\n";
  
         sendErrorMessage($errorMsg); 
-        F3::reroute('/error-404-admin.htm');
-        break;
-    }
+        F3::reroute('/errorPage.php');
+
+
     /* Don't execute PHP internal error handler */
     return true;
 }
