@@ -14,7 +14,7 @@
 class gameCollection extends collection {
     //class variables
     const base_sql = "SELECT g.GameID FROM Game AS g ORDER BY g.SeasonID DESC, g.Playoff DESC, g.GameNum DESC";
-    $_sqlParams;
+    private $_sqlParams;
     //Constructors
     function gameCollection(){
         //initialize class variables
