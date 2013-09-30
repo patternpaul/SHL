@@ -77,6 +77,8 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
         $errorMsg = $errorMsg . "<b>My ERROR</b> [$errno] $errstr<br />\n";
         $errorMsg = $errorMsg . "  Fatal error on line $errline in file $errfile";
         $errorMsg = $errorMsg . ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+                    $errorMsg = $errorMsg . "\r\n SERVER ARRAY \r\n". print_r($_SERVER, true);
+            $errorMsg = $errorMsg . "\r\n SESSION ARRAY \r\n". print_r($_SESSION, true);
         $errorMsg = $errorMsg . "Aborting...<br />\n";
         echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
         sendErrorMessage($errorMsg); 
@@ -98,6 +100,8 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
         $errorMsg = $errorMsg . "Unknown error type: [$errno] $errstr<br />\n";
         $errorMsg = $errorMsg . "  Fatal error on line $errline in file $errfile";
         $errorMsg = $errorMsg . ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+                    $errorMsg = $errorMsg . "\r\n SERVER ARRAY \r\n". print_r($_SERVER, true);
+            $errorMsg = $errorMsg . "\r\n SESSION ARRAY \r\n". print_r($_SESSION, true);
         $errorMsg = $errorMsg . "Aborting...<br />\n";
         echo "<meta http-equiv=\"refresh\" content=\"0; url=/errorPage.php\">";
         sendErrorMessage($errorMsg); 
