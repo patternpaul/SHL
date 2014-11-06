@@ -113,18 +113,7 @@ class db {
 
     switch($this->db_type) {
       case "mysql":
-        if (!$this->cnn = mysql_connect($this->server,$user,$pwd )) {
-          $this->log .= "mysql_connect() failed<br />";
-          $this->log .= mysql_error()."<br />";
-          $this->db_error = true;
-          return false;
-        }
-        if (!mysql_select_db($this->db,$this->cnn)) {
-          $this->log .= "Could not select database named ".$this->db."<br />";
-          $this->log .= mysql_error()."<br />";
-          $this->db_error = true;
-          return false;
-        }
+	    $this->cnn = DBFac::getDB();
         break;
       case "postgres":
         if (!$this->cnn = pg_connect("host=$this->server dbname=$this->dbuser=$user password=$pwd")) {
@@ -170,7 +159,8 @@ class db {
     $this->log .= "SQL: ".$this->sql."<br />";
     $data = "";
     if ($this->ttl == "0") {
-      return $data = $this->getFromDB();
+		$this->connect();
+      return $data = DBFac::getDB()->exec($this->sql, array());
     } else {
       if (strlen(trim($this->name)) == 0) { $this->name = MD5($this->sql); }
       $this->filename = $this->dir."db_".$this->name;
@@ -204,6 +194,7 @@ class db {
   function exec($sql="") {
     $this->log .= "---------------------------------<br />exec() called<br />";
     $this->rows_affected = 0;
+	$this->connect();
     if (!$sql) {
       $this->log .= "OOPS: You need to pass a SQL statement!<br />";
       $this->db_error = true;
@@ -211,15 +202,9 @@ class db {
     }
     $this->sql = $sql;
     $this->log .= "SQL: ".$this->sql."<br />";
-    if (!$this->cnn) { if (!$this->connect()) { return false; } }
     switch($this->db_type) {
       case "mysql":
-        if (!$res = @mysql_query($this->sql, $this->cnn)) {
-          $this->log .= "Query execution failed.<br />";
-          $this->log .= mysql_error()."<br />";
-          $this->db_error = true;
-          return false;
-        }
+        DBFac::getDB()->exec($sql, array());
         break;
       case "postgres":
         if (!$res = @pg_query($this->cnn, $this->sql)) {
@@ -245,8 +230,9 @@ class db {
     */
     switch($this->db_type) {
       case "mysql":
-        $this->last_id = mysql_insert_id();
-        $this->rows_affected = mysql_affected_rows($this->cnn);
+        $this->last_id = DBFac::getDB()->lastinsertid();
+		$ins_id = $this->last_id;
+        $this->rows_affected = 1;
         $this->log .= $this->rows_affected." rows affected<br />";
         return $this->rows_affected;
       case "postgres":
@@ -281,6 +267,7 @@ class db {
         break;
       case 1:
         if(!is_numeric($tmp)){
+			var_dump(debug_backtrace());
             throw new Exception('Non numeric being sent to database.');
         }
         break;

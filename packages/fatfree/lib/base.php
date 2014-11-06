@@ -1391,13 +1391,20 @@ final class Base {
 		$fw=$this;
 		set_exception_handler(
 			function($obj) use($fw) {
+			    $lerr_msg = $obj->getmessage();
+			    $lerr_trace = $obj->gettrace();
+			    print "EXCEPTION MESSAGE $lerr_msg  EXCEPTION TRACE";
+			    print_r($lerr_trace, true);
 				$fw->error(500,$obj->getmessage(),$obj->gettrace());
 			}
 		);
 		set_error_handler(
-			function($code,$text) use($fw) {
-				if (error_reporting())
+			function($code,$text, $errfile, $errline, $errcontext) use($fw) {
+				if (error_reporting()){
+				    print "ERROR CODE: $code ERROR TEXT $text ERROR FILE $errfile ERROR LINE $errline";
+				    print_r($errcontext, true);
 					throw new ErrorException($text,$code);
+					}
 			}
 		);
 		if (!isset($_SERVER['SERVER_NAME']))
