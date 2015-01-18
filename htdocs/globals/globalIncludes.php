@@ -12,19 +12,20 @@ require_once(dirname(__FILE__).'/globalFunctions.php');
   $f3=require_once(BASE_PATH.'/packages/fatfree/lib/base.php');
 require_once(BASE_PATH.'/packages/fatfree/lib/smtp.php');
     F3::set('AUTOLOAD',getAutoloadString(array('/htdocs/db/', '/code/generics/', '/htdocs/globals/', '/code/objects/',
-        '/htdocs/pageComponents/', '/dbupdate/')));
+        '/htdocs/pageComponents/', '/dbupdate/', '/packages/le_php-master/')));
     
     require_once(dirname(__FILE__).'/globalSecurity.php');
     
- ini_set('display_errors', 'On'); 
+ ini_set('display_errors', 'Off'); 
 error_reporting(E_ALL);
 
 ini_set('error_reporting', E_ALL);
-    
+//$old_error_handler = set_error_handler("myErrorHandler");
 
 if(isLive()){
-    F3::set('DEBUG',3);
+    //F3::set('DEBUG',3);
     $old_error_handler = set_error_handler("myErrorHandler");
+	set_exception_handler('exception_handler');
     //set the assertions
     assert_options(ASSERT_ACTIVE, 0);
     assert_options(ASSERT_WARNING, 0);

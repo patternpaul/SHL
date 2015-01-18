@@ -775,7 +775,7 @@ final class Base {
 	**/
 	function status($code) {
 		if (PHP_SAPI!='cli')
-			header('HTTP/1.1 '.$code);
+			//header('HTTP/1.1 '.$code);
 		return @constant('self::HTTP_'.$code);
 	}
 
@@ -1393,16 +1393,12 @@ final class Base {
 			function($obj) use($fw) {
 			    $lerr_msg = $obj->getmessage();
 			    $lerr_trace = $obj->gettrace();
-			    print "EXCEPTION MESSAGE $lerr_msg  EXCEPTION TRACE";
-			    print_r($lerr_trace, true);
 				$fw->error(500,$obj->getmessage(),$obj->gettrace());
 			}
 		);
 		set_error_handler(
 			function($code,$text, $errfile, $errline, $errcontext) use($fw) {
 				if (error_reporting()){
-				    print "ERROR CODE: $code ERROR TEXT $text ERROR FILE $errfile ERROR LINE $errline";
-				    print_r($errcontext, true);
 					throw new ErrorException($text,$code);
 					}
 			}

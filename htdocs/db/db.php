@@ -267,7 +267,7 @@ class db {
         break;
       case 1:
         if(!is_numeric($tmp)){
-			var_dump(debug_backtrace());
+			//var_dump(debug_backtrace());
             throw new Exception('Non numeric being sent to database.');
         }
         break;
