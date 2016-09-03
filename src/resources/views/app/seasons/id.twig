@@ -1,0 +1,39 @@
+{% extends "base.base.twig" %}
+
+{% block content %}
+
+    {% include 'base.banner.twig' %}
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>Season {{ season }}</h1>
+            <table class="table table-condensed table-responsive table-bordered table-hover table-striped">
+                <thead>
+                <tr>
+                    <th><small>Season</small></th>
+                    <th><small>Game</small></th>
+                    <th><small>Type</small></th>
+                    <th><small>White</small></th>
+                    <th><small>Colored</small></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for game in games|reverse %}
+                    <tr>
+                        <td>{{ game.season }}</td>
+                        <td><a href="/games/{{ game.id }}">{{ game.gameNumber }}</a></td>
+                        <td>{% if game.playoff %}Playoff{% else %}Regular{% endif %}</td>
+                        <td>{{ game.whitePoints }}</td>
+                        <td>{{ game.blackPoints }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+

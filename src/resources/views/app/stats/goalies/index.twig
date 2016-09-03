@@ -1,0 +1,118 @@
+{% extends "base.base.twig" %}
+
+{% block content %}
+
+    {% include 'base.banner.twig' %}
+    <ul class="nav nav-tabs">
+        <li role="presentation">
+            <a href="/stats/players/season/{{ season }}/playoff/{{ playoffs }}">Player Stats</a>
+        </li>
+        <li role="presentation" class="active">
+            <a href="/stats/goalies/season/{{ season }}/playoff/{{ playoffs }}">Goalie Stats</a>
+        </li>
+
+        <li class="navbar-right hidden-xs" style="padding-right: 12px;">
+            <form  class="form-inline" role="form" method="get" action="/stats/goalies">
+                <div class="form-group">
+                    <label for="seasonSelect"><a id="selectLink" class="btn btn-success" href="/stats/goalies" role="button">Go</a></label>
+                    <select id="seasonSelect" name="seasonSelect" class="selectpicker form-control input-sm disable-text-shadow">
+                        {% for seasonId in range(1,15) %}
+                            <option value="{{ seasonId }}" {% if seasonId  == season %}selected{% endif %}>Season {{ seasonId }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="playoffSelect" name="playoffSelect" class="selectpicker form-control input-sm disable-text-shadow">
+                        <option value="0" {% if '0'  == playoffs %}selected{% endif %}>Regular Season</option>
+                        <option value="1" {% if '1' == playoffs %}selected{% endif %}>Playoffs</option>
+                        <option value="all" {% if 'all' == playoffs %}selected{% endif %}>All Games</option>
+                    </select>
+                </div>
+            </form>
+        </li>
+
+
+    </ul>
+    <br />
+
+    <table id="stats-table" class="table table-condensed table-responsive table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                <th><small>Name</small></th>
+                <th><small>GA</small></th>
+                <th><small>GP</small></th>
+                <th><small>GAA</small></th>
+                <th><small>MP</small></th>
+                <th><small>GPM</small></th>
+                <th><small>W</small></th>
+                <th><small>L</small></th>
+                <th><small>+/-</small></th>
+                <th><small>W%</small></th>
+                <th><small>SO</small></th>
+                <th><small>G</small></th>
+                <th><small>A</small></th>
+                <th><small>P</small></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for statsLine in stats %}
+                <tr>
+                    <td><small><a href="{{ route('player-page-goalie-stats', [statsLine.playerId]) }}">{{ statsLine.shortName }}</a></small></td>
+                    <td><small>{{ statsLine.goalsAgainst }}</small></td>
+                    <td><small>{{ statsLine.gamesPlayed }}</small></td>
+                    <td><small>{{ statsLine.goalsAgainstAverage }}</small></td>
+                    <td><small>{{ statsLine.minutesPlayed }}</small></td>
+                    <td><small>{{ statsLine.goalsPerMinute }}</small></td>
+                    <td><small>{{ statsLine.wins }}</small></td>
+                    <td><small>{{ statsLine.losses }}</small></td>
+                    <td><small>{{ statsLine.plusMinus }}</small></td>
+                    <td><small>{{ statsLine.winPercentage }}</small></td>
+                    <td><small>{{ statsLine.shutOuts }}</small></td>
+                    <td><small>{{ statsLine.goals }}</small></td>
+                    <td><small>{{ statsLine.assists }}</small></td>
+                    <td><small>{{ statsLine.points }}</small></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block custom_script %}
+    <script>
+
+
+        $(document).ready(function() {
+            $('#stats-table').DataTable({
+                "paging":   false,
+                "info":     false,
+                "searching": false
+            } );
+
+
+            $("#seasonSelect").each(function() {
+                $(this).change(function() {
+                    updateLink();
+                });
+            });
+
+            $("#playoffSelect").each(function() {
+                $(this).change(function() {
+                    updateLink();
+                });
+            });
+
+            updateLink();
+
+        } );
+
+        function updateLink() {
+            seasonVal = $("#seasonSelect option:selected").val();
+            playoffVal = $("#playoffSelect option:selected").val();
+            $("#selectLink").attr("href", "/stats/goalies/season/"+seasonVal+"/playoff/"+playoffVal);
+        }
+
+    </script>
+
+{% endblock %}
+
+
+
+

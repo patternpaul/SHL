@@ -1,0 +1,155 @@
+{% macro error_block(errors) %}
+    {% if errors|length > 0 %}
+        <div class="alert alert-danger">
+            There were errors. Please see below
+            {% if errors.get("aggregate")|length > 0 %}
+                {% for error in errors.get("aggregate") %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro input_error_block(errors) %}
+    {% if errors|length > 0 %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+
+{% macro input_text_password(name, label, placeholder, value, errors, options = { label_width: 2, input_width: 10, size: "lg", on_change: "" }) %}
+    {% import _self as form %}
+
+    <div class="form-group {% if errors.get(name) %}has-error{% endif %}" id="form_group_{{ name }}">
+        <label class="control-label col-{{ options.size }}-{{ options.label_width }}" for="input_{{ name }}" id="{{ name }}_label">{{ label }}</label>
+        <div class="col-{{ options.size }}-{{ options.input_width }}">
+            <input
+                    class="form-control"
+                    type="password" id="input_{{ name }}"
+                    name="{{ name }}"
+                    id="input_{{ name }}"
+                    placeholder="{{ placeholder }}"
+                    value="{{ input_old(name) ?: value }}"
+                    onchange="{{ options.on_change }}"
+            >
+            {{ form.input_error_block(errors.get(name)) }}
+        </div>
+    </div>
+{% endmacro %}
+
+
+{% macro noinput_text(name, label, value, options = { label_width: 2, input_width: 10, size: "lg", on_change: "" }) %}
+    {% import _self as form %}
+
+    <div class="form-group" id="form_group_{{ name }}">
+        <label class="control-label col-{{ options.size }}-{{ options.label_width }}">{{ label }}</label>
+        <div class="col-{{ options.size }}-{{ options.input_width }}">
+            <label class="control-label" style="font-weight: normal;">{{ value|e }}</label>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro input_text(name, label, placeholder, value, errors, options = { label_width: 2, input_width: 10, size: "lg", on_change: "" }) %}
+    {% import _self as form %}
+
+    <div class="form-group {% if errors.get(name) %}has-error{% endif %}" id="form_group_{{ name }}">
+        <label class="control-label col-{{ options.size }}-{{ options.label_width }}" for="input_{{ name }}" id="{{ name }}_label">{{ label }}</label>
+        <div class="col-{{ options.size }}-{{ options.input_width }}">
+            <input
+                    class="form-control"
+                    type="text" id="input_{{ name }}"
+                    name="{{ name }}"
+                    id="input_{{ name }}"
+                    placeholder="{{ placeholder }}"
+                    value="{{ input_old(name) ?: value }}"
+                    onchange="{{ options.on_change }}"
+            >
+            {{ form.input_error_block(errors.get(name)) }}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro value_text(name, label, placeholder, value, errors, options = { label_width: 2, input_width: 10, size: "lg" }) %}
+    {% import _self as form %}
+
+    <div class="form-group {% if errors.get(name) %}has-error{% endif %}" id="form_group_{{ name }}">
+        <label class="control-label col-{{ options.size }}-{{ options.label_width }}" for="input_{{ name }}">{{ label }}</label>
+        <div class="col-{{ options.size }}-{{ options.input_width }}">
+            {{ value }}
+            {{ form.input_error_block(errors.get(name)) }}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro input_select(name, label, placeholder, option_array, value, errors, options = { multiple: false, include_blank: true, on_change: "" }) %}
+    {% import _self as form %}
+    <div class="form-group {% if errors.get(name)  %}has-error{% endif %}" id="form_group_{{ name }}">
+        <label class="control-label col-lg-2" for="input_{{ name }}">{{ label }}</label>
+        <div class="col-lg-10">
+            <select id="input_{{ name }}" name="{{ name }}" class="selectpicker form-control disable-text-shadow" {% if options.multiple %}multiple{% endif %} onchange="{{ options.on_change }}">
+                {% if options.include_blank %}
+                    <option disabled selected></option>
+                {% endif %}
+                {% for title in option_array %}
+                    <option {% if (input_old(name) ?: value) == title %}selected{% endif %}>{{ title }}</option>
+                {% endfor %}
+            </select>
+            {{ form.input_error_block(errors.get(name))  }}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro input_select_custom(name, label, placeholder, option_array, key, display, value, errors, options = { multiple: false, include_blank: true, label_width: 2, input_width: 10 , size: "lg", on_change: ""}) %}
+    {% import _self as form %}
+    <div class="form-group {% if errors.get(name)  %}has-error{% endif %}" id="form_group_{{ name }}">
+        <label class="control-label col-{{ options.size }}-{{ options.label_width }}" for="input_{{ name }}">{{ label }}</label>
+        <div class="col-{{ options.size }}-{{ options.input_width }}">
+            <select id="input_{{ name }}" name="{{ name }}" class="selectpicker form-control disable-text-shadow" {% if options.multiple %}multiple{% endif %} onchange="{{ options.on_change }}">
+                {% if options.include_blank %}
+                    <option disabled selected></option>
+                {% endif %}
+                {% for item in option_array %}
+                    <option value="{{ item[key] }}" {% if (input_old(name) ?: value) == item[key] %}selected{% endif %}>{{ item[display]|raw }}</option>
+                {% endfor %}
+            </select>
+            {{ form.input_error_block(errors.get(name))  }}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro input_select_custom_game(name, label, placeholder, option_array, key, display, value, errors, custom_class='', options = { multiple: false, include_blank: true, label_width: 2, input_width: 10 , size: "lg", on_change: ""}) %}
+    {% import _self as form %}
+    <div class="form-group {% if errors.get(name)  %}has-error{% endif %}" id="form_group_{{ name }}">
+        <label class="control-label col-{{ options.size }}-{{ options.label_width }}" for="input_{{ name }}">{{ label }}</label>
+        <div class="col-{{ options.size }}-{{ options.input_width }}">
+            <select id="input_{{ name }}" name="{{ name }}" class="selectpicker form-control disable-text-shadow {{ custom_class }}" {% if options.multiple %}multiple{% endif %} onchange="{{ options.on_change }}">
+                {% if options.include_blank %}
+                    <option disabled selected></option>
+                {% endif %}
+                {% for item in option_array %}
+                    <option value="{{ item[key] }}" {% if (input_old(name) ?: value) == item[key] %}selected{% endif %}>{{ item[display]|raw }}</option>
+                {% endfor %}
+            </select>
+            {{ form.input_error_block(errors.get(name))  }}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro input_textarea(name, label, placeholder, value, errors) %}
+    {% import _self as form %}
+
+    <div class="form-group {% if errors.get(name)  %}has-error{% endif %}" id="form_group_{{ name }}">
+        <label class="control-label col-lg-2" for="input_{{ name }}">{{ label }}</label>
+        <div class="col-lg-10">
+            <textarea rows="6" class="form-control" id="input_{{ name }}" name="{{ name }}" placeholder="{{ placeholder }}">{{ input_old(name) ?: value }}</textarea>
+            {{ form.input_error_block(errors.get(name))  }}
+        </div>
+    </div>
+{% endmacro %}

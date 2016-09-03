@@ -1,0 +1,233 @@
+{% extends "base.base.twig" %}
+
+{% block content %}
+    {% include 'base.banner.twig' %}
+    {{ form.error_block(errors) }}
+    <form class="form-horizontal" role="form" method="post" action="/admin/game/add">
+        {{  csrf_field()|raw }}
+        {{ form.input_text("gameDate", "Date", '2016-07-27', '2016-07-27', errors)  }}
+        {{ form.input_text("start", "Start", "9:00 AM", "9:00 AM", errors)  }}
+        {{ form.input_text("end", "End", "9:30 AM", "9:30 AM", errors)  }}
+        {{ form.input_text("playoff", "Playoff", "0", '0', errors)  }}
+        {{ form.input_text("season", "Season", "15", '15', errors)  }}
+        {{ form.input_text("gameNumber", "Number", "50", '60', errors)  }}
+
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>White Players</h2>
+                {{ form.input_select_custom_game("wgoalie", "G", "", players, "id", "fullName", null, errors, 'whiteplayer')  }}
+                {% for i in range(1, 7) %}
+                    {{ form.input_select_custom_game("wplayer#{i}", "P#{i}", "", players, "id", "fullName", null, errors, 'whiteplayer')  }}
+                {% endfor %}
+            </div>
+            <div class="col-lg-6">
+                <h2>Black Players</h2>
+                {{ form.input_select_custom_game("bgoalie", "G", "", players, "id", "fullName", null, errors, 'blackplayer')  }}
+                {% for i in range(1, 7) %}
+                    {{ form.input_select_custom_game("bplayer#{i}", "P#{i}", "", players, "id", "fullName", null, errors, 'blackplayer')  }}
+                {% endfor %}
+            </div>
+
+
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>White Goals</h2>
+                {% for i in range(1, 18) %}
+                    <div class="row">
+                        <div class="col-lg-6">
+                            {{ form.input_select_custom_game("whiteGoal#{i}", i, "", players, "id", "fullName", null, errors, 'whitegoal')  }}
+                        </div>
+                        <div class="col-lg-6">
+                            {{ form.input_select_custom_game("whiteAssist#{i}", "A", "", players, "id", "fullName", null, errors, 'whiteassist')  }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-lg-6">
+                <h2>Black Goals</h2>
+                {% for i in range(1, 18) %}
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            {{ form.input_select_custom_game("blackGoal#{i}", i, "", players, "id", "fullName", null, errors, 'blackgoal')  }}
+                        </div>
+                        <div class="col-lg-6">
+                            {{ form.input_select_custom_game("blackAssist#{i}", "A", "", players, "id", "fullName", null, errors, 'blackassist')  }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+
+
+        <div class="form-group">
+            <div class="col-lg-12 text-right">
+                <button type="submit" class="btn btn-success">Save</button>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
+
+
+
+
+{% block custom_script %}
+    <!-- https://select2.github.io/ -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2-rc.1/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2-rc.1/js/select2.min.js"></script>
+    <!-- https://github.com/RobinHerbots/jquery.inputmask -->
+    <link rel="stylesheet" href="/custom/jqueryui/jquery-ui.min.css">
+    <script src="/custom/jqueryui/jquery-ui.min.js"></script>
+    <script src="/custom/inputmask/jquery.inputmask.bundle.js"></script>
+
+    <script type="text/javascript" src="/custom/timepicker/jquery.timepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/custom/timepicker/jquery.timepicker.css" />
+
+    <script type="text/javascript" src="/custom/timepicker/lib/bootstrap-datepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="/custom/timepicker/lib/bootstrap-datepicker.css" />
+    <script>
+
+        $("form").submit(function() {
+            $(this).submit(function() {
+                return false;
+            });
+            return true;
+        });
+
+
+        function blackPlayerSelected() {
+            genericPlayerSelector('blackplayer', 'whiteplayer', 'blackgoal','blackassist');
+        }
+        function whitePlayerSelected() {
+            genericPlayerSelector('whiteplayer', 'blackplayer', 'whitegoal','whiteassist');
+        }
+
+
+        function genericPlayerSelector(playerClass, otherPlayerClass, goalClass, assistClass) {
+            var players = {};
+            var allPlayerSeleted = {};
+            $("."+playerClass+" option:selected").each(function() {
+                if ($(this).val() != '') {
+                    val = $(this).val();
+                    txt = $(this).text();
+                    players[val] = txt;
+                    allPlayerSeleted[val] = txt;
+                }
+            });
+            $("."+otherPlayerClass+" option:selected").each(function() {
+                if ($(this).val() != '') {
+                    val = $(this).val();
+                    txt = $(this).text();
+                    allPlayerSeleted[val] = txt;
+                }
+            });
+
+            $("."+playerClass).each(function() {
+                prev = $(this).val();
+                $(this).empty().data('options');
+                for (var key in allPlayers) {
+                    if (!(key in allPlayerSeleted) || (key === prev)) {
+                        $(this).append(
+                                $('<option>').text(allPlayers[key]).val(key)
+                        );
+                    }
+                }
+                $(this).val(prev);
+            });
+            $("."+otherPlayerClass).each(function() {
+                prev = $(this).val();
+                $(this).empty().data('options');
+                for (var key in allPlayers) {
+                    if (!(key in allPlayerSeleted) || (key === prev)) {
+                        $(this).append(
+                                $('<option>').text(allPlayers[key]).val(key)
+                        );
+                    }
+                }
+                $(this).val(prev);
+            });
+
+            $("."+goalClass).each(function() {
+                prev = $(this).val();
+                $(this).empty().data('options');
+                for (var key in players) {
+                    $(this).append(
+                            $('<option>').text(players[key]).val(key)
+                    );
+                }
+
+                $(this).val(prev);
+            });
+            $("."+assistClass).each(function() {
+                prev = $(this).val();
+                $(this).empty().data('options');
+                $(this).append(
+                        $('<option>').text('').val('')
+                );
+                for (var key in players) {
+                    $(this).append(
+                            $('<option>').text(players[key]).val(key)
+                    );
+                }
+
+                $(this).val(prev);
+            });
+
+            $("."+playerClass).select2({
+                templateResult: formatState,
+                escapeMarkup: function(m) { return m; }
+            });
+        }
+
+
+
+        $( document ).ready(function() {
+            $(".blackplayer").each(function() {
+                $(this).change(function() {
+                    blackPlayerSelected();
+                });
+            });
+
+            $(".whiteplayer").each(function() {
+                $(this).change(function() {
+                    whitePlayerSelected();
+                });
+            });
+
+            blackPlayerSelected();
+            whitePlayerSelected();
+
+
+            $("#input_gameDate").datepicker("destroy")
+            $( "#input_gameDate" ).datepicker({
+                dateFormat: "yy-mm-dd",
+                maxDate: new Date()
+            }).inputmask('yyyy-mm-dd');
+            $( "#input_gameDate" ).datepicker('refresh');
+
+            $('#input_start').timepicker({ 'step': 15, 'timeFormat': 'h:i A' });
+            $('#input_end').timepicker({ 'step': 15, 'timeFormat': 'h:i A' });
+        });
+
+
+        var allPlayers = {};
+        {% for player in players %}
+        allPlayers['{{ player.id }}'] = '{{ player.fullName }}';
+        {% endfor %}
+
+
+        function formatState (state) {
+            if (!state.id) { return state.text; }
+            var $state = $('<span>'+allPlayers[state.id]+'</span>');
+            return $state;
+        };
+
+    </script>
+
+{% endblock %}

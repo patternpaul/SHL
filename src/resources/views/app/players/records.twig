@@ -1,0 +1,29 @@
+{% extends "base.base.twig" %}
+
+{% block content %}
+    {% include 'base.banner.twig' %}
+    <h1>{{ player.firstName }} {{ player.lastName }}</h1>
+
+    <ul class="nav nav-tabs">
+        <li role="presentation">
+            <a href="{{ route('player-page-player-stats', [player.id]) }}">Player Stats</a>
+        </li>
+        <li role="presentation">
+            <a href="{{ route('player-page-goalie-stats', [player.id]) }}" >Goalie Stats</a>
+        </li>
+        <li role="presentation" class="active">
+            <a href="{{ route('player-page-records', [player.id]) }}" >Records</a>
+        </li>
+    </ul>
+    {% for record in records %}
+        <h3>{{ record.header }}</h3>
+        {% for entry in record.parsedEntries %}
+            {{ entry|raw }} <br />
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
+
+
+
+
+

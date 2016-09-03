@@ -1,0 +1,23 @@
+{% extends "base.base.twig" %}
+
+{% block content %}
+    {% include 'base.banner.twig' %}
+    <h1>Records</h1>
+    {% for record in records %}
+        <h3>{{ record.header }}</h3>
+        {% for entry in record.parsedEntries %}
+            {{ entry|raw }} <br />
+        {% endfor %}
+    {% endfor %}
+
+
+    <br /><br /><br /><br /><br /><br />
+{% endblock %}
+
+
+
+
+
+
+
+

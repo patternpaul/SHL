@@ -1,0 +1,125 @@
+{% extends "base.base.twig" %}
+
+{% block content %}
+    {% include 'base.banner.twig' %}
+    <h1>{{ player.firstName }} {{ player.lastName }}</h1>
+    <ul class="nav nav-tabs">
+        <li role="presentation">
+            <a href="{{ route('player-page-player-stats', [player.id]) }}">Player Stats</a>
+        </li>
+        <li role="presentation" class="active">
+            <a href="{{ route('player-page-goalie-stats', [player.id]) }}" >Goalie Stats</a>
+        </li>
+        <li role="presentation">
+            <a href="{{ route('player-page-records', [player.id]) }}" >Records</a>
+        </li>
+    </ul>
+    <h3>Regular Season Stats</h3>
+    <table id="stats-table" class="table table-condensed table-responsive table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+            <th><small>Name</small></th>
+            <th><small>GA</small></th>
+            <th><small>GP</small></th>
+            <th><small>GAA</small></th>
+            <th><small>MP</small></th>
+            <th><small>GPM</small></th>
+            <th><small>W</small></th>
+            <th><small>L</small></th>
+            <th><small>+/-</small></th>
+            <th><small>W%</small></th>
+            <th><small>SO</small></th>
+            <th><small>G</small></th>
+            <th><small>A</small></th>
+            <th><small>P</small></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for statsLine in regStats %}
+            <tr>
+                <td><small><a href="/seasons/{{ statsLine.season }}">{{ statsLine.season }}</a></small></td>
+                <td><small>{{ statsLine.goalsAgainst }}</small></td>
+                <td><small>{{ statsLine.gamesPlayed }}</small></td>
+                <td><small>{{ statsLine.goalsAgainstAverage }}</small></td>
+                <td><small>{{ statsLine.minutesPlayed }}</small></td>
+                <td><small>{{ statsLine.goalsPerMinute }}</small></td>
+                <td><small>{{ statsLine.wins }}</small></td>
+                <td><small>{{ statsLine.losses }}</small></td>
+                <td><small>{{ statsLine.plusMinus }}</small></td>
+                <td><small>{{ statsLine.winPercentage }}</small></td>
+                <td><small>{{ statsLine.shutOuts }}</small></td>
+                <td><small>{{ statsLine.goals }}</small></td>
+                <td><small>{{ statsLine.assists }}</small></td>
+                <td><small>{{ statsLine.points }}</small></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <h3>Playoff Stats</h3>
+    <table id="stats-table-playoffs" class="table table-condensed table-responsive table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+            <th><small>Season</small></th>
+            <th><small>GA</small></th>
+            <th><small>GP</small></th>
+            <th><small>GAA</small></th>
+            <th><small>MP</small></th>
+            <th><small>GPM</small></th>
+            <th><small>W</small></th>
+            <th><small>L</small></th>
+            <th><small>+/-</small></th>
+            <th><small>W%</small></th>
+            <th><small>SO</small></th>
+            <th><small>G</small></th>
+            <th><small>A</small></th>
+            <th><small>P</small></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for statsLine in playoffStats %}
+            <tr>
+                <td><small><a href="/seasons/{{ statsLine.season }}">{{ statsLine.season }}</a></small></td>
+                <td><small>{{ statsLine.goalsAgainst }}</small></td>
+                <td><small>{{ statsLine.gamesPlayed }}</small></td>
+                <td><small>{{ statsLine.goalsAgainstAverage }}</small></td>
+                <td><small>{{ statsLine.minutesPlayed }}</small></td>
+                <td><small>{{ statsLine.goalsPerMinute }}</small></td>
+                <td><small>{{ statsLine.wins }}</small></td>
+                <td><small>{{ statsLine.losses }}</small></td>
+                <td><small>{{ statsLine.plusMinus }}</small></td>
+                <td><small>{{ statsLine.winPercentage }}</small></td>
+                <td><small>{{ statsLine.shutOuts }}</small></td>
+                <td><small>{{ statsLine.goals }}</small></td>
+                <td><small>{{ statsLine.assists }}</small></td>
+                <td><small>{{ statsLine.points }}</small></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block custom_script %}
+    <script>
+
+
+        $(document).ready(function() {
+            $('#stats-table').DataTable({
+                "paging":   false,
+                "info":     false,
+                "searching": false
+            } );
+            $('#stats-table-playoffs').DataTable({
+                "paging":   false,
+                "info":     false,
+                "searching": false
+            } );
+        } );
+
+
+    </script>
+
+{% endblock %}
+
+
+
+
