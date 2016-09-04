@@ -46,7 +46,7 @@ class ConsumeData extends Command
         CacheBust::$SHOULD_PROCESS = false;
         $client = new Client(
             [
-                'base_uri' => 'http://test.shl-wpg.ca/'
+                'base_uri' => 'http://www.shl-wpg.ca/'
             ]
         );
         $response = $client->request('GET', '/test',
