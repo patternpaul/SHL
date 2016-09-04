@@ -150,12 +150,16 @@ class Game extends AggregateRoot
             throw new AggregateException('You have not set a white goalie');
         }
 
-        
-        if ($winningPoint < 10) {
-            throw new AggregateException('No team has won the game by getting at least 10 goals.');
+        if (($this->season == 1) && ($this->gameNumber == 3)){
+            /**
+             * Why is this here? Game 3 of season 1 (which would have been the first meeting of SHL) did not complete the
+             * 10 goal rule (First to 10, must win by 2 goals). I believe we enforced the rule soon after that.
+             */
+        } else {
+            if ($winningPoint < 10) {
+                throw new AggregateException('No team has won the game by getting at least 10 goals.');
+            }
         }
-
-
 
         $this->apply(new GameCompleted($this->getAggregateId(), $winningTeam, $blackPoints, $whitePointTotal, $winningPoint));
     }
