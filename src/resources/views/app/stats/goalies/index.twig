@@ -16,7 +16,8 @@
                 <div class="form-group">
                     <label for="seasonSelect"><a id="selectLink" class="btn btn-success" href="/stats/goalies" role="button">Go</a></label>
                     <select id="seasonSelect" name="seasonSelect" class="selectpicker form-control input-sm disable-text-shadow">
-                        {% for seasonId in range(1,15) %}
+                        <option value="all" {% if 'all' == season %}selected{% endif %}>All Seasons</option>
+                        {% for seasonId in range(1,currentSeason) %}
                             <option value="{{ seasonId }}" {% if seasonId  == season %}selected{% endif %}>Season {{ seasonId }}</option>
                         {% endfor %}
                     </select>

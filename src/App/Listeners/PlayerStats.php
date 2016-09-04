@@ -55,7 +55,7 @@ class PlayerStats extends Listener
         $statLines = [];
         $calcLines = [];
         foreach ($seasons as $season) {
-            if(($selectedSeason != 'all') && ($selectedSeason != $season)) {
+            if(($selectedSeason != 'all') && (intval($selectedSeason) != $season)) {
                 continue;
             }
 

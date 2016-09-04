@@ -48,25 +48,25 @@ class StatsController extends Controller
 
     public function playerStatsSelected($season, $playoff)
     {
-        return $this->basePlayerStats(intval($season), $playoff);
+        return $this->basePlayerStats($season, $playoff);
     }
 
     public function goalieStatsSelected($season, $playoff)
     {
-        return $this->baseGoalieStats(intval($season), $playoff);
+        return $this->baseGoalieStats($season, $playoff);
     }
 
     public function basePlayerStats($season, $playoff)
     {
         $stats = $this->playerStats->getCalcStatLines($season, $playoff);
-
-        return view('app.stats.players.index', ["stats" => $stats, "season" => $season, "playoffs" => $playoff]);
+        $currentSeason = $this->games->getLatestSeason();
+        return view('app.stats.players.index', ["stats" => $stats, "season" => $season, "playoffs" => $playoff, "currentSeason" => $currentSeason]);
     }
 
     public function baseGoalieStats($season, $playoff)
     {
         $stats = $this->goalieStats->getCalcStatLines($season, $playoff);
-
-        return view('app.stats.goalies.index', ["stats" => $stats, "season" => $season, "playoffs" => $playoff]);
+        $currentSeason = $this->games->getLatestSeason();
+        return view('app.stats.goalies.index', ["stats" => $stats, "season" => $season, "playoffs" => $playoff, "currentSeason" => $currentSeason]);
     }
 }

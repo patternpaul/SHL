@@ -56,7 +56,7 @@ class GoalieStats extends Listener
         $calcLines = [];
 
         foreach ($seasons as $season) {
-            if(($selectedSeason != 'all') && ($selectedSeason != $season)) {
+            if(($selectedSeason != 'all') && (intval($selectedSeason) != $season)) {
                 continue;
             }
 
