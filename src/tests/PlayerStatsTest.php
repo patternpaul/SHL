@@ -239,6 +239,117 @@ class PlayerStatsTest extends \App\Infrastructure\Test\TestCaseCore
     }
 
 
+    public function test_get_persons_player_stats()
+    {
+        $season = 1;
+        $gameCount = 50;
+        $playoff = 0;
+        $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+        $allStats = $this->stats->getPlayerStats($this->ghislainD, $playoff);
+        $statsLine = $allStats[1];
+
+        $this->assertEquals(50, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(50, $statsLine['points']);
+        $this->assertEquals(1, $statsLine['goalsPerGame']);
+        $this->assertEquals(0, $statsLine['assistsPerGame']);
+        $this->assertEquals(1, $statsLine['pointsPerGame']);
+        $this->assertEquals(100, $statsLine['teamGoalsPercentage']);
+        $this->assertEquals(0, $statsLine['wins']);
+        $this->assertEquals(50, $statsLine['losses']);
+        $this->assertEquals(-50, $statsLine['plusMinus']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['gameWinningGoals']);
+
+        $statsLine = $allStats['all'];
+
+        $this->assertEquals(50, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(50, $statsLine['points']);
+        $this->assertEquals(1, $statsLine['goalsPerGame']);
+        $this->assertEquals(0, $statsLine['assistsPerGame']);
+        $this->assertEquals(1, $statsLine['pointsPerGame']);
+        $this->assertEquals(100, $statsLine['teamGoalsPercentage']);
+        $this->assertEquals(0, $statsLine['wins']);
+        $this->assertEquals(50, $statsLine['losses']);
+        $this->assertEquals(-50, $statsLine['plusMinus']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['gameWinningGoals']);
+    }
+
+    public function test_get_a_persons_player_stats_over_multiple_seasons()
+    {
+        $season = 1;
+        $gameCount = 50;
+        $playoff = 0;
+        $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+        $season = 2;
+        $gameCount = 50;
+        $playoff = 0;
+        $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+        $allStats = $this->stats->getPlayerStats($this->ghislainD, $playoff);
+        $statsLine = $allStats[1];
+
+        $this->assertEquals(50, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(50, $statsLine['points']);
+        $this->assertEquals(1, $statsLine['goalsPerGame']);
+        $this->assertEquals(0, $statsLine['assistsPerGame']);
+        $this->assertEquals(1, $statsLine['pointsPerGame']);
+        $this->assertEquals(100, $statsLine['teamGoalsPercentage']);
+        $this->assertEquals(0, $statsLine['wins']);
+        $this->assertEquals(50, $statsLine['losses']);
+        $this->assertEquals(-50, $statsLine['plusMinus']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['gameWinningGoals']);
+
+        $statsLine = $allStats[2];
+
+        $this->assertEquals(50, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(50, $statsLine['points']);
+        $this->assertEquals(1, $statsLine['goalsPerGame']);
+        $this->assertEquals(0, $statsLine['assistsPerGame']);
+        $this->assertEquals(1, $statsLine['pointsPerGame']);
+        $this->assertEquals(100, $statsLine['teamGoalsPercentage']);
+        $this->assertEquals(0, $statsLine['wins']);
+        $this->assertEquals(50, $statsLine['losses']);
+        $this->assertEquals(-50, $statsLine['plusMinus']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['gameWinningGoals']);
+
+        $statsLine = $allStats['all'];
+
+        $this->assertEquals(100, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(100, $statsLine['points']);
+        $this->assertEquals(1, $statsLine['goalsPerGame']);
+        $this->assertEquals(0, $statsLine['assistsPerGame']);
+        $this->assertEquals(1, $statsLine['pointsPerGame']);
+        $this->assertEquals(100, $statsLine['teamGoalsPercentage']);
+        $this->assertEquals(0, $statsLine['wins']);
+        $this->assertEquals(100, $statsLine['losses']);
+        $this->assertEquals(-100, $statsLine['plusMinus']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['gameWinningGoals']);
+    }
+
+    public function test_get_persons_player_stats_who_has_never_played_as_a_player_will_not_have_all_calcs()
+    {
+        $season = 1;
+        $gameCount = 50;
+        $playoff = 0;
+        $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+        $allStats = $this->stats->getPlayerStats($this->chrisLee, $playoff);
+
+        $this->assertTrue(!isset($allStats['all']));
+    }
+
     private function generateMultipleGamesForAGivenSeason($seasonId = 1, $gameCount = 50, $playoffs = 0)
     {
         $gameDate = '2016-07-27';

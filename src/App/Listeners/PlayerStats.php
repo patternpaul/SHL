@@ -142,7 +142,9 @@ class PlayerStats extends Listener
             return str_pad($value['season'], 2, "0", STR_PAD_LEFT);
         });
 
-        $calcLines['all'] = $this->calcStats($allLine);
+        if (count($allLine) > 0) {
+            $calcLines['all'] = $this->calcStats($allLine);
+        }
 
         return $calcLines;
     }
