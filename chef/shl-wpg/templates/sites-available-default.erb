@@ -1,0 +1,84 @@
+fastcgi_cache_path /tmp/cache levels=1:2 keys_zone=shl-wpg:100m inactive=10080m;
+fastcgi_cache_key "$scheme$request_method$host$request_uri";
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name <%= @domains %>;
+
+    # The rest of your server block
+    root /usr/share/nginx/html/prd;
+    index index.php index.html index.htm;
+
+    location / {
+      # First attempt to serve request as file, then
+      # as directory, then fall back to displaying a 404.
+      #try_files $uri $uri/ =404;
+      # Uncomment to enable naxsi on this location
+      # include /etc/nginx/naxsi.rules
+      try_files $uri $uri/ /index.php?$query_string;
+    }
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+      root /usr/share/nginx/html;
+    }
+
+    # Boilerplay omitted
+
+    set $no_cache 0;
+
+    # Example: Don't cache admin area
+    # Note: Conditionals are typically frowned upon :/
+    if ($request_uri ~* "/(admin/)")
+    {
+      set $no_cache 1;
+    }
+
+
+
+    set $punch_cache $http_PunchCache;
+
+
+    location ~ \.php$ {
+      fastcgi_cache shl-wpg;
+      fastcgi_cache_valid 200 10080m; # Only cache 200 responses, cache for 60 minutes
+      fastcgi_cache_methods GET HEAD; # Only GET and HEAD methods apply
+      add_header X-Fastcgi-Cache $upstream_cache_status;
+      add_header X-Fastcgi-NoCache $no_cache;
+      add_header X-CachePunch $punch_cache;
+      add_header X-Fastcgi-key "$scheme$request_method$host$request_uri";
+      fastcgi_cache_bypass $no_cache;  # Don't pull from cache based on $no_cache
+      fastcgi_no_cache $no_cache; # Don't save to cache based on $no_cache
+      fastcgi_ignore_headers Cache-Control Expires Set-Cookie;
+      proxy_cache_bypass $punch_cache;
+      fastcgi_cache_bypass $punch_cache;
+
+
+
+      try_files $uri /index.php =404;
+      # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+      fastcgi_param HTTP_PROXY "";
+      fastcgi_split_path_info ^(.+\.php)(/.+)$;
+      fastcgi_pass unix:/var/run/php-fpm/php5-fpm.sock;
+      fastcgi_read_timeout 300;
+      fastcgi_index index.php;
+      fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+      fastcgi_param DOCUMENT_ROOT $realpath_root;
+      include fastcgi_params;
+    }
+
+    # Media: images, icons, video, audio, HTC
+    location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc|woff|woff2)$ {
+      expires 1w;
+      access_log off;
+      add_header Cache-Control "public";
+    }
+
+    # CSS and Javascript
+    location ~* \.(?:css|js)$ {
+      expires 1w;
+      access_log off;
+      add_header Cache-Control "public";
+    }
+}

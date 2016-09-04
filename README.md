@@ -18,4 +18,6 @@ Want to setup a local VM with all data from the live site?
 ===========================================================
 Checkout the README in the local_setup directory.
 
-
+Want to setup your own box?
+===========================
+There is a Chef cookbook under the chef directory.
