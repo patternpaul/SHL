@@ -32,19 +32,6 @@ var exec = require('gulp-exec');
 
 gulp.task('phpunit-main', function() {
 
-    /*
-     gulp.src('phpunit.xml')
-     .pipe(phpunit('', {debug: false, notify: true, testSuite: './tests/main/'}))
-     .on('error', notify.onError({
-     title: 'PHPUnit Failed',
-     message: 'One or more tests failed.'
-     }))
-     .pipe(notify({
-     title: 'PHPUnit Passed',
-     message: 'All tests passed!'
-     }));
-     */
-
     var reportOptions = {
         err: false, // default = true, false means don't write err
         stderr: true, // default = true, false means don't write stderr
@@ -70,12 +57,9 @@ gulp.task('watch', function() {
     gulp.watch(['tests/**/*.php', 'App/**/*.php', 'resources/**/*'], ['phpunit-main', 'twig-clean','routes-clean', 'config-clean']);
 });
 
-gulp.task('watch-bak', function() {
-    gulp.watch(['tests/**/*.php', 'App/**/*.php', 'resources/**/*'], ['phpunit-main', 'twig-clean','routes-clean', 'config-clean']);
-});
 
-gulp.task('watch-regression', function() {
-    gulp.watch(['tests/**/*.php', 'App/**/*.php', 'resources/**/*'], ['phpunit-regression']);
+gulp.task('watch-clean', function() {
+    gulp.watch(['tests/**/*.php', 'App/**/*.php', 'resources/**/*'], ['twig-clean','routes-clean', 'config-clean']);
 });
 
 gulp.task('twig-clean', shell.task([
@@ -90,9 +74,3 @@ gulp.task('config-clean', shell.task([
     'php artisan config:clear'
 ], {ignoreErrors: true}))
 
-
-
-
-gulp.task('prep-watch', function() {
-    gulp.watch(['resources/**/*', 'App/**/*.php', 'App/Http/routes.php'], ['twig-clean','routes-clean','config-clean']);
-});

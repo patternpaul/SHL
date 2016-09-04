@@ -1,0 +1,25 @@
+---
+ip: "192.168.10.10"
+memory: 1024
+cpus: 1
+provider: virtualbox
+
+authorize: ~/.ssh/id_rsa.pub
+
+keys:
+    - ~/.ssh/id_rsa
+
+folders:
+    - map: ~/Code
+      to: /home/vagrant/Code
+
+sites:
+    - map: shl.app
+      to: /home/vagrant/Code/SHL/src/public
+
+variables:
+    - key: APP_ENV
+      value: local
+
+databases:
+    - shl
