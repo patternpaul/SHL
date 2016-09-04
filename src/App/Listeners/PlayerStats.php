@@ -39,7 +39,11 @@ class PlayerStats extends Listener
         $newRow = [];
 
         foreach ($firstRow as $key => $data) {
-            $newRow[$key] = $firstRow[$key] + $secondRow[$key];
+            if(isset($secondRow[$key])) {
+                $newRow[$key] = $firstRow[$key] + $secondRow[$key];
+            } else {
+                $newRow[$key] = $firstRow[$key];
+            }
         }
 
         return $newRow;
@@ -113,12 +117,14 @@ class PlayerStats extends Listener
         $seasons = $this->redis->hgetall('stats:seasons:');
         $statLines = [];
         $calcLines = [];
+        $allLine = [];
 
         foreach ($seasons as $season) {
             $seasonPlayers = $this->redis->hgetall('stats:seasons:'.$season.":playoffs:".$playoff.":players");
             foreach ($seasonPlayers as $seasonPlayer) {
                 if ($seasonPlayer == $playerId) {
                     $seasonPlayerData = $this->getPlayerStatLine($seasonPlayer, $season, $playoff);
+                    $allLine = $this->addRows($seasonPlayerData, $allLine);
                     $seasonPlayerData['playerId'] = $seasonPlayer;
                     $seasonPlayerData['season'] = $season;
                     $statLines[$season] = $seasonPlayerData;
@@ -131,10 +137,12 @@ class PlayerStats extends Listener
             $calcLines[$key] = $statData;
         }
 
+
         $calcLines = array_sort($calcLines, function ($value) {
             return str_pad($value['season'], 2, "0", STR_PAD_LEFT);
         });
 
+        $calcLines['all'] = $this->calcStats($allLine);
 
         return $calcLines;
     }

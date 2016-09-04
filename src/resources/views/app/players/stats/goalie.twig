@@ -35,25 +35,45 @@
         </tr>
         </thead>
         <tbody>
-        {% for statsLine in regStats %}
-            <tr>
-                <td><small><a href="/seasons/{{ statsLine.season }}">{{ statsLine.season }}</a></small></td>
-                <td><small>{{ statsLine.goalsAgainst }}</small></td>
-                <td><small>{{ statsLine.gamesPlayed }}</small></td>
-                <td><small>{{ statsLine.goalsAgainstAverage }}</small></td>
-                <td><small>{{ statsLine.minutesPlayed }}</small></td>
-                <td><small>{{ statsLine.goalsPerMinute }}</small></td>
-                <td><small>{{ statsLine.wins }}</small></td>
-                <td><small>{{ statsLine.losses }}</small></td>
-                <td><small>{{ statsLine.plusMinus }}</small></td>
-                <td><small>{{ statsLine.winPercentage }}</small></td>
-                <td><small>{{ statsLine.shutOuts }}</small></td>
-                <td><small>{{ statsLine.goals }}</small></td>
-                <td><small>{{ statsLine.assists }}</small></td>
-                <td><small>{{ statsLine.points }}</small></td>
-            </tr>
+        {% for season, statsLine in regStats %}
+            {% if season != 'all' %}
+                <tr>
+                    <td><small><a href="/seasons/{{ statsLine.season }}">{{ statsLine.season }}</a></small></td>
+                    <td><small>{{ statsLine.goalsAgainst }}</small></td>
+                    <td><small>{{ statsLine.gamesPlayed }}</small></td>
+                    <td><small>{{ statsLine.goalsAgainstAverage }}</small></td>
+                    <td><small>{{ statsLine.minutesPlayed }}</small></td>
+                    <td><small>{{ statsLine.goalsPerMinute }}</small></td>
+                    <td><small>{{ statsLine.wins }}</small></td>
+                    <td><small>{{ statsLine.losses }}</small></td>
+                    <td><small>{{ statsLine.plusMinus }}</small></td>
+                    <td><small>{{ statsLine.winPercentage }}</small></td>
+                    <td><small>{{ statsLine.shutOuts }}</small></td>
+                    <td><small>{{ statsLine.goals }}</small></td>
+                    <td><small>{{ statsLine.assists }}</small></td>
+                    <td><small>{{ statsLine.points }}</small></td>
+                </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
+        <tfoot>
+        <tr>
+            <td><small><strong>Total:</strong></small></td>
+            <td><small>{{ regStats.all.goalsAgainst }}</small></td>
+            <td><small>{{ regStats.all.gamesPlayed }}</small></td>
+            <td><small>{{ regStats.all.goalsAgainstAverage }}</small></td>
+            <td><small>{{ regStats.all.minutesPlayed }}</small></td>
+            <td><small>{{ regStats.all.goalsPerMinute }}</small></td>
+            <td><small>{{ regStats.all.wins }}</small></td>
+            <td><small>{{ regStats.all.losses }}</small></td>
+            <td><small>{{ regStats.all.plusMinus }}</small></td>
+            <td><small>{{ regStats.all.winPercentage }}</small></td>
+            <td><small>{{ regStats.all.shutOuts }}</small></td>
+            <td><small>{{ regStats.all.goals }}</small></td>
+            <td><small>{{ regStats.all.assists }}</small></td>
+            <td><small>{{ regStats.all.points }}</small></td>
+        </tr>
+        </tfoot>
     </table>
     <h3>Playoff Stats</h3>
     <table id="stats-table-playoffs" class="table table-condensed table-responsive table-bordered table-hover table-striped">
@@ -76,25 +96,45 @@
         </tr>
         </thead>
         <tbody>
-        {% for statsLine in playoffStats %}
-            <tr>
-                <td><small><a href="/seasons/{{ statsLine.season }}">{{ statsLine.season }}</a></small></td>
-                <td><small>{{ statsLine.goalsAgainst }}</small></td>
-                <td><small>{{ statsLine.gamesPlayed }}</small></td>
-                <td><small>{{ statsLine.goalsAgainstAverage }}</small></td>
-                <td><small>{{ statsLine.minutesPlayed }}</small></td>
-                <td><small>{{ statsLine.goalsPerMinute }}</small></td>
-                <td><small>{{ statsLine.wins }}</small></td>
-                <td><small>{{ statsLine.losses }}</small></td>
-                <td><small>{{ statsLine.plusMinus }}</small></td>
-                <td><small>{{ statsLine.winPercentage }}</small></td>
-                <td><small>{{ statsLine.shutOuts }}</small></td>
-                <td><small>{{ statsLine.goals }}</small></td>
-                <td><small>{{ statsLine.assists }}</small></td>
-                <td><small>{{ statsLine.points }}</small></td>
-            </tr>
+        {% for season, statsLine in playoffStats %}
+            {% if season != 'all' %}
+                <tr>
+                    <td><small><a href="/seasons/{{ statsLine.season }}">{{ statsLine.season }}</a></small></td>
+                    <td><small>{{ statsLine.goalsAgainst }}</small></td>
+                    <td><small>{{ statsLine.gamesPlayed }}</small></td>
+                    <td><small>{{ statsLine.goalsAgainstAverage }}</small></td>
+                    <td><small>{{ statsLine.minutesPlayed }}</small></td>
+                    <td><small>{{ statsLine.goalsPerMinute }}</small></td>
+                    <td><small>{{ statsLine.wins }}</small></td>
+                    <td><small>{{ statsLine.losses }}</small></td>
+                    <td><small>{{ statsLine.plusMinus }}</small></td>
+                    <td><small>{{ statsLine.winPercentage }}</small></td>
+                    <td><small>{{ statsLine.shutOuts }}</small></td>
+                    <td><small>{{ statsLine.goals }}</small></td>
+                    <td><small>{{ statsLine.assists }}</small></td>
+                    <td><small>{{ statsLine.points }}</small></td>
+                </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
+        <tfoot>
+        <tr>
+            <td><small><strong>Total:</strong></small></td>
+            <td><small>{{ playoffStats.all.goalsAgainst }}</small></td>
+            <td><small>{{ playoffStats.all.gamesPlayed }}</small></td>
+            <td><small>{{ playoffStats.all.goalsAgainstAverage }}</small></td>
+            <td><small>{{ playoffStats.all.minutesPlayed }}</small></td>
+            <td><small>{{ playoffStats.all.goalsPerMinute }}</small></td>
+            <td><small>{{ playoffStats.all.wins }}</small></td>
+            <td><small>{{ playoffStats.all.losses }}</small></td>
+            <td><small>{{ playoffStats.all.plusMinus }}</small></td>
+            <td><small>{{ playoffStats.all.winPercentage }}</small></td>
+            <td><small>{{ playoffStats.all.shutOuts }}</small></td>
+            <td><small>{{ playoffStats.all.goals }}</small></td>
+            <td><small>{{ playoffStats.all.assists }}</small></td>
+            <td><small>{{ playoffStats.all.points }}</small></td>
+        </tr>
+        </tfoot>
     </table>
 {% endblock %}
 
