@@ -2,6 +2,13 @@
 
 return [
 
+
+    // SHL config
+    'cache_bust_ip' => env('CACHE_BUST_IP', ''),
+    'cache_bust_host' => env('SESSION_DOMAIN', ''),
+
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

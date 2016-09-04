@@ -27,18 +27,19 @@ class PurgeUrl extends Job implements ShouldQueue
      */
     public function handle()
     {
+
         Logger::info("Attempting to purge url" . $this->url);
         $client = new Client(
             [
-                'base_uri' => 'http://138.197.136.218' . $this->url
+                'base_uri' => 'http://'. config('app.cache_bust_ip')
             ]
         );
-        $response = $client->request('GET', '',
+        $response = $client->request('GET', $this->url,
             [
                 'http_errors' => false,
                 'headers' => [
                     'PunchCache' => '1',
-                    'Host' => 'test.shl-wpg.ca'
+                    'Host' => config('app.cache_bust_host')
                 ]
             ]
         );
