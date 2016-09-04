@@ -18,11 +18,10 @@ use Illuminate\Support\Facades\Auth;
 class SeasonsController extends Controller
 {
     private $games;
-    private $agg;
-    public function __construct(Games $games, IAggregateRepository $agg)
+
+    public function __construct(Games $games)
     {
         $this->games = $games;
-        $this->agg = $agg;
         $viewGames = array_reverse($this->games->getLatestSeasonGames());
         view()->share('header_games', $viewGames);
     }
@@ -30,10 +29,5 @@ class SeasonsController extends Controller
     public function index($season) {
         $games = $this->games->getSpecificSeasonGames($season);
         return view('app.seasons.id', ["games" => $games, "season" => $season]);
-    }
-
-    public function test()
-    {
-        return response()->json($this->agg->getAllDomainEvents());
     }
 }

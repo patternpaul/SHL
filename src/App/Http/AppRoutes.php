@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DumpController;
 use App\Http\Controllers\GamesController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\RecordsController;
@@ -14,8 +15,8 @@ class AppRoutes
 {
     public static function routes(Router $router)
     {
-        $router->get('/test', [
-            'uses' => SeasonsController::class . '@test'
+        $router->get('/dump', [
+            'uses' => DumpController::class . '@dump'
         ]);
         $router->get('/', [
             'uses' => StatsController::class . '@index'

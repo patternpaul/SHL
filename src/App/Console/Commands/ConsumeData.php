@@ -49,7 +49,7 @@ class ConsumeData extends Command
                 'base_uri' => 'http://www.shl-wpg.ca/'
             ]
         );
-        $response = $client->request('GET', '/test',
+        $response = $client->request('GET', '/dump',
             [
                 'http_errors' => false
             ]
