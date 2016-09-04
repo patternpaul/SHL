@@ -45,7 +45,7 @@ def deploy():
 
 
     sudo('mkdir %s' % stg_work_dir)
-    sudo('chown -R nginx:nginx %s' % stg_work_dir)
+    sudo('chown -R %s:%s %s' % (env.user, env.user, stg_work_dir))
 
     rsync_project(
                     remote_dir=stg_work_dir,
