@@ -120,7 +120,7 @@ class RecordsGoalClubTest extends \App\Infrastructure\Test\TestCaseCore
         $favProPlayer = 'favProPlayer';
         $favProTeam = 'favProTeam';
 
-        $command = new \App\Commands\Player\AddPlayer(
+        $command = new App\Commands\Player\AddPlayer(
             $firstName,
             $lastName,
             $email,

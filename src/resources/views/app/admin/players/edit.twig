@@ -1,0 +1,23 @@
+{% extends "base.base.twig" %}
+
+{% block content %}
+    {% include 'base.banner.twig' %}
+
+    <h1>Edit Player</h1>
+    {{ form.error_block(errors) }}
+    <form class="form-horizontal" role="form" method="post" action="/admin/players/{{ player.id }}">
+        {{  csrf_field()|raw }}
+        {{ form.input_text("firstName", "First Name", "", player.firstName, errors)  }}
+        {{ form.input_text("lastName", "Last Name", "", player.lastName, errors)  }}
+        <div class="form-group">
+            <div class="col-lg-offset-2 col-lg-2">
+                <a href="/players/{{ player.id }}/stats/player" class="btn btn-default" role="button">
+                    Cancel
+                </a>
+            </div>
+            <div class="col-lg-8 text-right">
+                <button type="submit" class="btn btn-success">Save</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

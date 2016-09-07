@@ -11,6 +11,7 @@ use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
 use App\Events\Game\PointAdded;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Player\PlayerEdited;
 use App\Infrastructure\Database\IRedisDB;
 use App\Jobs\PurgeUrl;
 use App\Listeners\Listener;
@@ -41,6 +42,19 @@ class CacheBust extends Listener
         $this->redis->del('cachebust:players:');
         $this->redis->hset('cachebust:game:', 'season', $event->season);
         $this->redis->hset('cachebust:game:', 'playoff', $event->playoff);
+
+
+        $lastSeason = $this->redis->hget('cachebust:last-game:', 'season');
+        $storeSeason = $lastSeason;
+        if (!is_numeric($storeSeason) || ($event->season > $storeSeason)) {
+            $storeSeason = $event->season;
+        }
+
+        $this->redis->hset(
+            'cachebust:last-game:',
+            'season',
+            $storeSeason
+        );
     }
 
     public function onTeamPlayerAdded(TeamPlayerAdded $event)
@@ -93,6 +107,53 @@ class CacheBust extends Listener
         }
     }
 
+    public function onPlayerEdited(PlayerEdited $event)
+    {
+        $lastSeason = $this->redis->hget('cachebust:last-game:', 'season');
+
+        $job = (new PurgeUrl('/stats/players/season/all/playoff/0'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/stats/goalies/season/all/playoff/0'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/stats/players/season/all/playoff/1'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/stats/goalies/season/all/playoff/1'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/stats/players/season/all/playoff/all'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/stats/goalies/season/all/playoff/all'))->onQueue('purgeurl');
+        $this->dispatch($job);
+
+        for($i = 1; $i <= $lastSeason; $i++) {
+            $job = (new PurgeUrl('/stats/players/season/'.$i.'/playoff/0'))->onQueue('purgeurl');
+            $this->dispatch($job);
+            $job = (new PurgeUrl('/stats/goalies/season/'.$i.'/playoff/0'))->onQueue('purgeurl');
+            $this->dispatch($job);
+            $job = (new PurgeUrl('/stats/players/season/'.$i.'/playoff/1'))->onQueue('purgeurl');
+            $this->dispatch($job);
+            $job = (new PurgeUrl('/stats/goalies/season/'.$i.'/playoff/1'))->onQueue('purgeurl');
+            $this->dispatch($job);
+            $job = (new PurgeUrl('/stats/players/season/'.$i.'/playoff/all'))->onQueue('purgeurl');
+            $this->dispatch($job);
+            $job = (new PurgeUrl('/stats/goalies/season/'.$i.'/playoff/all'))->onQueue('purgeurl');
+            $this->dispatch($job);
+        }
+
+        $job = (new PurgeUrl('/stats/players'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/stats/goalies'))->onQueue('purgeurl');
+        $this->dispatch($job);
+
+        $job = (new PurgeUrl('/players/' . $event->playerId . '/stats/player'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/players/' . $event->playerId . '/stats/goalie'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/players/' . $event->playerId . '/records'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/records'))->onQueue('purgeurl');
+        $this->dispatch($job);
+    }
+
 
     public function subscribe(Dispatcher $events)
     {
@@ -101,7 +162,8 @@ class CacheBust extends Listener
                 GameAdded::class,
                 TeamPlayerAdded::class,
                 PointAdded::class,
-                GameCompleted::class
+                GameCompleted::class,
+                PlayerEdited::class
             ],
             CacheBust::class . '@handleEvent'
         );

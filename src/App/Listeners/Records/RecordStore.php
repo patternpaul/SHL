@@ -8,10 +8,13 @@
 namespace App\Listeners\Records;
 
 use App\Infrastructure\Database\IRedisDB;
+use App\Jobs\PurgeUrl;
 use App\Listeners\Players;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class RecordStore
 {
+    use DispatchesJobs;
     private $redis;
     private $players;
 

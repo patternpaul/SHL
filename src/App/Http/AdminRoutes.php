@@ -17,8 +17,11 @@ class AdminRoutes
     public static function routes(Router $router)
     {
 
-        $router->get('/admin/game/add', ['uses' => AdminController::class . '@addGame']);
-        $router->post('/admin/game/add', ['uses' => AdminController::class . '@storeGame']);
-
+        $router->get('/admin/games/add', ['uses' => AdminController::class . '@addGame']);
+        $router->post('/admin/games', ['uses' => AdminController::class . '@storeGame']);
+        $router->get('/admin/players/add', ['uses' => AdminController::class . '@addPlayer']);
+        $router->post('/admin/players', ['uses' => AdminController::class . '@storePlayer']);
+        $router->get('/admin/players/{playerId}/edit', ['uses' => AdminController::class . '@editPlayer']);
+        $router->post('/admin/players/{playerId}', ['uses' => AdminController::class . '@updatePlayer']);
     }
 }

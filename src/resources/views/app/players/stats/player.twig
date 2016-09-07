@@ -2,7 +2,7 @@
 
 {% block content %}
     {% include 'base.banner.twig' %}
-    <h1>{{ player.firstName }} {{ player.lastName }}</h1>
+    <h1>{{ player.firstName }} {{ player.lastName }}{% if auth_user() %} &nbsp;<a type="button" href="/admin/players/{{ player.id }}/edit" class="btn btn-success btn-xs">Edit</a>{% endif %}</h1>
 
     <ul class="nav nav-tabs">
         <li role="presentation" class="active">

@@ -3,7 +3,7 @@
 {% block content %}
     {% include 'base.banner.twig' %}
     {{ form.error_block(errors) }}
-    <form class="form-horizontal" role="form" method="post" action="/admin/game/add">
+    <form class="form-horizontal" role="form" method="post" action="/admin/games">
         {{  csrf_field()|raw }}
         {{ form.input_text("gameDate", "Date", '2016-07-27', '2016-07-27', errors)  }}
         {{ form.input_text("start", "Start", "9:00 AM", "9:00 AM", errors)  }}

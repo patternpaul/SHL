@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Commands\Game\AddFullGame;
+use App\Commands\Player\AddPlayer;
+use App\Commands\Player\EditPlayer;
 use App\Listeners\Games;
 use App\Listeners\Players;
 use Illuminate\Http\Request;
@@ -29,8 +31,9 @@ class AdminController extends Controller
 
     public function addGame()
     {
+        view()->share('active_navbar_addgame', true);
         $players = $this->players->getAll();
-        return view('app.admin.game.add', ["players" => $players]);
+        return view('app.admin.games.add', ["players" => $players]);
     }
 
     public function storeGame(Request $request)
@@ -116,80 +119,54 @@ class AdminController extends Controller
         return redirect()->route('player-stats');
     }
 
-
-    public function randopage()
+    public function addPlayer()
     {
-        return view('app.admin.rando');
+        view()->share('active_navbar_addplayer', true);
+        return view('app.admin.players.add');
     }
 
-    public function hack()
+    public function storePlayer(Request $request)
     {
-        $gameDate = '2016-07-27';
-        $start = '9:00 AM';
-        $end = '9:30 AM';
-        $playoff = 0;
-        $season = $this->games->getLatestSeason();
-        $gameNumber = $this->games->getLatestGame()+1;
+        $validationRules = [
+            'firstName' => 'required',
+            'lastName' => 'required'
+        ];
 
-        $command = new \App\Commands\Game\AddFullGame(
-            $gameDate,
-            $start,
-            $end,
-            $playoff,
-            $season,
-            $gameNumber
+        $this->validate($request, $validationRules);
+        $data = $request->all();
+        $command = new AddPlayer(
+            $data['firstName'],
+            $data['lastName']
         );
 
-        $allPlayers = $this->players->getAll();
-        $playerCount = 0;
-        $blackPlayer = '';
-
-
-        foreach ($allPlayers as $allPlayer) {
-            if ($allPlayer['lastName'] !== 'Everton') {
-                $playerCount++;
-                if ($playerCount > 9) {
-                    continue;
-                }
-                if ($playerCount === 1) {
-                    $command->addBlackGoalie($allPlayer['id']);
-                } elseif ($playerCount === 6) {
-                    $command->addWhiteGoalie($allPlayer['id']);
-                } elseif ($playerCount < 6) {
-                    $blackPlayer = $allPlayer['id'];
-                    $command->addBlackPlayer($allPlayer['id']);
-                } else {
-                    $command->addWhitePlayer($allPlayer['id']);
-                }
-            }
-        }
-        $me = '';
-        foreach ($allPlayers as $allPlayer) {
-            if ($allPlayer['lastName'] === 'Everton') {
-                $command->addWhitePlayer($allPlayer['id']);
-                $me = $allPlayer['id'];
-            }
-        }
-
-
-        $hack = intval(Input::get('goals'));
-
-
-        for ($i = 1; $i <= $hack; $i++) {
-
-            $command->addWhitePoint($i, $me, '');
-        }
-        for ($i = 1; $i <= 10; $i++) {
-            $command->addBlackPoint($i, $blackPlayer, '');
-        }
-
-        $this->dispatch($command);
+        $this->dispatchCommand($command,$request);
 
         return redirect()->route('player-stats');
     }
 
-    public function hackPost(Request $request)
+    public function editPlayer($playerId)
     {
+        $player = $this->players->getById($playerId);
+        return view('app.admin.players.edit', ["player" => $player]);
+    }
 
+    public function updatePlayer(Request $request, $playerId)
+    {
+        $validationRules = [
+            'firstName' => 'required',
+            'lastName' => 'required'
+        ];
+
+        $this->validate($request, $validationRules);
+        $data = $request->all();
+        $command = new EditPlayer(
+            $playerId,
+            $data['firstName'],
+            $data['lastName']
+        );
+
+        $this->dispatchCommand($command,$request);
+
+        return redirect()->route('player-stats');
     }
 }

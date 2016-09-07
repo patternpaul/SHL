@@ -55,7 +55,8 @@
                 <li class="{{ isActive(active_navbar_stats) }}"><a href="/stats/players">Stats</a></li>
                 <li class="{{ isActive(active_navbar_records) }}"><a href="/records">Records</a></li>
                 {% if auth_user() %}
-                    <li><a href="/admin/game/add">Add Game</a></li>
+                    <li class="{{ isActive(active_navbar_addgame) }}"><a href="/admin/games/add">Add Game</a></li>
+                    <li class="{{ isActive(active_navbar_addplayer) }}"><a href="/admin/players/add">Add Player</a></li>
                     <li><a href="/auth/logout">Logout</a></li>
                 {% else %}
                     <li><a href="/auth/login">Login</a></li>
