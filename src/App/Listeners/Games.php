@@ -82,37 +82,10 @@ class Games extends Listener
         //TODO: Fix this. This could be done better by having a hash containing all games. Keys would
         //be season-playoff-game. This way I can delete the key from the hash, pull the hash, order desc
         //get the first. I could rewind indef.
-        $lastGameObj = $this->redis->hgetall('last-game:');
 
-        if (count($lastGameObj) == 0) {
-            $lastGameObj['season'] = 0;
-            $lastGameObj['prior-season'] = 0;
-            $lastGameObj['game'] = 0;
-            $lastGameObj['prior-game'] = 0;
-        }
+        $this->redis->hset('gameslist:', $event->season.':'.$event->playoff.':'.$event->gameNumber, $event->gameNumber);
+        $this->redis->hset('seasonslist:', $event->season.':'.$event->playoff.':'.$event->gameNumber, $event->season);
 
-        $storeSeason = $lastGameObj['season'];
-        $storePriorSeason = $lastGameObj['prior-season'];
-        if (!is_numeric($storeSeason) || ($event->season > $storeSeason)) {
-            $storePriorSeason = $storeSeason;
-            $storeSeason = $event->season;
-        }
-        $lastGameObj['season'] = $storeSeason;
-        $lastGameObj['prior-season'] = $storePriorSeason;
-
-        $storeGame = $lastGameObj['game'];
-        $storePriorGame = $lastGameObj['prior-game'];
-        if (!is_numeric($storeGame) || ($event->gameNumber > $storeGame && $storeSeason == $event->season)) {
-            $storePriorGame = $storeGame;
-            $storeGame = $event->gameNumber;
-        }
-        $lastGameObj['game'] = $storeGame;
-        $lastGameObj['prior-game'] = $storePriorGame;
-
-        $this->redis->hmset(
-            'last-game:',
-            $lastGameObj
-        );
     }
     public function onGameEdited(GameEdited $event)
     {
@@ -153,41 +126,16 @@ class Games extends Listener
             'season'
         );
 
-
-        if($lastGameObj['game'] == $priorGame['gameNumber'] && $lastGameObj['season'] == $priorGame['season']) {
-            $lastGameObj['season'] = $lastGameObj['prior-season'];
-            $lastGameObj['game'] = $lastGameObj['prior-game'];
-
-
-            $storeSeason = $lastGameObj['season'];
-            $storePriorSeason = $lastGameObj['prior-season'];
-            if (!is_numeric($storeSeason) || ($event->season > $storeSeason)) {
-                $storePriorSeason = $storeSeason;
-                $storeSeason = $event->season;
-            }
-            $lastGameObj['season'] = $storeSeason;
-            $lastGameObj['prior-season'] = $storePriorSeason;
-
-            $storeGame = $lastGameObj['game'];
-            $storePriorGame = $lastGameObj['prior-game'];
-            if (!is_numeric($storeGame) || ($event->gameNumber > $storeGame && $storeSeason == $event->season) || ($lastSeason != $storeSeason)) {
-                $storePriorGame = $storeGame;
-                $storeGame = $event->gameNumber;
-            }
-            $lastGameObj['game'] = $storeGame;
-            $lastGameObj['prior-game'] = $storePriorGame;
-
-            $this->redis->hmset(
-                'last-game:',
-                $lastGameObj
-            );
-        }
+        $this->redis->hdel('gameslist:', $priorGame['season'].':'.$priorGame['playoff'].':'.$priorGame['gameNumber']);
+        $this->redis->hdel('seasonslist:', $priorGame['season'].':'.$priorGame['playoff'].':'.$priorGame['gameNumber']);
+        $this->redis->hset('gameslist:', $event->season.':'.$event->playoff.':'.$event->gameNumber, $event->gameNumber);
+        $this->redis->hset('seasonslist:', $event->season.':'.$event->playoff.':'.$event->gameNumber, $event->season);
     }
 
     public function getLatestSeasonGames()
     {
         $returnGames = [];
-        $latestSeason = $this->redis->hget('last-game:', 'season');
+        $latestSeason = $this->getLatestSeason();
         $seasonGames = $this->redis->hvals('games:season:'.$latestSeason);
         foreach ($seasonGames as $seasonGame) {
             $returnGames[] = $this->getById($seasonGame);
@@ -221,18 +169,12 @@ class Games extends Listener
 
     public function getLatestSeason()
     {
-        return $this->redis->hget(
-            'last-game:',
-            'season'
-        );
+        return end(ksort($this->redis->hgetall('seasonslist:')));
     }
 
     public function getLatestGame()
     {
-        return $this->redis->hget(
-            'last-game:',
-            'game'
-        );
+        return end(ksort($this->redis->hgetall('gameslist:')));
     }
 
     public function onTeamPlayerAdded(TeamPlayerAdded $event)

@@ -111,7 +111,6 @@ class Game extends AggregateRoot
 
     public function editGame($gameDate, $start, $end, $playoff, $season, $gameNumber)
     {
-        //$this->points[$event->teamColour][$event->pointNumber] = ['g' => $event->goalPlayerId, 'a' => $event->assistPlayerId];
         foreach ($this->points as $teamColor => $points) {
             foreach ($points as $pointNumber => $point) {
                 $this->apply(
@@ -123,17 +122,19 @@ class Game extends AggregateRoot
 
         foreach ($this->players as $color => $players) {
             foreach ($players as $playerId) {
-                if ($playerId != $this->whiteGoalie || $playerId != $this->blackGoalie) {
-                    $this->apply(
-                        new TeamPlayerRemoved($this->getAggregateId(), $color, $playerId, Game::PLAYER)
-                    );
-                } else {
-                    $this->apply(
-                        new TeamPlayerRemoved($this->getAggregateId(), $color, $playerId, Game::GOALIE)
-                    );
-                }
+                $this->apply(
+                    new TeamPlayerRemoved($this->getAggregateId(), $color, $playerId, Game::PLAYER)
+                );
             }
         }
+
+        $this->apply(
+            new TeamPlayerRemoved($this->getAggregateId(), Game::BLACK_TEAM, $this->blackGoalie, Game::GOALIE)
+        );
+
+        $this->apply(
+            new TeamPlayerRemoved($this->getAggregateId(), Game::WHITE_TEAM, $this->whiteGoalie, Game::GOALIE)
+        );
 
         $this->apply(
             new GameEdited($this->getAggregateId(), $gameDate, $start, $end, $playoff, $season, $gameNumber)

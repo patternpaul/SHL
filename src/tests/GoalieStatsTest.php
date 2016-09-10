@@ -1,6 +1,7 @@
 <?php
 
 use App\Aggregates\Game;
+use App\Commands\Player\AddPlayer;
 
 class GoalieStatsTest extends \App\Infrastructure\Test\TestCaseCore
 {
@@ -243,6 +244,95 @@ class GoalieStatsTest extends \App\Infrastructure\Test\TestCaseCore
     }
 
 
+    public function test_edit_game()
+    {
+        $season = 1;
+        $gameCount = 50;
+        $playoff = 0;
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $lastGameId = $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+
+        $command = new \App\Commands\Game\EditFullGame(
+            $lastGameId,
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            50
+        );
+
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addWhitePlayer($this->zachR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addWhitePlayer($this->paulE);
+        $command->addWhitePlayer($this->paulG);
+
+
+        $command->addBlackGoalie($this->davidR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addBlackPlayer($this->colinLemoine);
+
+
+        $command->addWhitePoint(1, $this->paulG, $this->paulE);
+        $command->addWhitePoint(2, $this->paulG, $this->paulE);
+        $command->addWhitePoint(3, $this->paulG, $this->paulE);
+        $command->addWhitePoint(4, $this->paulG, $this->paulE);
+        $command->addWhitePoint(5, $this->paulG, '');
+        $command->addWhitePoint(6, $this->paulG, $this->paulE);
+        $command->addWhitePoint(7, $this->paulG, $this->paulE);
+        $command->addWhitePoint(8, $this->paulG, $this->paulE);
+        $command->addWhitePoint(9, $this->paulG, $this->paulE);
+        $command->addWhitePoint(10, $this->paulG, $this->paulE);
+
+        $this->dispatch($command);
+
+
+
+        $statsLine = $this->goalieStats->getCalcGoalieStatLine($this->chrisLee, $season, $playoff);
+
+
+
+        $this->assertEquals(490, $statsLine['goalsAgainst']);
+        $this->assertEquals(50, $statsLine['gamesPlayed']);
+        $this->assertEquals(9.8, $statsLine['goalsAgainstAverage']);
+        $this->assertEquals(1, $statsLine['wins']);
+        $this->assertEquals(49, $statsLine['losses']);
+        $this->assertEquals(-48, $statsLine['plusMinus']);
+        $this->assertEquals(2, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(0, $statsLine['points']);
+        $this->assertEquals(1, $statsLine['shutOuts']);
+        $this->assertEquals(1500, $statsLine['minutesPlayed']);
+        $this->assertEquals(0.33, $statsLine['goalsPerMinute']);
+
+
+        $statsLine = $this->goalieStats->getCalcGoalieStatLine($this->davidR, $season, $playoff);
+
+        $this->assertEquals(10, $statsLine['goalsAgainst']);
+        $this->assertEquals(50, $statsLine['gamesPlayed']);
+        $this->assertEquals(0.2, $statsLine['goalsAgainstAverage']);
+        $this->assertEquals(49, $statsLine['wins']);
+        $this->assertEquals(1, $statsLine['losses']);
+        $this->assertEquals(48, $statsLine['plusMinus']);
+        $this->assertEquals(98, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['goals']);
+        $this->assertEquals(49, $statsLine['assists']);
+        $this->assertEquals(49, $statsLine['points']);
+        $this->assertEquals(49, $statsLine['shutOuts']);
+        $this->assertEquals(1500, $statsLine['minutesPlayed']);
+        $this->assertEquals(0.01, $statsLine['goalsPerMinute']);
+    }
+
+
+
     private function generateMultipleGamesForAGivenSeason($seasonId = 1, $gameCount = 50, $playoffs = 0)
     {
         $gameDate = '2016-07-27';
@@ -250,6 +340,7 @@ class GoalieStatsTest extends \App\Infrastructure\Test\TestCaseCore
         $end = '9:30 AM';
         $playoff = $playoffs;
         $season = $seasonId;
+        $gameId = '';
 
         for($i = 1; $i <= $gameCount; $i++) {
             $command = new \App\Commands\Game\AddFullGame(
@@ -288,8 +379,8 @@ class GoalieStatsTest extends \App\Infrastructure\Test\TestCaseCore
             $command->addBlackPoint(9, $this->jeremieR, $this->chrisR);
             $command->addBlackPoint(10, $this->colinLemoine, $this->jeremieR);
             $gameId = $this->dispatch($command);
-
         }
+        return $gameId;
     }
 
     public function test_getting_a_persons_goalie_stats()
@@ -417,7 +508,7 @@ class GoalieStatsTest extends \App\Infrastructure\Test\TestCaseCore
         $favProPlayer = 'favProPlayer';
         $favProTeam = 'favProTeam';
 
-        $command = new \App\Commands\Player\AddPlayer(
+        $command = new AddPlayer(
             $firstName,
             $lastName,
             $email,
