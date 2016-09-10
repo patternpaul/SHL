@@ -111,6 +111,7 @@ class Game extends AggregateRoot
 
     public function editGame($gameDate, $start, $end, $playoff, $season, $gameNumber)
     {
+
         foreach ($this->points as $teamColor => $points) {
             foreach ($points as $pointNumber => $point) {
                 $this->apply(
@@ -118,8 +119,6 @@ class Game extends AggregateRoot
                 );
             }
         }
-
-
         foreach ($this->players as $color => $players) {
             foreach ($players as $playerId) {
                 $this->apply(
@@ -127,6 +126,8 @@ class Game extends AggregateRoot
                 );
             }
         }
+
+
 
         $this->apply(
             new TeamPlayerRemoved($this->getAggregateId(), Game::BLACK_TEAM, $this->blackGoalie, Game::GOALIE)

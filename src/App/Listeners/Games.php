@@ -120,11 +120,7 @@ class Games extends Listener
             $event->getAggregateId(),
             $event->getAggregateId()
         );
-
-        $lastGameObj = $this->redis->hget(
-            'last-game:',
-            'season'
-        );
+        
 
         $this->redis->hdel('gameslist:', $priorGame['season'].':'.$priorGame['playoff'].':'.$priorGame['gameNumber']);
         $this->redis->hdel('seasonslist:', $priorGame['season'].':'.$priorGame['playoff'].':'.$priorGame['gameNumber']);

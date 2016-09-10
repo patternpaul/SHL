@@ -75,6 +75,91 @@ class PlayerStatsTest extends \App\Infrastructure\Test\TestCaseCore
     }
 
 
+    public function test_edit_game_scenario()
+    {
+        $season = 1;
+        $gameCount = 50;
+        $playoff = 0;
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $lastGameId = $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+
+        $command = new \App\Commands\Game\EditFullGame(
+            $lastGameId,
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            50
+        );
+
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addWhitePlayer($this->zachR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addWhitePlayer($this->paulE);
+        $command->addWhitePlayer($this->paulG);
+
+
+        $command->addBlackGoalie($this->davidR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addBlackPlayer($this->colinLemoine);
+
+
+        $command->addWhitePoint(1, $this->ghislainD, $this->paulE);
+        $command->addWhitePoint(2, $this->ghislainD, $this->paulE);
+        $command->addWhitePoint(3, $this->ghislainD, $this->paulE);
+        $command->addWhitePoint(4, $this->ghislainD, $this->paulE);
+        $command->addWhitePoint(5, $this->ghislainD, '');
+        $command->addWhitePoint(6, $this->ghislainD, $this->paulE);
+        $command->addWhitePoint(7, $this->ghislainD, $this->paulE);
+        $command->addWhitePoint(8, $this->ghislainD, $this->paulE);
+        $command->addWhitePoint(9, $this->ghislainD, $this->paulE);
+        $command->addWhitePoint(10, $this->ghislainD, $this->paulE);
+
+        $this->dispatch($command);
+
+
+
+        $statsLine = $this->stats->getCalcPlayerStatLine($this->ghislainD, $season, $playoff);
+
+        $this->assertEquals(59, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(59, $statsLine['points']);
+        $this->assertEquals(1.18, $statsLine['goalsPerGame']);
+        $this->assertEquals(0, $statsLine['assistsPerGame']);
+        $this->assertEquals(1.18, $statsLine['pointsPerGame']);
+        $this->assertEquals(100, $statsLine['teamGoalsPercentage']);
+        $this->assertEquals(1, $statsLine['wins']);
+        $this->assertEquals(49, $statsLine['losses']);
+        $this->assertEquals(-48, $statsLine['plusMinus']);
+        $this->assertEquals(2, $statsLine['winPercentage']);
+        $this->assertEquals(1, $statsLine['gameWinningGoals']);
+
+
+        $statsLine = $this->stats->getCalcPlayerStatLine($this->colinLemoine, $season, $playoff);
+
+        $this->assertEquals(147, $statsLine['goals']);
+        $this->assertEquals(147, $statsLine['assists']);
+        $this->assertEquals(294, $statsLine['points']);
+        $this->assertEquals(2.94, $statsLine['goalsPerGame']);
+        $this->assertEquals(2.94, $statsLine['assistsPerGame']);
+        $this->assertEquals(5.88, $statsLine['pointsPerGame']);
+        $this->assertEquals(30, $statsLine['teamGoalsPercentage']);
+        $this->assertEquals(49, $statsLine['wins']);
+        $this->assertEquals(1, $statsLine['losses']);
+        $this->assertEquals(48, $statsLine['plusMinus']);
+        $this->assertEquals(98, $statsLine['winPercentage']);
+        $this->assertEquals(49, $statsLine['gameWinningGoals']);
+    }
+
+
+
     public function test_goalie_not_in_stats_scenario()
     {
         $season = 1;
@@ -357,6 +442,7 @@ class PlayerStatsTest extends \App\Infrastructure\Test\TestCaseCore
         $end = '9:30 AM';
         $playoff = $playoffs;
         $season = $seasonId;
+        $gameId = '';
 
         for($i = 1; $i <= $gameCount; $i++) {
             $command = new \App\Commands\Game\AddFullGame(
@@ -400,6 +486,8 @@ class PlayerStatsTest extends \App\Infrastructure\Test\TestCaseCore
             $gameId = $this->dispatch($command);
 
         }
+
+        return $gameId;
     }
 
 

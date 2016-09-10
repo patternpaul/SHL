@@ -11,7 +11,9 @@ use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
 use App\Events\Game\PointAdded;
+use App\Events\Game\PointRemoved;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Events\Player\PlayerAdded;
 use App\Events\Player\PlayerEdited;
 use App\Infrastructure\Database\IRedisDB;
@@ -61,7 +63,7 @@ class PlayerStats extends Listener
 
 
             if(($selectedPlayoff === 'all') || ($selectedPlayoff === 0) || ($selectedPlayoff === '0')) {
-                $seasonPlayers = $this->redis->hgetall('stats:seasons:'.$season.":playoffs:0:players");
+                $seasonPlayers = array_unique($this->redis->hvals('stats:seasons:'.$season.":playoffs:0:players"));
                 foreach ($seasonPlayers as $seasonPlayer) {
                     $seasonPlayerData = $this->getPlayerStatLine($seasonPlayer, $season, 0);
                     if(isset($statLines[$seasonPlayer])) {
@@ -75,7 +77,7 @@ class PlayerStats extends Listener
 
             if(($selectedPlayoff === 'all') || ($selectedPlayoff === 1) || ($selectedPlayoff === '1')) {
 
-                $seasonPlayers = $this->redis->hgetall('stats:seasons:'.$season.":playoffs:1:players");
+                $seasonPlayers = array_unique($this->redis->hvals('stats:seasons:'.$season.":playoffs:1:players"));
                 foreach ($seasonPlayers as $seasonPlayer) {
                     $seasonPlayerData = $this->getPlayerStatLine($seasonPlayer, $season, 1);
                     if(isset($statLines[$seasonPlayer])) {
@@ -120,7 +122,7 @@ class PlayerStats extends Listener
         $allLine = [];
 
         foreach ($seasons as $season) {
-            $seasonPlayers = $this->redis->hgetall('stats:seasons:'.$season.":playoffs:".$playoff.":players");
+            $seasonPlayers = array_unique($this->redis->hvals('stats:seasons:'.$season.":playoffs:".$playoff.":players"));
             foreach ($seasonPlayers as $seasonPlayer) {
                 if ($seasonPlayer == $playerId) {
                     $seasonPlayerData = $this->getPlayerStatLine($seasonPlayer, $season, $playoff);
@@ -201,22 +203,14 @@ class PlayerStats extends Listener
 
             $this->redis->hset(
                 'stats:seasons:'.$game['season'].":playoffs:".$game['playoff'].":players",
-                $event->playerId,
+                $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId,
                 $event->playerId
             );
 
             $this->redis->hset(
                 'stats:seasons:'.$game['season'].":playoffs:all:players",
-                $event->playerId,
+                $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId,
                 $event->playerId
-            );
-
-
-            //TODO: Will need to check player type due to goalies not tracking against player time
-            $this->redis->hset(
-                'stats:players:'.$event->playerId.":playoffs:".$game['playoff'].":seasons",
-                $game['season'],
-                $game['season']
             );
 
 
@@ -232,6 +226,96 @@ class PlayerStats extends Listener
 
         }
     }
+
+
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+
+        $this->redis->hdel(
+            $this->getBaseKey() . ':game:' . $event->gameId.':player-positions',
+            $event->playerId
+        );
+
+
+
+        if ($event->position == Game::PLAYER) {
+
+            $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+            $blackPoints = $game[Game::BLACK_TEAM.'TotalPoints'];
+            $whitePoints = $game[Game::WHITE_TEAM.'TotalPoints'];
+
+            $obj = $this->getPlayerStatLine($event->playerId, $game['season'], $game['playoff']);
+
+
+            if (Game::WHITE_TEAM == $event->teamColour) {
+                $obj['teamGoals'] = $obj['teamGoals'] - $whitePoints;
+            } else {
+                $obj['teamGoals'] = $obj['teamGoals'] - $blackPoints;
+            }
+
+
+            if ($event->teamColour == $game['winner']) {
+                $obj['wins'] = $obj['wins'] - 1;
+            } else {
+                $obj['losses'] = $obj['losses'] - 1;
+            }
+            $obj['gamesPlayed'] = $obj['gamesPlayed'] - 1;
+
+            $this->storePlayerStatLine($event->playerId, $game['season'], $game['playoff'], $obj);
+
+
+            $this->redis->hdel(
+                'stats:seasons:'.$game['season'].":playoffs:".$game['playoff'].":players",
+                $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId
+            );
+
+            $this->redis->hdel(
+                'stats:seasons:'.$game['season'].":playoffs:all:players",
+                $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId
+            );
+
+
+
+            $this->redis->hdel(
+                $this->getBaseKey() . ':game:' . $event->gameId.':players',
+                $event->playerId
+            );
+        }
+    }
+
+    public function onPointRemoved(PointRemoved $event)
+    {
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+
+        $goalPosition = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':player-positions', $event->goalPlayerId);
+
+
+        if ($goalPosition === Game::PLAYER) {
+            $obj = $this->getPlayerStatLine($event->goalPlayerId, $game['season'], $game['playoff']);
+            $obj['goals'] = $obj['goals'] - 1;
+            $this->storePlayerStatLine($event->goalPlayerId, $game['season'], $game['playoff'], $obj);
+
+            if ($game['winningPoint'] == $event->pointNumber && $game['winner'] == $event->teamColour) {
+                $obj = $this->getPlayerStatLine($event->goalPlayerId, $game['season'], $game['playoff']);
+                $obj['gameWinningGoals'] = $obj['gameWinningGoals'] - 1;
+                $this->storePlayerStatLine($event->goalPlayerId, $game['season'], $game['playoff'], $obj);
+            }
+
+        }
+
+
+
+        $assistPosition = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':player-positions', $event->assistPlayerId);
+        if ($assistPosition == Game::PLAYER) {
+            $obj = $this->getPlayerStatLine($event->assistPlayerId, $game['season'], $game['playoff']);
+            $obj['assists'] = $obj['assists'] - 1;
+            $this->storePlayerStatLine($event->assistPlayerId, $game['season'], $game['playoff'], $obj);
+        }
+
+        $this->redis->del($this->getBaseKey().':games:'.$event->getAggregateId().":color:".$event->teamColour.":point:".$event->pointNumber);
+    }
+
 
     private function getPlayerStatLine($playerId, $season, $playoff)
     {
@@ -284,6 +368,8 @@ class PlayerStats extends Listener
         $this->redis->hmset($this->getBaseKey() . ':games:'.$event->getAggregateId().":color:".$event->teamColour.":point:".$event->pointNumber, $pointObj);
     }
 
+
+
     public function onGameCompleted(GameCompleted $event)
     {
         $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
@@ -312,6 +398,10 @@ class PlayerStats extends Listener
 
             $this->storePlayerStatLine($playerId, $game['season'], $game['playoff'], $obj);
         }
+        $this->redis->hset($this->getBaseKey() . ':game:' . $event->getAggregateId(), 'winner', $event->winningTeam);
+        $this->redis->hset($this->getBaseKey() . ':game:' . $event->getAggregateId(), 'winningPoint', $event->winningPoint);
+        $this->redis->hset($this->getBaseKey() . ':game:' . $event->getAggregateId(), Game::BLACK_TEAM.'TotalPoints', $event->blackPointTotal);
+        $this->redis->hset($this->getBaseKey() . ':game:' . $event->getAggregateId(), Game::WHITE_TEAM.'TotalPoints', $event->whitePointTotal);
     }
 
 
@@ -327,6 +417,9 @@ class PlayerStats extends Listener
         $endTime = Carbon::parse($event->gameDate.' '.$event->end);
         $minDiff = $startTime->diffInMinutes($endTime);
         $obj['gameTime'] = $minDiff;
+        $obj['gameDate'] = $event->gameDate;
+        $obj['start'] = $event->end;
+        $obj['end'] = $event->start;
 
         $this->redis->hset(
             'stats:seasons:',
@@ -347,7 +440,9 @@ class PlayerStats extends Listener
                 TeamPlayerAdded::class,
                 PointAdded::class,
                 GameCompleted::class,
-                GameAdded::class
+                GameAdded::class,
+                TeamPlayerRemoved::class,
+                PointRemoved::class
             ],
             PlayerStats::class . '@handleEvent'
         );
