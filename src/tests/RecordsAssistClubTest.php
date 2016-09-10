@@ -38,7 +38,7 @@ class RecordsAssistClubTest extends \App\Infrastructure\Test\TestCaseCore
     public function test_250_assist_club()
     {
         $season = 1;
-        $gameCount = 42;
+        $gameCount = 125;
         $playoff = 0;
         $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
         $records = $this->recordStore->getRecords();
@@ -49,13 +49,70 @@ class RecordsAssistClubTest extends \App\Infrastructure\Test\TestCaseCore
     public function test_250_assist_club_2()
     {
         $season = 1;
-        $gameCount = 64;
+        $gameCount = 250;
         $playoff = 0;
         $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
         $records = $this->recordStore->getRecords();
         $this->assertEquals(2, count($records[\App\Listeners\Records\AssistClub::BASE_KEY.':0250']['entries']));
     }
 
+    public function test_assist_club_on_game_edit()
+    {
+        $season = 1;
+        $gameCount = 250;
+        $playoff = 0;
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $gameId = $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+
+        $command = new \App\Commands\Game\EditFullGame(
+            $gameId,
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            250
+        );
+
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addWhitePlayer($this->zachR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addWhitePlayer($this->paulE);
+        $command->addWhitePlayer($this->paulG);
+
+
+        $command->addBlackGoalie($this->davidR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addBlackPlayer($this->colinLemoine);
+
+
+        $command->addWhitePoint(1, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(2, $this->ghislainD, $this->zachR);
+
+
+        $command->addBlackPoint(1, $this->chrisR, '');
+        $command->addBlackPoint(2, $this->jacquesAuger, '');
+        $command->addBlackPoint(3, $this->jacquesAuger, '');
+        $command->addBlackPoint(4, $this->chrisR, '');
+        $command->addBlackPoint(5, $this->chrisR, '');
+        $command->addBlackPoint(6, $this->chrisR, '');
+        $command->addBlackPoint(7, $this->colinLemoine, '');
+        $command->addBlackPoint(8, $this->jacquesAuger, '');
+        $command->addBlackPoint(9, $this->jacquesAuger, '');
+        $command->addBlackPoint(10, $this->jacquesAuger, '');
+        $this->dispatch($command);
+
+
+
+        $records = $this->recordStore->getRecords();
+        $this->assertEquals(1, count($records[\App\Listeners\Records\AssistClub::BASE_KEY.':0250']['entries']));
+    }
 
     private function generateMultipleGamesForAGivenSeason($seasonId = 1, $gameCount = 50, $playoffs = 0)
     {
@@ -64,6 +121,7 @@ class RecordsAssistClubTest extends \App\Infrastructure\Test\TestCaseCore
         $end = '9:30 AM';
         $playoff = $playoffs;
         $season = $seasonId;
+        $gameId = '';
 
         for ($i = 1; $i <= $gameCount; $i++) {
             $command = new \App\Commands\Game\AddFullGame(
@@ -92,21 +150,24 @@ class RecordsAssistClubTest extends \App\Infrastructure\Test\TestCaseCore
 
 
             $command->addWhitePoint(1, $this->ghislainD, $this->zachR);
+            $command->addWhitePoint(2, $this->ghislainD, $this->zachR);
 
 
-            $command->addBlackPoint(1, $this->chrisR, $this->colinLemoine);
-            $command->addBlackPoint(2, $this->jacquesAuger, $this->jacquesAuger);
-            $command->addBlackPoint(3, $this->jacquesAuger, $this->jacquesAuger);
-            $command->addBlackPoint(4, $this->chrisR, $this->jacquesAuger);
-            $command->addBlackPoint(5, $this->chrisR, $this->jacquesAuger);
-            $command->addBlackPoint(6, $this->chrisR, $this->colinLemoine);
-            $command->addBlackPoint(7, $this->colinLemoine, $this->colinLemoine);
-            $command->addBlackPoint(8, $this->jacquesAuger, $this->colinLemoine);
-            $command->addBlackPoint(9, $this->jacquesAuger, $this->colinLemoine);
-            $command->addBlackPoint(10, $this->jacquesAuger, $this->colinLemoine);
+            $command->addBlackPoint(1, $this->chrisR, $this->jacquesAuger);
+            $command->addBlackPoint(2, $this->jacquesAuger, '');
+            $command->addBlackPoint(3, $this->jacquesAuger, '');
+            $command->addBlackPoint(4, $this->chrisR, '');
+            $command->addBlackPoint(5, $this->chrisR, '');
+            $command->addBlackPoint(6, $this->chrisR, '');
+            $command->addBlackPoint(7, $this->colinLemoine, '');
+            $command->addBlackPoint(8, $this->jacquesAuger, '');
+            $command->addBlackPoint(9, $this->jacquesAuger, '');
+            $command->addBlackPoint(10, $this->jacquesAuger, '');
             $gameId = $this->dispatch($command);
 
         }
+
+        return $gameId;
     }
 
 
