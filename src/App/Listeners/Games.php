@@ -10,8 +10,11 @@ namespace App\Listeners;
 use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
+use App\Events\Game\GameEdited;
 use App\Events\Game\PointAdded;
+use App\Events\Game\PointRemoved;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Events\Player\PlayerAdded;
 use App\Events\Player\PlayerEdited;
 use App\Infrastructure\Database\IRedisDB;
@@ -75,36 +78,106 @@ class Games extends Listener
             $event->getAggregateId()
         );
 
-        $lastSeason = $this->redis->hget(
+        $lastGameObj = $this->redis->hgetall('last-game:');
+
+        if (count($lastGameObj) == 0) {
+            $lastGameObj['season'] = 0;
+            $lastGameObj['prior-season'] = 0;
+            $lastGameObj['game'] = 0;
+            $lastGameObj['prior-game'] = 0;
+        }
+
+        $storeSeason = $lastGameObj['season'];
+        $storePriorSeason = $lastGameObj['prior-season'];
+        if (!is_numeric($storeSeason) || ($event->season > $storeSeason)) {
+            $storePriorSeason = $storeSeason;
+            $storeSeason = $event->season;
+        }
+        $lastGameObj['season'] = $storeSeason;
+        $lastGameObj['prior-season'] = $storePriorSeason;
+
+        $storeGame = $lastGameObj['game'];
+        $storePriorGame = $lastGameObj['prior-game'];
+        if (!is_numeric($storeGame) || ($event->gameNumber > $storeGame && $storeSeason == $event->season)) {
+            $storePriorGame = $storeGame;
+            $storeGame = $event->gameNumber;
+        }
+        $lastGameObj['game'] = $storeGame;
+        $lastGameObj['prior-game'] = $storePriorGame;
+
+        $this->redis->hmset(
+            'last-game:',
+            $lastGameObj
+        );
+    }
+    public function onGameEdited(GameEdited $event)
+    {
+        $startTime = Carbon::parse($event->gameDate.' '.$event->start);
+        $endTime = Carbon::parse($event->gameDate.' '.$event->end);
+        $minDiff = $startTime->diffInMinutes($endTime);
+
+        $priorGame = $this->redis->hgetall('game:' . $event->getAggregateId());
+
+        $obj = [];
+        $obj["id"] = $event->getAggregateId();
+        $obj["start"] = $event->start;
+        $obj["end"] = $event->end;
+        $obj["playoff"] = $event->playoff;
+        $obj['gameDate'] = $event->gameDate;
+        $obj['gameTime'] = $minDiff;
+        $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
+        $obj[Game::BLACK_TEAM."Points"] = 0;
+        $obj[Game::WHITE_TEAM."Points"] = 0;
+
+        $this->redis->hmset('game:' . $event->getAggregateId(), $obj);
+
+
+        $this->redis->hdel(
+            'games:season:'.$priorGame['season'],
+            $priorGame['id']
+        );
+
+        $this->redis->hset(
+            'games:season:'.$event->season,
+            $event->getAggregateId(),
+            $event->getAggregateId()
+        );
+
+        $lastGameObj = $this->redis->hget(
             'last-game:',
             'season'
         );
 
-        $storeSeason = $lastSeason;
-        if (!is_numeric($storeSeason) || ($event->season > $storeSeason)) {
-            $storeSeason = $event->season;
+
+        if($lastGameObj['game'] == $priorGame['gameNumber'] && $lastGameObj['season'] == $priorGame['season']) {
+            $lastGameObj['season'] = $lastGameObj['prior-season'];
+            $lastGameObj['game'] = $lastGameObj['prior-game'];
+
+
+            $storeSeason = $lastGameObj['season'];
+            $storePriorSeason = $lastGameObj['prior-season'];
+            if (!is_numeric($storeSeason) || ($event->season > $storeSeason)) {
+                $storePriorSeason = $storeSeason;
+                $storeSeason = $event->season;
+            }
+            $lastGameObj['season'] = $storeSeason;
+            $lastGameObj['prior-season'] = $storePriorSeason;
+
+            $storeGame = $lastGameObj['game'];
+            $storePriorGame = $lastGameObj['prior-game'];
+            if (!is_numeric($storeGame) || ($event->gameNumber > $storeGame && $storeSeason == $event->season) || ($lastSeason != $storeSeason)) {
+                $storePriorGame = $storeGame;
+                $storeGame = $event->gameNumber;
+            }
+            $lastGameObj['game'] = $storeGame;
+            $lastGameObj['prior-game'] = $storePriorGame;
+
+            $this->redis->hmset(
+                'last-game:',
+                $lastGameObj
+            );
         }
-
-        $this->redis->hset(
-            'last-game:',
-            'season',
-            $storeSeason
-        );
-        $lastGame = $this->redis->hget(
-            'last-game:',
-            'game'
-        );
-
-        $storeGame = $lastGame;
-        if (!is_numeric($storeGame) || ($event->gameNumber > $storeGame && $storeSeason == $event->season) || ($lastSeason != $storeSeason)) {
-            $storeGame = $event->gameNumber;
-        }
-
-        $this->redis->hset(
-            'last-game:',
-            'game',
-            $storeGame
-        );
     }
 
     public function getLatestSeasonGames()
@@ -176,7 +249,23 @@ class Games extends Listener
             $obj[$event->teamColour.'Goalie'] = $event->playerId;
             $this->redis->hmset('game:' . $event->getAggregateId(), $obj);
         }
+    }
 
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        $this->redis->hdel(
+            'games:'.$event->getAggregateId().":teamplayers:".$event->teamColour,
+            $event->playerId
+        );
+
+        if ($event->position === Game::PLAYER) {
+            $this->redis->hdel(
+                'games:'.$event->getAggregateId().":teamplayers:players:".$event->teamColour,
+                $event->playerId
+            );
+        } else {
+            $this->redis->hdel('game:' . $event->getAggregateId(), $event->teamColour.'Goalie');
+        }
     }
 
     private function getGameTeamPlayers($gameId, $teamColour, $all = true)
@@ -244,6 +333,21 @@ class Games extends Listener
         $this->redis->hmset('games:'.$event->getAggregateId().":color:".$event->teamColour.":point:".$event->pointNumber, $pointObj);
     }
 
+    public function onPointRemoved(PointRemoved $event)
+    {
+        $obj = $this->redis->hgetall('game:' . $event->getAggregateId());
+        $obj[$event->teamColour."Points"] = $obj[$event->teamColour."Points"] - 1;
+
+        $this->redis->hmset('game:' . $event->getAggregateId(), $obj);
+
+        $this->redis->hdel(
+            'games:'.$event->getAggregateId().":color:".$event->teamColour.":points:",
+            $event->pointNumber
+        );
+
+        $this->redis->del('games:'.$event->getAggregateId().":color:".$event->teamColour.":point:".$event->pointNumber);
+    }
+
 
     public function onPlayerAdded(PlayerAdded $event)
     {
@@ -279,7 +383,10 @@ class Games extends Listener
                 TeamPlayerAdded::class,
                 PointAdded::class,
                 PlayerAdded::class,
-                GameCompleted::class
+                GameCompleted::class,
+                PointRemoved::class,
+                TeamPlayerRemoved::class,
+                GameEdited::class
             ],
             Games::class . '@handleEvent'
         );

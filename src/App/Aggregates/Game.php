@@ -4,8 +4,11 @@ namespace App\Aggregates;
 
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
+use App\Events\Game\GameEdited;
 use App\Events\Game\PointAdded;
+use App\Events\Game\PointRemoved;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Infrastructure\Aggregate\AggregateException;
 use App\Infrastructure\Aggregate\AggregateRoot;
 
@@ -31,6 +34,54 @@ class Game extends AggregateRoot
     const GOALIE = "g";
     const PLAYER = "p";
 
+    /**
+     * @return mixed
+     */
+    public function getGameDate()
+    {
+        return $this->gameDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStart()
+    {
+        return $this->start;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEnd()
+    {
+        return $this->end;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPlayoff()
+    {
+        return $this->playoff;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSeason()
+    {
+        return $this->season;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGameNumber()
+    {
+        return $this->gameNumber;
+    }
+
 
 
     public static function createGame($gameDate, $start, $end, $playoff, $season, $gameNumber)
@@ -47,6 +98,51 @@ class Game extends AggregateRoot
     {
         $this->gameDate = $event->gameDate;
         $this->setAggregateId($event->getAggregateId());
+        $this->start = $event->start;
+        $this->end = $event->end;
+        $this->playoff = $event->playoff;
+        $this->season = $event->season;
+        $this->gameNumber = $event->gameNumber;
+        $this->players[Game::BLACK_TEAM] = [];
+        $this->players[Game::WHITE_TEAM] = [];
+        $this->points[Game::BLACK_TEAM] = [];
+        $this->points[Game::WHITE_TEAM] = [];
+    }
+
+    public function editGame($gameDate, $start, $end, $playoff, $season, $gameNumber)
+    {
+        //$this->points[$event->teamColour][$event->pointNumber] = ['g' => $event->goalPlayerId, 'a' => $event->assistPlayerId];
+        foreach ($this->points as $teamColor => $points) {
+            foreach ($points as $pointNumber => $point) {
+                $this->apply(
+                    new PointRemoved($this->getAggregateId(), $teamColor, $pointNumber, $point['g'], $point['a'])
+                );
+            }
+        }
+
+
+        foreach ($this->players as $color => $players) {
+            foreach ($players as $playerId) {
+                if ($playerId != $this->whiteGoalie || $playerId != $this->blackGoalie) {
+                    $this->apply(
+                        new TeamPlayerRemoved($this->getAggregateId(), $color, $playerId, Game::PLAYER)
+                    );
+                } else {
+                    $this->apply(
+                        new TeamPlayerRemoved($this->getAggregateId(), $color, $playerId, Game::GOALIE)
+                    );
+                }
+            }
+        }
+
+        $this->apply(
+            new GameEdited($this->getAggregateId(), $gameDate, $start, $end, $playoff, $season, $gameNumber)
+        );
+    }
+
+    public function applyGameEdited(GameEdited $event)
+    {
+        $this->gameDate = $event->gameDate;
         $this->start = $event->start;
         $this->end = $event->end;
         $this->playoff = $event->playoff;
@@ -102,6 +198,25 @@ class Game extends AggregateRoot
                 $this->blackGoalie = $event->playerId;
             } else {
                 $this->whiteGoalie = $event->playerId;
+            }
+        }
+    }
+
+    public function applyTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+
+        $foundKey = '';
+        foreach ($this->players[$event->teamColour] as $key => $player) {
+            if ($player == $event->playerId) {
+                $foundKey = $key;
+            }
+        }
+        unset($this->players[$event->teamColour][$foundKey]);
+        if ($event->position === Game::GOALIE) {
+            if ($event->teamColour === Game::BLACK_TEAM) {
+                $this->blackGoalie = null;
+            } else {
+                $this->whiteGoalie = null;
             }
         }
     }
@@ -172,6 +287,11 @@ class Game extends AggregateRoot
     public function applyPointAdded(PointAdded $event)
     {
         $this->points[$event->teamColour][$event->pointNumber] = ['g' => $event->goalPlayerId, 'a' => $event->assistPlayerId];
+    }
+
+    public function applyPointRemoved(PointRemoved $event)
+    {
+        unset($this->points[$event->teamColour][$event->pointNumber]);
     }
 
     public function getBlackPointTotal()
