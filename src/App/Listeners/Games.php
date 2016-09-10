@@ -78,6 +78,10 @@ class Games extends Listener
             $event->getAggregateId()
         );
 
+
+        //TODO: Fix this. This could be done better by having a hash containing all games. Keys would
+        //be season-playoff-game. This way I can delete the key from the hash, pull the hash, order desc
+        //get the first. I could rewind indef.
         $lastGameObj = $this->redis->hgetall('last-game:');
 
         if (count($lastGameObj) == 0) {
