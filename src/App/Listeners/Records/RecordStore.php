@@ -28,6 +28,16 @@ class RecordStore
     {
         $this->redis->hset('records:headers', $recordKey, $header);
 
+        $recordEntries = $this->redis->hgetall('record:'.$recordKey);
+
+        $players = $this->players->getAll();
+
+        foreach ($players as $player) {
+            foreach ($recordEntries as $recordEntryKey => $entry) {
+                $this->redis->hdel('player-records:'.$player['id'], $recordKey);
+            }
+        }
+
         $this->redis->del('record:'.$recordKey);
 
         $i = 0;

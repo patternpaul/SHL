@@ -47,7 +47,7 @@ class RecordRegularSeasonShutOutClubTest extends \App\Infrastructure\Test\TestCa
     {
         $gameOneId = $this->generateGame(10, 1);
         $gameTwoId = $this->generateGame(10, 2);
-        $records = $this->recordStore->getRecords();
+        $records = $this->recordStore->getRecords(); 
         $this->assertEquals(2, count($records[\App\Listeners\Records\RegularSeasonShutOutClub::BASE_KEY]['entries']));
 
     }
