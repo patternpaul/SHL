@@ -5,8 +5,11 @@ namespace App\Listeners\Records;
 use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
+use App\Events\Game\GameEdited;
+use App\Events\Game\GameUnCompleted;
 use App\Events\Game\PointAdded;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Infrastructure\Database\IRedisDB;
 use App\Listeners\Listener;
 use Carbon\Carbon;
@@ -36,6 +39,13 @@ class LongestRegularSeasonGame extends Listener
         }
     }
 
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        if ($event->position == Game::GOALIE) {
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->getAggregateId(), $event->teamColour."Goalie");
+        }
+    }
+
 
     public function onGameAdded(GameAdded $event)
     {
@@ -48,6 +58,26 @@ class LongestRegularSeasonGame extends Listener
         $obj["season"] = $event->season;
         $obj["gameNumber"] = $event->gameNumber;
         $obj['gameTime'] = $minDiff;
+        $obj['id'] = $event->gameId;
+        $obj['playoff'] = $event->playoff;
+
+        $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
+        $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
+    }
+
+    public function onGameEdited(GameEdited $event)
+    {
+
+        $startTime = Carbon::parse($event->gameDate.' '.$event->start);
+        $endTime = Carbon::parse($event->gameDate.' '.$event->end);
+        $minDiff = $startTime->diffInMinutes($endTime);
+
+        $obj = [];
+        $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
+        $obj['gameTime'] = $minDiff;
+        $obj['id'] = $event->gameId;
+        $obj['playoff'] = $event->playoff;
 
         $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
         $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
@@ -58,6 +88,8 @@ class LongestRegularSeasonGame extends Listener
 
         $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
         $obj = $this->redis->hgetall('longestRegularSeasonGame');
+
+        $this->redis->hset('longestRegularSeasonGameGameList',$game['id'], $game['gameTime']);
 
         if ($game['gameTime'] > $this->getOrDefault($obj, 'gameTime')) {
             $this->redis->del('longestRegularSeasonGame:gameIds');
@@ -80,6 +112,34 @@ class LongestRegularSeasonGame extends Listener
         $this->storeRecord();
     }
 
+    public function onGameUnCompleted(GameUnCompleted $event) {
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+
+        if ($game['playoff'] == 0) {
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->gameId, Game::BLACK_TEAM.'Points');
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->gameId, Game::WHITE_TEAM.'Points');
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->gameId, "winningTeam");
+            $this->redis->hdel('longestRegularSeasonGameGameList', $event->gameId);
+            $this->redis->del('longestRegularSeasonGame:gameIds');
+            $gameTimes = $this->redis->hvals('longestRegularSeasonGameGameList');
+            sort($gameTimes);
+
+            if (count($gameTimes) > 0) {
+
+                $this->redis->hset('longestRegularSeasonGame','gameTime', $gameTimes[0]);
+
+                foreach ($this->redis->hgetall('longestRegularSeasonGameGameList') as $gameId => $gameTime) {
+                    if ($gameTimes[0] == $gameTime) {
+                        $this->redis->hset('longestRegularSeasonGame:gameIds', $gameId, $gameId);
+                    }
+                }
+            } else {
+                $this->redis->hdel('longestRegularSeasonGame','gameTime');
+            }
+
+            $this->storeRecord();
+        }
+    }
 
     private function storeRecord()
     {
@@ -112,7 +172,10 @@ class LongestRegularSeasonGame extends Listener
             [
                 GameCompleted::class,
                 GameAdded::class,
-                TeamPlayerAdded::class
+                TeamPlayerAdded::class,
+                GameUnCompleted::class,
+                GameEdited::class,
+                TeamPlayerRemoved::class
             ],
             LongestRegularSeasonGame::class . '@handleEvent'
         );

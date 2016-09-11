@@ -52,6 +52,69 @@ class RecordsLongestRegularSeasonGameTest extends \App\Infrastructure\Test\TestC
 
     }
 
+
+    public function test_multi_game_edit_game()
+    {
+        $this->generateGame('9:00 AM', '9:30 AM', 1);
+        $gameId = $this->generateGame('9:00 AM', '9:30 AM', 2);
+
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM'; 
+        $end = '9:10 AM';
+        $playoff = 0;
+        $season = 1;
+
+        $command = new \App\Commands\Game\EditFullGame(
+            $gameId,
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            2
+        );
+
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addWhitePlayer($this->zachR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addWhitePlayer($this->paulE);
+        $command->addWhitePlayer($this->paulG);
+
+
+        $command->addBlackGoalie($this->davidR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addBlackPlayer($this->colinLemoine);
+
+
+        $command->addWhitePoint(1, $this->ghislainD, $this->zachR);
+
+
+        $command->addBlackPoint(1, $this->chrisR, $this->colinLemoine);
+        $command->addBlackPoint(2, $this->jacquesAuger, $this->jacquesAuger);
+        $command->addBlackPoint(3, $this->jacquesAuger, $this->jacquesAuger);
+        $command->addBlackPoint(4, $this->chrisR, $this->jacquesAuger);
+        $command->addBlackPoint(5, $this->chrisR, $this->jacquesAuger);
+        $command->addBlackPoint(6, $this->chrisR, $this->colinLemoine);
+        $command->addBlackPoint(7, $this->colinLemoine, $this->colinLemoine);
+        $command->addBlackPoint(8, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(9, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(10, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(11, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(12, $this->jacquesAuger, $this->colinLemoine);
+
+        $this->dispatch($command);
+
+
+        $records = $this->recordStore->getRecords();
+        $this->assertEquals(1, count($records[\App\Listeners\Records\LongestRegularSeasonGame::BASE_KEY]['entries']));
+
+    }
+
+
     public function test_multi_game_for_longer_game()
     {
         $this->generateGame('9:00 AM', '9:30 AM', 1);
