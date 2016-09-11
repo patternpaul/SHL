@@ -36,6 +36,7 @@ use App\Listeners\Records\RegularSeasonShutOutClub;
 use App\Listeners\Records\ShortestRegularSeasonGame;
 use App\Listeners\Records\TeamRegularSeasonRecord;
 use PHPUnit_Framework_TestCase;
+use ReflectionObject;
 
 class TestCaseCore extends PHPUnit_Framework_TestCase
 {
@@ -140,8 +141,15 @@ class TestCaseCore extends PHPUnit_Framework_TestCase
     {
         $this->redis->test_reset();
         $this->eventStore->test_reset();
+        $refl = new ReflectionObject($this);
+        foreach ($refl->getProperties() as $prop) {
+            if (!$prop->isStatic() && 0 !== strpos($prop->getDeclaringClass()->getName(), 'PHPUnit_')) {
+                $prop->setAccessible(true);
+                $prop->setValue($this, null);
+            }
+        }
     }
-
+ 
 
     /**
      *

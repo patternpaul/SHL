@@ -26,7 +26,7 @@ gulp.task('phpunit-main', function() {
 
 
     gulp.src('')
-        .pipe(exec('./vendor/bin/phpunit', options))
+        .pipe(exec('./vendor/bin/phpunit -d memory_limit=200M', options))
         .on('error', notify.onError({
             title: 'PHPUnit Failed',
             message: 'One or more tests failed.'

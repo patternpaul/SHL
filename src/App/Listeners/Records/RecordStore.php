@@ -27,18 +27,15 @@ class RecordStore
     public function setRecord($recordKey, $header, $values)
     {
         $this->redis->hset('records:headers', $recordKey, $header);
+        $records = $this->redis->hgetall('record:'.$recordKey);
 
-        $recordEntries = $this->redis->hgetall('record:'.$recordKey);
-
-        $players = $this->players->getAll();
-
-        foreach ($players as $player) {
-            foreach ($recordEntries as $recordEntryKey => $entry) {
-                $this->redis->hdel('player-records:'.$player['id'], $recordKey);
+        foreach ($this->redis->hgetall('record:'.$recordKey.':players') as $playerKey) {
+            foreach ($records as $key => $entry) {
+                $this->redis->hdel('player-records:'.$playerKey, $key);
             }
         }
 
-        $this->redis->del('record:'.$recordKey);
+        $this->redis->del('record:'.$recordKey); 
 
         $i = 0;
         foreach ($values as $recordEntry) {
@@ -46,6 +43,7 @@ class RecordStore
             $this->redis->hset('record:'.$recordKey, $recordKey.':'.$i, $recordEntry['entry']);
             foreach ($recordEntry['playerKeys'] as $playerKey) {
                 $this->redis->hset('player-records:'.$playerKey, $recordKey.':'.$i, $recordKey);
+                $this->redis->hset('record:'.$recordKey.':players', $playerKey, $playerKey);
             }
         }
     }
@@ -53,13 +51,12 @@ class RecordStore
     public function unsetRecord($recordKey, $players)
     {
         $this->redis->hdel('records:headers', $recordKey);
-        $recordKeys = $this->redis->hgetall('record:'.$recordKey);
+        $records = $this->redis->hgetall('record:'.$recordKey);
 
         $this->redis->del('record:'.$recordKey);
 
-        foreach ($recordKeys as $key => $entry) {
-
-            foreach ($players as $playerKey) {
+        foreach ($this->redis->hgetall('record:'.$recordKey.':players') as $playerKey) {
+            foreach ($records as $key => $entry) {
                 $this->redis->hdel('player-records:'.$playerKey, $key);
             }
         }

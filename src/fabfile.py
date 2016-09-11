@@ -8,7 +8,7 @@ env.forward_agent = True
 
 def buildAndTest():
     local('composer install')
-    local('./vendor/bin/phpunit')
+    local('./vendor/bin/phpunit -d memory_limit=200M')
     local('php artisan twig:clean')
     local('php artisan route:cache')
     local('php artisan config:clear')
