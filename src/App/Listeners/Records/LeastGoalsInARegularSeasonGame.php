@@ -5,8 +5,11 @@ namespace App\Listeners\Records;
 use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
+use App\Events\Game\GameEdited;
+use App\Events\Game\GameUnCompleted;
 use App\Events\Game\PointAdded;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Infrastructure\Database\IRedisDB;
 use App\Listeners\Listener;
 use Carbon\Carbon;
@@ -36,48 +39,102 @@ class LeastGoalsInARegularSeasonGame extends Listener
         }
     }
 
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        if ($event->position == Game::GOALIE) {
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->getAggregateId(), $event->teamColour."Goalie");
+        }
+    }
+
     public function onGameAdded(GameAdded $event)
     {
         $obj = [];
         $obj["season"] = $event->season;
         $obj["gameNumber"] = $event->gameNumber;
+        $obj["playoff"] = $event->playoff;
+        $obj['id'] = $event->gameId;
 
 
         $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
         $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
     }
 
-
-    public function onGameCompleted(GameCompleted $event) {
-
-        $game = [];
-        $game[Game::BLACK_TEAM.'Points'] = $event->blackPointTotal;
-        $game[Game::WHITE_TEAM.'Points'] = $event->whitePointTotal;
-        $game['maxGoals'] = $event->winningPoint;
-        $game["winningTeam"] = $event->winningTeam;
-
-        $minGoals = $game[Game::BLACK_TEAM.'Points'];
-        if ($game[Game::WHITE_TEAM.'Points'] < $game[Game::BLACK_TEAM.'Points']) {
-            $minGoals = $game[Game::WHITE_TEAM.'Points'];
-        }
-
-        $this->redis->hmset($this->getBaseKey() . ':game:' . $event->gameId, $game);
-
-        $obj = $this->redis->hgetall('leastGoalsInARegularSeasonGame');
-
-        if (!isset($obj['minGoals']) || $minGoals < $this->getOrDefault($obj, 'minGoals')) {
-            $this->redis->del('leastGoalsInARegularSeasonGame:gameIds');
-            $this->redis->hset('leastGoalsInARegularSeasonGame','minGoals', $minGoals);
-        }
-
-        if (!isset($obj['minGoals']) || $minGoals <= $this->getOrDefault($obj, 'minGoals')) {
-            $this->redis->hset('leastGoalsInARegularSeasonGame:gameIds', $event->gameId, $event->gameId);
-        }
+    public function onGameEdited(GameEdited $event)
+    {
+        $obj = [];
+        $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
+        $obj["playoff"] = $event->playoff;
+        $obj['id'] = $event->gameId;
 
 
-        $this->storeRecord();
+        $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
+        $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
     }
 
+    public function onGameCompleted(GameCompleted $event) {
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+
+        if ($game['playoff'] == 0) {
+            $game[Game::BLACK_TEAM.'Points'] = $event->blackPointTotal;
+            $game[Game::WHITE_TEAM.'Points'] = $event->whitePointTotal;
+            $game['maxGoals'] = $event->winningPoint;
+            $game["winningTeam"] = $event->winningTeam;
+
+            $minGoals = $game[Game::BLACK_TEAM.'Points'];
+            if ($game[Game::WHITE_TEAM.'Points'] < $game[Game::BLACK_TEAM.'Points']) {
+                $minGoals = $game[Game::WHITE_TEAM.'Points'];
+            }
+
+            $this->redis->hset('leastGoalsInARegularSeasonGameGameList',$event->gameId, $minGoals);
+
+            $this->redis->hmset($this->getBaseKey() . ':game:' . $event->gameId, $game);
+
+            $obj = $this->redis->hgetall('leastGoalsInARegularSeasonGame');
+
+            if (!isset($obj['minGoals']) || $minGoals < $this->getOrDefault($obj, 'minGoals')) {
+                $this->redis->del('leastGoalsInARegularSeasonGame:gameIds');
+                $this->redis->hset('leastGoalsInARegularSeasonGame','minGoals', $minGoals);
+            }
+
+            if (!isset($obj['minGoals']) || $minGoals <= $this->getOrDefault($obj, 'minGoals')) {
+                $this->redis->hset('leastGoalsInARegularSeasonGame:gameIds', $event->gameId, $event->gameId);
+            }
+
+
+            $this->storeRecord();
+        }
+    }
+
+    public function onGameUnCompleted(GameUnCompleted $event) {
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+
+        if ($game['playoff'] == 0) {
+
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->gameId, Game::BLACK_TEAM.'Points');
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->gameId, Game::WHITE_TEAM.'Points');
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->gameId, 'maxGoals');
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->gameId, 'winningTeam');
+            $this->redis->hdel('leastGoalsInARegularSeasonGameGameList',$event->gameId);
+
+            $this->redis->del('leastGoalsInARegularSeasonGame:gameIds');
+            $minGoals = $this->redis->hvals('leastGoalsInARegularSeasonGameGameList');
+            sort($minGoals);
+            if (count($minGoals) > 0) {
+                $goalCount = $minGoals[0];
+                $this->redis->hset('leastGoalsInARegularSeasonGame','minGoals', $goalCount);
+                foreach ($this->redis->hgetall('leastGoalsInARegularSeasonGameGameList') as $gameId => $goalCountForGame) {
+                    if ($goalCountForGame == $goalCount) {
+                        $this->redis->hset('leastGoalsInARegularSeasonGame:gameIds', $gameId, $gameId);
+                    }
+                }
+            } else {
+                $this->redis->hdel('leastGoalsInARegularSeasonGame','minGoals');
+            }
+
+            $this->storeRecord();
+        }
+    }
 
     private function storeRecord()
     {
@@ -110,7 +167,10 @@ class LeastGoalsInARegularSeasonGame extends Listener
             [
                 GameCompleted::class,
                 GameAdded::class,
-                TeamPlayerAdded::class
+                TeamPlayerAdded::class,
+                GameUnCompleted::class,
+                TeamPlayerRemoved::class,
+                GameEdited::class
             ],
             LeastGoalsInARegularSeasonGame::class . '@handleEvent'
         );
