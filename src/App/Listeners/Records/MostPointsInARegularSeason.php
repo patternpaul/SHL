@@ -4,8 +4,11 @@ namespace App\Listeners\Records;
 
 use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
+use App\Events\Game\GameEdited;
 use App\Events\Game\PointAdded;
+use App\Events\Game\PointRemoved;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Infrastructure\Database\IRedisDB;
 use App\Listeners\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -40,6 +43,21 @@ class MostPointsInARegularSeason extends Listener
         }
     }
 
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        $this->redis->hdel(
+            $this->getBaseKey() . ':game:' . $event->gameId.':player-positions',
+            $event->playerId
+        );
+
+        if ($event->position == Game::PLAYER) {
+
+            $obj = $this->redis->hgetall($this->getBaseKey().':gamecount');
+            $obj[$event->playerId] = $this->getOrDefault($obj, $event->playerId) - 1;
+            $this->redis->hmset($this->getBaseKey().':gamecount', $obj);
+        }
+    }
+
     public function onGameAdded(GameAdded $event)
     {
         $obj = [];
@@ -47,6 +65,16 @@ class MostPointsInARegularSeason extends Listener
         $obj["gameNumber"] = $event->gameNumber;
         $obj["playoff"] = $event->playoff;
 
+
+        $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
+        $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
+    }
+    public function onGameEdited(GameEdited $event)
+    {
+        $obj = [];
+        $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
+        $obj["playoff"] = $event->playoff;
 
         $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
         $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
@@ -68,6 +96,7 @@ class MostPointsInARegularSeason extends Listener
                 $pointCount = $this->getOrDefault($obj, $game['season']) + 1;
                 $obj[$game['season']] = $pointCount;
                 $this->redis->hmset($this->baseKey.':player:'.$event->goalPlayerId, $obj);
+                $this->redis->hset($this->baseKey.':playerList:', $event->goalPlayerId.':'.$game['season'], $pointCount);
 
                 if ($pointCount > $currentMost) {
                     $this->redis->del($this->getBaseKey() . ':record:holders');
@@ -87,6 +116,7 @@ class MostPointsInARegularSeason extends Listener
                 $pointCount = $this->getOrDefault($obj, $game['season']) + 1;
                 $obj[$game['season']] = $pointCount;
                 $this->redis->hmset($this->baseKey.':player:'.$event->assistPlayerId, $obj);
+                $this->redis->hset($this->baseKey.':playerList:', $event->assistPlayerId.':'.$game['season'], $pointCount);
 
                 if ($pointCount > $currentMost) {
                     $this->redis->del($this->getBaseKey() . ':record:holders');
@@ -97,8 +127,61 @@ class MostPointsInARegularSeason extends Listener
                     $this->storeRecord();
                 }
             }
+        }
+    }
+
+    public function onPointRemoved(PointRemoved $event)
+    {
+        $recordTracker = $this->redis->hgetall($this->getBaseKey() . ':record');
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+
+        if ($game["playoff"] == 0) {
+            $playerPosition = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':player-positions', $event->goalPlayerId);
+
+            if ($playerPosition == Game::PLAYER) {
+                $obj = $this->redis->hgetall($this->baseKey.':player:'.$event->goalPlayerId);
+                $pointCount = $this->getOrDefault($obj, $game['season']) - 1;
+                $obj[$game['season']] = $pointCount;
+                $this->redis->hmset($this->baseKey.':player:'.$event->goalPlayerId, $obj);
+                $this->redis->hset($this->baseKey.':goalPlayerList:', $event->goalPlayerId.':'.$game['season'], $pointCount);
+
+                $this->redis->del($this->getBaseKey() . ':record:holders');
+
+                $pointList = $this->redis->hvals($this->baseKey.':playerList:');
+                sort($pointList);
+                $maxGoal = end($pointList);
+                $this->redis->hset($this->getBaseKey() . ':record', 'currentMost', $maxGoal);
+
+                foreach ($this->redis->hgetall($this->baseKey.':playerList:') as $identifier => $count) {
+                    if ($count == $maxGoal) {
+                        $this->redis->hset($this->getBaseKey() . ':record:holders', $identifier, $maxGoal);
+                    }
+                }
+            }
 
 
+            $playerPosition = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':player-positions', $event->assistPlayerId);
+
+            if ($playerPosition == Game::PLAYER) {
+                $obj = $this->redis->hgetall($this->baseKey.':player:'.$event->assistPlayerId);
+                $pointCount = $this->getOrDefault($obj, $game['season']) - 1;
+                $obj[$game['season']] = $pointCount;
+                $this->redis->hmset($this->baseKey.':player:'.$event->assistPlayerId, $obj);
+                $this->redis->hset($this->baseKey.':playerList:', $event->assistPlayerId.':'.$game['season'], $pointCount);
+
+                $this->redis->del($this->getBaseKey() . ':record:holders');
+
+                $pointList = $this->redis->hvals($this->baseKey.':playerList:');
+                sort($pointList);
+                $maxGoal = end($pointList);
+                $this->redis->hset($this->getBaseKey() . ':record', 'currentMost', $maxGoal);
+
+                foreach ($this->redis->hgetall($this->baseKey.':playerList:') as $identifier => $count) {
+                    if ($count == $maxGoal) {
+                        $this->redis->hset($this->getBaseKey() . ':record:holders', $identifier, $maxGoal);
+                    }
+                }
+            }
         }
     }
 
@@ -125,7 +208,10 @@ class MostPointsInARegularSeason extends Listener
             [
                 TeamPlayerAdded::class,
                 GameAdded::class,
-                PointAdded::class
+                PointAdded::class,
+                TeamPlayerRemoved::class,
+                GameEdited::class,
+                PointRemoved::class
             ],
             MostPointsInARegularSeason::class . '@handleEvent'
         );

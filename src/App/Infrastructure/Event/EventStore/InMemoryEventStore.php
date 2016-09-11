@@ -4,18 +4,19 @@ namespace App\Infrastructure\Event\EventStore;
 class InMemoryEventStore implements IEventStore
 {
     public $eventArray;
-    public $allArray;
+    public $totalCount;
 
     public function __construct()
     {
         $this->eventArray = [];
-        $this->allArray = [];
+        $this->totalCount = 0;
     }
 
     public function test_reset()
     {
+        $this->eventArray = null;
         $this->eventArray = [];
-        $this->allArray = [];
+        $this->totalCount = 0;
     }
 
     public function add($domainEventArray)
@@ -28,9 +29,9 @@ class InMemoryEventStore implements IEventStore
             }
             foreach ($domainEventArray as $event) {
                 $this->eventArray[$event["aggregate_id"]][] = $event;
-                $event['id'] = count($this->allArray) + 1;
+                $this->totalCount += 1;
+                $event['id'] = $this->totalCount;
                 $returnCollection[] = $event;
-                $this->allArray[] = $event;
             }
         }
 
@@ -69,6 +70,5 @@ class InMemoryEventStore implements IEventStore
 
     public function getAll()
     {
-        return $this->allArray;
     }
 }

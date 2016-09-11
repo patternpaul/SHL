@@ -39,42 +39,42 @@ class GoalieStatsTest extends \App\Infrastructure\Test\TestCaseCore
     public function test_game_scenario()
     {
         $season = 1;
-        $gameCount = 50;
+        $gameCount = 5;
         $playoff = 0;
         $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
         $statsLine = $this->goalieStats->getCalcGoalieStatLine($this->chrisLee, $season, $playoff);
 
 
 
-        $this->assertEquals(500, $statsLine['goalsAgainst']);
-        $this->assertEquals(50, $statsLine['gamesPlayed']);
+        $this->assertEquals(50, $statsLine['goalsAgainst']);
+        $this->assertEquals(5, $statsLine['gamesPlayed']);
         $this->assertEquals(10, $statsLine['goalsAgainstAverage']);
         $this->assertEquals(0, $statsLine['wins']);
-        $this->assertEquals(50, $statsLine['losses']);
-        $this->assertEquals(-50, $statsLine['plusMinus']);
+        $this->assertEquals(5, $statsLine['losses']);
+        $this->assertEquals(-5, $statsLine['plusMinus']);
         $this->assertEquals(0, $statsLine['winPercentage']);
         $this->assertEquals(0, $statsLine['goals']);
         $this->assertEquals(0, $statsLine['assists']);
         $this->assertEquals(0, $statsLine['points']);
         $this->assertEquals(0, $statsLine['shutOuts']);
-        $this->assertEquals(1500, $statsLine['minutesPlayed']);
+        $this->assertEquals(150, $statsLine['minutesPlayed']);
         $this->assertEquals(0.33, $statsLine['goalsPerMinute']);
 
 
         $statsLine = $this->goalieStats->getCalcGoalieStatLine($this->davidR, $season, $playoff);
 
         $this->assertEquals(0, $statsLine['goalsAgainst']);
-        $this->assertEquals(50, $statsLine['gamesPlayed']);
+        $this->assertEquals(5, $statsLine['gamesPlayed']);
         $this->assertEquals(0, $statsLine['goalsAgainstAverage']);
-        $this->assertEquals(50, $statsLine['wins']);
+        $this->assertEquals(5, $statsLine['wins']);
         $this->assertEquals(0, $statsLine['losses']);
-        $this->assertEquals(50, $statsLine['plusMinus']);
+        $this->assertEquals(5, $statsLine['plusMinus']);
         $this->assertEquals(100, $statsLine['winPercentage']);
         $this->assertEquals(0, $statsLine['goals']);
-        $this->assertEquals(50, $statsLine['assists']);
-        $this->assertEquals(50, $statsLine['points']);
-        $this->assertEquals(50, $statsLine['shutOuts']);
-        $this->assertEquals(1500, $statsLine['minutesPlayed']);
+        $this->assertEquals(5, $statsLine['assists']);
+        $this->assertEquals(5, $statsLine['points']);
+        $this->assertEquals(5, $statsLine['shutOuts']);
+        $this->assertEquals(150, $statsLine['minutesPlayed']);
         $this->assertEquals(0, $statsLine['goalsPerMinute']);
     }
 

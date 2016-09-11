@@ -24,6 +24,9 @@ class InMemoryRedisDB implements IRedisDB
 
     public function test_reset()
     {
+        $this->hash = null;
+        $this->pipeline = null;
+        $this->zsets = null;
         $this->hash = [];
         $this->pipeline = [];
         $this->zsets = [];
