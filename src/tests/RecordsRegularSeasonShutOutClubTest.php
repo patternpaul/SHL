@@ -1,7 +1,7 @@
 <?php
 
 
-class RecordRegularSeasonShutOutClubTest extends \App\Infrastructure\Test\TestCaseCore
+class RecordsRegularSeasonShutOutClubTest extends \App\Infrastructure\Test\TestCaseCore
 {
 
     public $chrisLee;
@@ -49,6 +49,57 @@ class RecordRegularSeasonShutOutClubTest extends \App\Infrastructure\Test\TestCa
         $gameTwoId = $this->generateGame(10, 2);
         $records = $this->recordStore->getRecords(); 
         $this->assertEquals(2, count($records[\App\Listeners\Records\RegularSeasonShutOutClub::BASE_KEY]['entries']));
+
+    }
+
+    public function test_edit_game()
+    {
+        $gameOneId = $this->generateGame(10, 1);
+        $gameTwoId = $this->generateGame(10, 2);
+
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $playoff = 0;
+        $season = 1;
+
+        $command = new \App\Commands\Game\EditFullGame(
+            $gameTwoId,
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            2
+        );
+
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addWhitePlayer($this->zachR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addWhitePlayer($this->paulE);
+        $command->addWhitePlayer($this->paulG);
+
+
+        $command->addBlackGoalie($this->davidR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addBlackPlayer($this->colinLemoine);
+
+        $command->addWhitePoint(1, $this->zachR, $this->paulE);
+
+        for ($i=1; $i <= 10; $i++) {
+            $command->addBlackPoint($i, $this->jacquesAuger, $this->colinLemoine);
+        }
+
+
+        $this->dispatch($command);
+
+
+        $records = $this->recordStore->getRecords();
+        $this->assertEquals(1, count($records[\App\Listeners\Records\RegularSeasonShutOutClub::BASE_KEY]['entries']));
 
     }
 

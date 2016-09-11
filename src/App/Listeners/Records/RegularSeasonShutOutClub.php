@@ -5,8 +5,11 @@ namespace App\Listeners\Records;
 use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
+use App\Events\Game\GameEdited;
+use App\Events\Game\GameUnCompleted;
 use App\Events\Game\PointAdded;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Infrastructure\Database\IRedisDB;
 use App\Listeners\Listener;
 use Carbon\Carbon;
@@ -36,6 +39,12 @@ class RegularSeasonShutOutClub extends Listener
         }
     }
 
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        if ($event->position == Game::GOALIE) {
+            $this->redis->hdel($this->getBaseKey() . ':game:' . $event->getAggregateId(), $event->teamColour."Goalie");
+        }
+    }
 
     public function onGameAdded(GameAdded $event)
     {
@@ -47,11 +56,29 @@ class RegularSeasonShutOutClub extends Listener
         $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
     }
 
+    public function onGameEdited(GameEdited $event)
+    {
+        $obj = [];
+        $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
+
+        $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
+        $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
+    }
 
     public function onGameCompleted(GameCompleted $event) {
 
         if ($event->blackPointTotal === 0 || $event->whitePointTotal === 0) {
             $this->redis->hset($this->baseKey, $event->gameId, $event->winningTeam);
+
+            $this->storeRecord();
+        }
+    }
+
+    public function onGameUnCompleted(GameUnCompleted $event) {
+
+        if ($event->blackPointTotal === 0 || $event->whitePointTotal === 0) {
+            $this->redis->hdel($this->baseKey, $event->gameId);
 
             $this->storeRecord();
         }
@@ -83,7 +110,10 @@ class RegularSeasonShutOutClub extends Listener
             [
                 GameCompleted::class,
                 GameAdded::class,
-                TeamPlayerAdded::class
+                TeamPlayerAdded::class,
+                TeamPlayerRemoved::class,
+                GameEdited::class,
+                GameUnCompleted::class
             ],
             RegularSeasonShutOutClub::class . '@handleEvent'
         );
