@@ -10,6 +10,8 @@ namespace App\Listeners;
 use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
+use App\Events\Game\GameEdited;
+use App\Events\Game\GameUnCompleted;
 use App\Events\Game\PointAdded;
 use App\Events\Game\PointRemoved;
 use App\Events\Game\TeamPlayerAdded;
@@ -244,78 +246,7 @@ class GoalieStats extends Listener
         }
     }
 
-    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
-    {
-        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
 
-
-        $startTime = Carbon::parse($game['gameDate'].' '.$game['start']);
-        $endTime = Carbon::parse($game['gameDate'].' '.$game['end']);
-        $minDiff = $startTime->diffInMinutes($endTime);
-
-
-
-
-        $this->redis->hdel(
-            $this->getBaseKey() . ':game:' . $event->gameId.':player-positions',
-            $event->playerId
-        );
-
-
-        if ($event->position == Game::GOALIE) {
-
-            $loosingGoalie = Game::BLACK_TEAM;
-            $winningGoalie = Game::WHITE_TEAM;
-            if ($game['winner'] == Game::BLACK_TEAM) {
-                $loosingGoalie = Game::WHITE_TEAM;
-                $winningGoalie = Game::BLACK_TEAM;
-            }
-
-            $loosingGoaliePlayerId = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':goalies', $loosingGoalie);
-            $winningGoaliePlayerId = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':goalies', $winningGoalie);
-
-            if (!empty($loosingGoaliePlayerId) && !empty($winningGoaliePlayerId)) {
-                $loosingGoalieStats = $this->getGoalieStatLine($loosingGoaliePlayerId, $game['season'], $game['playoff']);
-                $winningGoalieStats = $this->getGoalieStatLine($winningGoaliePlayerId, $game['season'], $game['playoff']);
-
-                $loosingGoalieStats['losses'] = $loosingGoalieStats['losses'] - 1;
-
-
-                $winningGoalieStats['wins'] = $winningGoalieStats['wins'] - 1;
-                if (($game[Game::BLACK_TEAM.'Points'] === 0) || ($game[Game::WHITE_TEAM.'Points'] === 0)) {
-                    $winningGoalieStats['shutOuts'] = $winningGoalieStats['shutOuts'] - 1;
-                }
-
-                $this->storeGoalieStatLine($loosingGoaliePlayerId, $game['season'], $game['playoff'], $loosingGoalieStats);
-                $this->storeGoalieStatLine($winningGoaliePlayerId, $game['season'], $game['playoff'], $winningGoalieStats);
-            }
-
-
-
-
-            $this->redis->hdel(
-                'stats:seasons:'.$game['season'].":playoffs:".$game['playoff'].":goalies",
-                $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId
-            );
-
-            $this->redis->hdel(
-                'stats:seasons:'.$game['season'].":playoffs:all:goalies",
-                $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId
-            );
-
-
-            $this->redis->hdel(
-                $this->getBaseKey() . ':game:' . $event->gameId.':goalies',
-                $event->teamColour
-            );
-
-            $obj = $this->getGoalieStatLine($event->playerId, $game['season'], $game['playoff']);
-            $obj['gamesPlayed'] = $obj['gamesPlayed'] - 1;
-            $obj['minutesPlayed'] = $obj['minutesPlayed'] - $minDiff;
-            $this->storeGoalieStatLine($event->playerId, $game['season'], $game['playoff'], $obj);
-        }
-
-    }
 
 
     public function onPointAdded(PointAdded $event)
@@ -416,8 +347,108 @@ class GoalieStats extends Listener
         $this->storeGoalieStatLine($winningGoaliePlayerId, $game['season'], $game['playoff'], $winningGoalieStats);
     }
 
+    public function onGameUnCompleted(GameUnCompleted $event)
+    {
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+        $loosingGoalie = Game::BLACK_TEAM;
+        $winningGoalie = Game::WHITE_TEAM;
+        if ($event->winningTeam == Game::BLACK_TEAM) {
+            $loosingGoalie = Game::WHITE_TEAM;
+            $winningGoalie = Game::BLACK_TEAM;
+        }
+
+        $loosingGoaliePlayerId = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':goalies', $loosingGoalie);
+        $winningGoaliePlayerId = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':goalies', $winningGoalie);
+
+        if (!empty($loosingGoaliePlayerId) && !empty($winningGoaliePlayerId)) {
+            $loosingGoalieStats = $this->getGoalieStatLine($loosingGoaliePlayerId, $game['season'], $game['playoff']);
+            $winningGoalieStats = $this->getGoalieStatLine($winningGoaliePlayerId, $game['season'], $game['playoff']);
+
+            $loosingGoalieStats['losses'] = $loosingGoalieStats['losses'] - 1;
+
+
+            $winningGoalieStats['wins'] = $winningGoalieStats['wins'] - 1;
+            if (($game[Game::BLACK_TEAM.'Points'] === 0) || ($game[Game::WHITE_TEAM.'Points'] === 0)) {
+                $winningGoalieStats['shutOuts'] = $winningGoalieStats['shutOuts'] - 1;
+            }
+
+            $this->storeGoalieStatLine($loosingGoaliePlayerId, $game['season'], $game['playoff'], $loosingGoalieStats);
+            $this->storeGoalieStatLine($winningGoaliePlayerId, $game['season'], $game['playoff'], $winningGoalieStats);
+        }
+    }
+
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+
+
+        $startTime = Carbon::parse($game['gameDate'].' '.$game['start']);
+        $endTime = Carbon::parse($game['gameDate'].' '.$game['end']);
+        $minDiff = $startTime->diffInMinutes($endTime);
+
+
+
+
+        $this->redis->hdel(
+            $this->getBaseKey() . ':game:' . $event->gameId.':player-positions',
+            $event->playerId
+        );
+
+
+        if ($event->position == Game::GOALIE) {
+
+            $this->redis->hdel(
+                'stats:seasons:'.$game['season'].":playoffs:".$game['playoff'].":goalies",
+                $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId
+            );
+
+            $this->redis->hdel(
+                'stats:seasons:'.$game['season'].":playoffs:all:goalies",
+                $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId
+            );
+
+
+            $this->redis->hdel(
+                $this->getBaseKey() . ':game:' . $event->gameId.':goalies',
+                $event->teamColour
+            );
+
+            $obj = $this->getGoalieStatLine($event->playerId, $game['season'], $game['playoff']);
+            $obj['gamesPlayed'] = $obj['gamesPlayed'] - 1;
+            $obj['minutesPlayed'] = $obj['minutesPlayed'] - $minDiff;
+            $this->storeGoalieStatLine($event->playerId, $game['season'], $game['playoff'], $obj);
+        }
+
+    }
+
 
     public function onGameAdded(GameAdded $event)
+    {
+        $obj = [];
+        $obj["id"] = $event->getAggregateId();
+        //TODO: FIGURE OUT THE TIME
+        $obj["playoff"] = $event->playoff;
+        $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
+        $startTime = Carbon::parse($event->gameDate.' '.$event->start);
+        $endTime = Carbon::parse($event->gameDate.' '.$event->end);
+        $minDiff = $startTime->diffInMinutes($endTime);
+        $obj['gameTime'] = $minDiff;
+        $obj['gameDate'] = $event->gameDate;
+        $obj['start'] = $event->end;
+        $obj['end'] = $event->start;
+
+        $this->redis->hset(
+            'stats:seasons:',
+            $event->season,
+            $event->season
+        );
+
+
+        $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
+    }
+
+    public function onGameEdited(GameEdited $event)
     {
         $obj = [];
         $obj["id"] = $event->getAggregateId();
@@ -454,7 +485,9 @@ class GoalieStats extends Listener
                 GameCompleted::class,
                 GameAdded::class,
                 TeamPlayerRemoved::class,
-                PointRemoved::class
+                PointRemoved::class,
+                GameUnCompleted::class,
+                GameEdited::class
             ],
             GoalieStats::class . '@handleEvent'
         );

@@ -40,6 +40,20 @@ class RecordStore
         }
     }
 
+    public function unsetRecord($recordKey, $players)
+    {
+        $this->redis->hdel('records:headers', $recordKey);
+        $recordKeys = $this->redis->hgetall('record:'.$recordKey);
+
+        $this->redis->del('record:'.$recordKey);
+
+        foreach ($recordKeys as $key => $entry) {
+
+            foreach ($players as $playerKey) {
+                $this->redis->hdel('player-records:'.$playerKey, $key);
+            }
+        }
+    }
 
     public function getPlayerRecords($playerId)
     {

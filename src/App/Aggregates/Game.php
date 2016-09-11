@@ -5,6 +5,7 @@ namespace App\Aggregates;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
 use App\Events\Game\GameEdited;
+use App\Events\Game\GameUnCompleted;
 use App\Events\Game\PointAdded;
 use App\Events\Game\PointRemoved;
 use App\Events\Game\TeamPlayerAdded;
@@ -25,6 +26,7 @@ class Game extends AggregateRoot
     private $points = [];
     private $blackGoalie;
     private $whiteGoalie;
+    private $winningPoint;
 
     private $winningTeam;
 
@@ -111,6 +113,10 @@ class Game extends AggregateRoot
 
     public function editGame($gameDate, $start, $end, $playoff, $season, $gameNumber)
     {
+        $this->apply(
+            new GameUnCompleted($this->getAggregateId(), $this->winningTeam, $this->getBlackPointTotal(), $this->getWhitePointTotal(), $this->winningPoint)
+        );
+
 
         foreach ($this->points as $teamColor => $points) {
             foreach ($points as $pointNumber => $point) {
@@ -140,6 +146,12 @@ class Game extends AggregateRoot
         $this->apply(
             new GameEdited($this->getAggregateId(), $gameDate, $start, $end, $playoff, $season, $gameNumber)
         );
+    }
+
+    public function applyGameUnCompleted(GameUnCompleted $event)
+    {
+        $this->winningTeam = null;
+        $this->winningPoint = null;
     }
 
     public function applyGameEdited(GameEdited $event)
@@ -284,6 +296,7 @@ class Game extends AggregateRoot
     public function applyGameCompleted(GameCompleted $event)
     {
         $this->winningTeam = $event->winningTeam;
+        $this->winningPoint = $event->winningPoint;
     }
 
     public function applyPointAdded(PointAdded $event)

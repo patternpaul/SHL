@@ -5,8 +5,11 @@ namespace App\Listeners\Records;
 use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
+use App\Events\Game\GameEdited;
+use App\Events\Game\GameUnCompleted;
 use App\Events\Game\PointAdded;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Infrastructure\Database\IRedisDB;
 use App\Listeners\Listener;
 use Carbon\Carbon;
@@ -62,7 +65,57 @@ class CupWinners extends Listener
         }
     }
 
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        $game = $this->redis->hgetall($this->getBaseKey().':game:' . $event->gameId);
+
+        if ($game['playoff'] == 1) {
+            $teamA = $this->redis->hgetall($this->baseKey.':season:'.$game['season'].':playoffteam:A');
+            $teamB = $this->redis->hgetall($this->baseKey.':season:'.$game['season'].':playoffteam:B');
+
+
+            if (isset($teamA[$event->playerId])) {
+                $teamFound = 'A';
+            } elseif (isset($teamB[$event->playerId])) {
+                $teamFound = 'B';
+            } else {
+                $altTeam = 'A';
+                $altColour = Game::WHITE_TEAM;
+                if ($event->teamColour == $altColour) {
+                    $altColour = Game::BLACK_TEAM;
+                }
+                if ($altTeam == $this->getOrDefault($game, 'team-'.$altColour, $altTeam)) {
+                    $altTeam = 'B';
+                }
+                $teamFound = $this->getOrDefault($game, 'team-'.$event->teamColour, $altTeam);
+            }
+            $gameWins = $this->redis->hgetall($this->getBaseKey().':season:'.$game['season'].':gamewins:');
+            $wins = $this->getOrDefault($gameWins, $teamFound);
+            $gameWins[$teamFound] = $wins;
+            $this->redis->hmset($this->getBaseKey().':season:'.$game['season'].':gamewins:', $gameWins);
+
+            $this->redis->hdel($this->baseKey.':season:'.$game['season'].':playoffteam:'.$teamFound, $event->playerId);
+
+            $this->redis->hdel($this->getBaseKey().':game:' . $event->gameId, 'team-'.$event->teamColour);
+        }
+    }
+
+
     public function onGameAdded(GameAdded $event)
+    {
+
+        $obj = [];
+        $obj["id"] = $event->getAggregateId();
+        $obj["playoff"] = $event->playoff;
+        $obj["season"] = $event->season;
+
+        $this->redis->hmset($this->getBaseKey().':game:' . $event->getAggregateId(), $obj);
+        if ($event->playoff == 1) {
+            $this->redis->hset($this->getBaseKey().':playoff-seasons:', $event->season, $event->season);
+        }
+    }
+
+    public function onGameEdited(GameEdited $event)
     {
 
         $obj = [];
@@ -91,6 +144,26 @@ class CupWinners extends Listener
                 $this->redis->hset($this->getBaseKey().':season-winner:', $game['season'], $team);
 
                 $this->storeRecord();
+            }
+        }
+    }
+
+    public function onGameUnCompleted(GameUnCompleted $event)
+    {
+        $game = $this->redis->hgetall($this->getBaseKey().':game:' . $event->gameId);
+
+        if ($game['playoff'] == 1) {
+
+            $seasonGameTrack = $this->redis->hgetall($this->getBaseKey().':season:'.$game['season'].':gamewins:');
+            $team = $game['team-'.$event->winningTeam];
+            $priorWinCount = $this->getOrDefault($seasonGameTrack, $team);
+            $winCount = $priorWinCount - 1;
+            $seasonGameTrack[$team] = $winCount;
+            $this->redis->hmset($this->getBaseKey().':season:'.$game['season'].':gamewins:',$seasonGameTrack);
+            if ($priorWinCount = 4) {
+                $this->redis->hdel($this->getBaseKey().':season-winner:', $game['season']);
+                $teamPlayers = $this->redis->hvals($this->baseKey.':season:'.$game['season'].':playoffteam:'.$team);
+                $this->recordStore->unsetRecord($this->baseKey.str_pad($game['season'], 2, "0", STR_PAD_LEFT),$teamPlayers);
             }
         }
     }
@@ -128,10 +201,12 @@ class CupWinners extends Listener
             [
                 GameCompleted::class,
                 GameAdded::class,
-                TeamPlayerAdded::class
+                TeamPlayerAdded::class,
+                TeamPlayerRemoved::class,
+                GameUnCompleted::class,
+                GameEdited::class
             ],
             CupWinners::class . '@handleEvent'
         );
     }
-
 }
