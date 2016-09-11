@@ -21,3 +21,9 @@ Checkout the README in the local_setup directory.
 Want to setup your own box?
 ===========================
 There is a Chef cookbook under the chef directory.
+
+
+TODO
+====
+- Defaults for add game to "next game"
+- Only allow either games 1-50 for reg season or 1-7 for playoffs
