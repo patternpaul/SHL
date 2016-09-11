@@ -87,29 +87,31 @@ class LongestRegularSeasonGame extends Listener
     public function onGameCompleted(GameCompleted $event) {
 
         $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
-        $obj = $this->redis->hgetall('longestRegularSeasonGame');
+        if ($game['playoff'] == 0) {
+            $obj = $this->redis->hgetall('longestRegularSeasonGame');
 
-        $this->redis->hset('longestRegularSeasonGameGameList',$game['id'], $game['gameTime']);
+            $this->redis->hset('longestRegularSeasonGameGameList',$game['id'], $game['gameTime']);
 
-        if ($game['gameTime'] > $this->getOrDefault($obj, 'gameTime')) {
-            $this->redis->del('longestRegularSeasonGame:gameIds');
-            $this->redis->hset('longestRegularSeasonGame','gameTime', $game['gameTime']);
+            if ($game['gameTime'] > $this->getOrDefault($obj, 'gameTime')) {
+                $this->redis->del('longestRegularSeasonGame:gameIds');
+                $this->redis->hset('longestRegularSeasonGame','gameTime', $game['gameTime']);
+            }
+
+            if ($game['gameTime'] >= $this->getOrDefault($obj, 'gameTime')) {
+                $this->redis->hset('longestRegularSeasonGame:gameIds', $event->gameId, $event->gameId);
+            }
+
+
+            $obj = [];
+            $obj[Game::BLACK_TEAM.'Points'] = $event->blackPointTotal;
+            $obj[Game::WHITE_TEAM.'Points'] = $event->whitePointTotal;
+            $obj["winningTeam"] = $event->winningTeam;
+
+            $this->redis->hmset($this->getBaseKey() . ':game:' . $event->gameId, $obj);
+
+
+            $this->storeRecord();
         }
-
-        if ($game['gameTime'] >= $this->getOrDefault($obj, 'gameTime')) {
-            $this->redis->hset('longestRegularSeasonGame:gameIds', $event->gameId, $event->gameId);
-        }
-
-
-        $obj = [];
-        $obj[Game::BLACK_TEAM.'Points'] = $event->blackPointTotal;
-        $obj[Game::WHITE_TEAM.'Points'] = $event->whitePointTotal;
-        $obj["winningTeam"] = $event->winningTeam;
-
-        $this->redis->hmset($this->getBaseKey() . ':game:' . $event->gameId, $obj);
-
-
-        $this->storeRecord();
     }
 
     public function onGameUnCompleted(GameUnCompleted $event) {
@@ -125,11 +127,11 @@ class LongestRegularSeasonGame extends Listener
             sort($gameTimes);
 
             if (count($gameTimes) > 0) {
-
-                $this->redis->hset('longestRegularSeasonGame','gameTime', $gameTimes[0]);
+                $longestGame = end($gameTimes);
+                $this->redis->hset('longestRegularSeasonGame','gameTime', $longestGame);
 
                 foreach ($this->redis->hgetall('longestRegularSeasonGameGameList') as $gameId => $gameTime) {
-                    if ($gameTimes[0] == $gameTime) {
+                    if ($longestGame == $gameTime) {
                         $this->redis->hset('longestRegularSeasonGame:gameIds', $gameId, $gameId);
                     }
                 }
