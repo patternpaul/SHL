@@ -165,12 +165,16 @@ class Games extends Listener
 
     public function getLatestSeason()
     {
-        return end(ksort($this->redis->hgetall('seasonslist:')));
+        $seasonList = $this->redis->hgetall('seasonslist:');
+        ksort($seasonList);
+        return end($seasonList);
     }
 
     public function getLatestGame()
     {
-        return end(ksort($this->redis->hgetall('gameslist:')));
+        $gameList = $this->redis->hgetall('gameslist:');
+        ksort($gameList);
+        return end($gameList);
     }
 
     public function onTeamPlayerAdded(TeamPlayerAdded $event)

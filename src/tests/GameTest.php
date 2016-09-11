@@ -57,6 +57,52 @@ class GameTest extends \App\Infrastructure\Test\TestCaseCore
         $this->assertEquals($whitePoints, $gameAgg->getWhitePointTotal());
     }
 
+    public function test_get_latest_game_and_season()
+    {
+        $blackOne = $this->genPlayerWithName('First', 'Last');
+        $blackTwo = $this->genPlayerWithName('First', 'Last');
+        $whiteOne = $this->genPlayerWithName('First', 'Last');
+        $whiteTwo = $this->genPlayerWithName('First', 'Last');
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $playoff = '1';
+        $season = 1;
+        $gameNumber = 1;
+        $blackPoints = 10;
+        $whitePoints = 6;
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            $gameNumber
+        );
+
+        $command->addBlackPlayer($blackOne);
+        $command->addBlackGoalie($blackTwo);
+        $command->addWhitePlayer($whiteOne);
+        $command->addWhiteGoalie($whiteTwo);
+
+        for ($i = 1; $i <= $blackPoints; $i++) {
+            $command->addBlackPoint($i, $blackOne, $blackTwo);
+        }
+        for ($i = 1; $i <= $whitePoints; $i++) {
+            $command->addWhitePoint($i, $whiteOne, $whiteTwo);
+        }
+
+        $gameId = $this->dispatch($command);
+
+
+        $latestGame = $this->games->getLatestGame();
+        $latestSeason = $this->games->getLatestSeason();
+
+
+        $this->assertEquals($gameNumber, $latestGame);
+        $this->assertEquals($season, $latestSeason);
+    }
 
 
 
