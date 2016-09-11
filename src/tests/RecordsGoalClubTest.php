@@ -49,13 +49,70 @@ class RecordsGoalClubTest extends \App\Infrastructure\Test\TestCaseCore
     public function test_250_goal_club_2()
     {
         $season = 1;
-        $gameCount = 64;
+        $gameCount = 63;
         $playoff = 0;
         $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
         $records = $this->recordStore->getRecords();
         $this->assertEquals(2, count($records[\App\Listeners\Records\GoalClub::BASE_KEY.':0250']['entries']));
     }
 
+    public function test_250_goal_club_with_game_edit()
+    {
+        $season = 1;
+        $gameCount = 63;
+        $playoff = 0;
+        $gameId = $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+        $records = $this->recordStore->getRecords();
+        $this->assertEquals(2, count($records[\App\Listeners\Records\GoalClub::BASE_KEY.':0250']['entries']));
+
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+
+        $command = new \App\Commands\Game\EditFullGame(
+            $gameId,
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            63
+        );
+
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addWhitePlayer($this->zachR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addWhitePlayer($this->paulE);
+        $command->addWhitePlayer($this->paulG);
+
+
+        $command->addBlackGoalie($this->davidR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addBlackPlayer($this->colinLemoine);
+
+
+        $command->addWhitePoint(1, $this->ghislainD, $this->zachR);
+
+
+        $command->addBlackPoint(1, $this->chrisR, $this->colinLemoine);
+        $command->addBlackPoint(2, $this->jacquesAuger, $this->davidR);
+        $command->addBlackPoint(3, $this->jacquesAuger, $this->chrisR);
+        $command->addBlackPoint(4, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(5, $this->jacquesAuger, '');
+        $command->addBlackPoint(6, $this->jacquesAuger, $this->jacquesAuger);
+        $command->addBlackPoint(7, $this->colinLemoine, $this->chrisR);
+        $command->addBlackPoint(8, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(9, $this->jacquesAuger, $this->chrisR);
+        $command->addBlackPoint(10, $this->jacquesAuger, $this->jeremieR);
+        $this->dispatch($command);
+        $records = $this->recordStore->getRecords();
+        $this->assertEquals(1, count($records[\App\Listeners\Records\GoalClub::BASE_KEY.':0250']['entries']));
+
+    }
 
     private function generateMultipleGamesForAGivenSeason($seasonId = 1, $gameCount = 50, $playoffs = 0)
     {
@@ -64,6 +121,7 @@ class RecordsGoalClubTest extends \App\Infrastructure\Test\TestCaseCore
         $end = '9:30 AM';
         $playoff = $playoffs;
         $season = $seasonId;
+        $gameId = '';
 
         for($i = 1; $i <= $gameCount; $i++) {
             $command = new \App\Commands\Game\AddFullGame(
@@ -107,6 +165,8 @@ class RecordsGoalClubTest extends \App\Infrastructure\Test\TestCaseCore
             $gameId = $this->dispatch($command);
 
         }
+
+        return $gameId;
     }
 
 

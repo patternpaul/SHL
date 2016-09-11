@@ -4,7 +4,9 @@ namespace App\Listeners\Records;
 
 use App\Aggregates\Game;
 use App\Events\Game\PointAdded;
+use App\Events\Game\PointRemoved;
 use App\Events\Game\TeamPlayerAdded;
+use App\Events\Game\TeamPlayerRemoved;
 use App\Infrastructure\Database\IRedisDB;
 use App\Listeners\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -40,6 +42,20 @@ class GoalClub extends Listener
         }
     }
 
+    public function onTeamPlayerRemoved(TeamPlayerRemoved $event)
+    {
+        $this->redis->hdel(
+            $this->getBaseKey() . ':game:' . $event->gameId.':player-positions',
+            $event->playerId
+        );
+
+        if ($event->position == Game::PLAYER) {
+            $obj = $this->redis->hgetall($this->baseKey.':gamecount');
+            $obj[$event->playerId] = $this->getOrDefault($obj, $event->playerId) - 1;
+            $this->redis->hmset($this->baseKey.':gamecount', $obj);
+        }
+    }
+
     public function onPointAdded(PointAdded $event)
     {
         $playerPosition = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':player-positions', $event->goalPlayerId);
@@ -59,6 +75,28 @@ class GoalClub extends Listener
                     $obj = $this->redis->hgetall($this->baseKey.':'.$clubValue.':recordholders');
                     $obj[$event->goalPlayerId] = $gameCount[$event->goalPlayerId];
                     $this->redis->hmset($this->baseKey.':'.$clubValue.':recordholders', $obj);
+                    $this->storeRecord();
+                }
+            }
+
+        }
+    }
+
+    public function onPointRemoved(PointRemoved $event)
+    {
+        $playerPosition = $this->redis->hget($this->getBaseKey() . ':game:' . $event->gameId.':player-positions', $event->goalPlayerId);
+
+        if ($playerPosition == Game::PLAYER) {
+
+            $obj = $this->redis->hgetall($this->baseKey.':goalcount');
+            $priorGoalCount = $this->getOrDefault($obj, $event->goalPlayerId);
+            $goalCount = $priorGoalCount - 1;
+            $obj[$event->goalPlayerId] = $goalCount;
+            $this->redis->hmset($this->baseKey.':goalcount', $obj);
+
+            foreach ($this->clubValues as $clubValue) {
+                if ($goalCount == $clubValue) {
+                    $this->redis->hdel($this->baseKey.':'.$clubValue.':recordholders', $event->goalPlayerId);
                     $this->storeRecord();
                 }
             }
@@ -102,7 +140,9 @@ class GoalClub extends Listener
         $events->listen(
             [
                 TeamPlayerAdded::class,
-                PointAdded::class
+                PointAdded::class,
+                TeamPlayerRemoved::class,
+                PointRemoved::class
             ],
             GoalClub::class . '@handleEvent'
         );
