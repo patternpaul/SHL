@@ -68,15 +68,11 @@ class AssistClub extends Listener
             $assistCount = $this->getOrDefault($obj, $event->assistPlayerId) + 1;
             $obj[$event->assistPlayerId] = $assistCount;
             $this->redis->hmset($this->baseKey.':assistcount', $obj);
+            $gameCount = $this->redis->hget($this->baseKey.':gamecount', $event->assistPlayerId);
 
             foreach ($this->clubValues as $clubValue) {
                 if ($assistCount == $clubValue) {
-                    $gameCount = $this->redis->hgetall($this->baseKey.':gamecount');
-
-
-                    $obj = $this->redis->hgetall($this->baseKey.':'.$clubValue.':recordholders');
-                    $obj[$event->assistPlayerId] = $gameCount[$event->assistPlayerId];
-                    $this->redis->hmset($this->baseKey.':'.$clubValue.':recordholders', $obj);
+                    $this->redis->hset($this->baseKey.':'.$clubValue.':recordholders', $event->assistPlayerId, $gameCount);
                     $this->storeRecord();
                 }
             }
@@ -119,10 +115,7 @@ class AssistClub extends Listener
 
             $this->recordStore->setRecord($this->baseKey.':'.str_pad($clubValue, 4, "0", STR_PAD_LEFT), $clubValue.' Assist Club', $recordEntries);
         }
-
     }
-
-
 
 
 

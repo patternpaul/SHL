@@ -141,15 +141,8 @@ class TestCaseCore extends PHPUnit_Framework_TestCase
     {
         $this->redis->test_reset();
         $this->eventStore->test_reset();
-        $refl = new ReflectionObject($this);
-        foreach ($refl->getProperties() as $prop) {
-            if (!$prop->isStatic() && 0 !== strpos($prop->getDeclaringClass()->getName(), 'PHPUnit_')) {
-                $prop->setAccessible(true);
-                $prop->setValue($this, null);
-            }
-        }
     }
- 
+
 
     /**
      *
@@ -221,7 +214,7 @@ class TestCaseCore extends PHPUnit_Framework_TestCase
             $this->regularSeasonShutOutClub = new RegularSeasonShutOutClub($this->redis, $this->recordStore);
             $this->eventBus->register($this->regularSeasonShutOutClub);
 
-            $this->cupWinners = new CupWinners($this->redis, $this->recordStore);
+            $this->cupWinners = new CupWinners($this->redis, $this->recordStore, $this->games);
             $this->eventBus->register($this->cupWinners);
 
             Logger::$should_log = false;
@@ -236,10 +229,6 @@ class TestCaseCore extends PHPUnit_Framework_TestCase
 
     protected function dispatch($job)
     {
-        $jobClass = get_class($job);
-        $id = "";
-        $id = $job->handle($this->aggregateRepository);
-
-        return $id;
+        return $job->handle($this->aggregateRepository);
     }
 }
