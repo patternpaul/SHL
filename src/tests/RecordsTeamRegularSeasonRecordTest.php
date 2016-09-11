@@ -39,10 +39,10 @@ class RecordsTeamRegularSeasonRecordTest extends \App\Infrastructure\Test\TestCa
     {
         $season = 1;
         $secondSeason = 2;
-        $gameCount = 50;
+        $gameCount = 2;
         $playoff = 0;
         $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
-        $this->generateMultipleGamesForAGivenSeason($secondSeason, 12, $playoff);
+        $this->generateMultipleGamesForAGivenSeason($secondSeason, 2, $playoff);
 
         $records = $this->recordStore->getRecords();
         $entries = $records[\App\Listeners\Records\TeamRegularSeasonRecord::BASE_KEY]['entries'];
@@ -53,13 +53,72 @@ class RecordsTeamRegularSeasonRecordTest extends \App\Infrastructure\Test\TestCa
     public function test_season_game_count()
     {
         $season = 1;
-        $gameCount = 23;
+        $gameCount = 2;
         $playoff = 0;
         $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
 
         $records = $this->recordStore->getRecords();
         $entries = $records[\App\Listeners\Records\TeamRegularSeasonRecord::BASE_KEY]['entries'];
-        $this->assertEquals('[season=1]: 0-23', $entries[0]);
+        $this->assertEquals('[season=1]: 0-2', $entries[0]);
+    }
+
+
+    public function test_season_game_count_edit()
+    {
+        $season = 1;
+        $gameCount = 2;
+        $playoff = 0;
+        $gameId = $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $command = new \App\Commands\Game\EditFullGame(
+            $gameId,
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            2
+        );
+
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addWhitePlayer($this->zachR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addWhitePlayer($this->paulE);
+        $command->addWhitePlayer($this->paulG);
+
+
+        $command->addBlackGoalie($this->davidR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addBlackPlayer($this->colinLemoine);
+
+
+        $command->addWhitePoint(1, $this->ghislainD, $this->zachR);
+
+
+        $command->addBlackPoint(1, $this->chrisR, $this->colinLemoine);
+        $command->addBlackPoint(2, $this->jacquesAuger, $this->jacquesAuger);
+        $command->addBlackPoint(3, $this->jacquesAuger, $this->jacquesAuger);
+        $command->addBlackPoint(4, $this->chrisR, $this->jacquesAuger);
+        $command->addBlackPoint(5, $this->chrisR, $this->jacquesAuger);
+        $command->addBlackPoint(6, $this->chrisR, $this->colinLemoine);
+        $command->addBlackPoint(7, $this->colinLemoine, $this->colinLemoine);
+        $command->addBlackPoint(8, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(9, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(10, $this->jacquesAuger, $this->colinLemoine);
+        $this->dispatch($command);
+
+
+
+        $records = $this->recordStore->getRecords();
+        $entries = $records[\App\Listeners\Records\TeamRegularSeasonRecord::BASE_KEY]['entries'];
+        $this->assertEquals('[season=1]: 0-2', $entries[0]);
     }
 
     private function generateMultipleGamesForAGivenSeason($seasonId = 1, $gameCount = 50, $playoffs = 0)
@@ -69,6 +128,7 @@ class RecordsTeamRegularSeasonRecordTest extends \App\Infrastructure\Test\TestCa
         $end = '9:30 AM';
         $playoff = $playoffs;
         $season = $seasonId;
+        $gameId = '';
 
         for ($i = 1; $i <= $gameCount; $i++) {
             $command = new \App\Commands\Game\AddFullGame(
@@ -112,6 +172,8 @@ class RecordsTeamRegularSeasonRecordTest extends \App\Infrastructure\Test\TestCa
             $gameId = $this->dispatch($command);
 
         }
+
+        return $gameId;
     }
 
 

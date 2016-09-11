@@ -5,6 +5,8 @@ namespace App\Listeners\Records;
 use App\Aggregates\Game;
 use App\Events\Game\GameAdded;
 use App\Events\Game\GameCompleted;
+use App\Events\Game\GameEdited;
+use App\Events\Game\GameUnCompleted;
 use App\Events\Game\PointAdded;
 use App\Events\Game\TeamPlayerAdded;
 use App\Infrastructure\Database\IRedisDB;
@@ -35,6 +37,15 @@ class TeamRegularSeasonRecord extends Listener
         $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
     }
 
+    public function onGameEdited(GameEdited $event)
+    {
+        $obj = [];
+        $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
+
+        $this->redis->hmset($this->getBaseKey() . ':game:' . $event->getAggregateId(), $obj);
+        $this->redis->hset($this->getBaseKey().':seasons:', $event->season, $event->season);
+    }
 
     public function onGameCompleted(GameCompleted $event) {
         $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
@@ -53,6 +64,22 @@ class TeamRegularSeasonRecord extends Listener
         $this->storeRecord();
     }
 
+    public function onGameUnCompleted(GameUnCompleted $event) {
+        $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
+
+        $obj = $this->redis->hgetall('teamRegularSeasonRecord:season:'.$game["season"]);
+
+        $team = Game::BLACK_TEAM;
+        if ($event->winningTeam == Game::WHITE_TEAM) {
+            $team = Game::WHITE_TEAM;
+        }
+
+        $winCount = $this->getOrDefault($obj, $team) - 1;
+        $obj[$team] = $winCount;
+        $this->redis->hmset('teamRegularSeasonRecord:season:'.$game["season"], $obj);
+
+        $this->storeRecord();
+    }
 
     private function storeRecord()
     {
@@ -75,7 +102,9 @@ class TeamRegularSeasonRecord extends Listener
         $events->listen(
             [
                 GameCompleted::class,
-                GameAdded::class
+                GameAdded::class,
+                GameEdited::class,
+                GameUnCompleted::class
             ],
             TeamRegularSeasonRecord::class . '@handleEvent'
         );
