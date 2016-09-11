@@ -63,12 +63,46 @@ class GameTest extends \App\Infrastructure\Test\TestCaseCore
         $blackTwo = $this->genPlayerWithName('First', 'Last');
         $whiteOne = $this->genPlayerWithName('First', 'Last');
         $whiteTwo = $this->genPlayerWithName('First', 'Last');
+
         $gameDate = '2016-07-27';
         $start = '9:00 AM';
         $end = '9:30 AM';
-        $playoff = '1';
-        $season = 1;
-        $gameNumber = 1;
+        $playoff = 0;
+        $oldSeason = 9;
+        $oldGameNumber = 9;
+        $blackPoints = 10;
+        $whitePoints = 6;
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $oldSeason,
+            $oldGameNumber
+        );
+
+        $command->addBlackPlayer($blackOne);
+        $command->addBlackGoalie($blackTwo);
+        $command->addWhitePlayer($whiteOne);
+        $command->addWhiteGoalie($whiteTwo);
+
+        for ($i = 1; $i <= $blackPoints; $i++) {
+            $command->addBlackPoint($i, $blackOne, $blackTwo);
+        }
+        for ($i = 1; $i <= $whitePoints; $i++) {
+            $command->addWhitePoint($i, $whiteOne, $whiteTwo);
+        }
+
+        $gameId = $this->dispatch($command);
+
+
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $playoff = 0;
+        $season = 10;
+        $gameNumber = 10;
         $blackPoints = 10;
         $whitePoints = 6;
 

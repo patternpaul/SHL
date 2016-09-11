@@ -1,7 +1,6 @@
 <?php
 namespace App\Infrastructure\Test;
 
-use App\Infrastructure\AggregateFactory;
 
 abstract class TestCase extends \Illuminate\Foundation\Testing\TestCase
 {
@@ -24,7 +23,7 @@ abstract class TestCase extends \Illuminate\Foundation\Testing\TestCase
         putenv('QUEUE_DRIVER=null');
 
         $app = require __DIR__.'/../../../bootstrap/app.php';
-        AggregateFactory::destroy();
+
 
         $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
         $app->singleton(
@@ -35,20 +34,6 @@ abstract class TestCase extends \Illuminate\Foundation\Testing\TestCase
         $app->singleton(
             \App\Infrastructure\Database\IRedisDB::class,
             \App\Infrastructure\Database\InMemoryRedisDB::class
-        );
-
-        $app->singleton(
-            \App\Auth\IUserRepo::class,
-            \App\Auth\TestMockUserRepo::class
-        );
-        $app->singleton(
-            \App\Infrastructure\Util\Encrypt\IKeyRepo::class,
-            \App\Infrastructure\Util\Encrypt\MockKeyRepo::class
-        );
-
-        $app->singleton(
-            \App\Infrastructure\OpenStack\IOpenStack::class,
-            \App\Infrastructure\OpenStack\TestOpenStack::class
         );
 
         return $app;

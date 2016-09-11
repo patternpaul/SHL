@@ -82,9 +82,9 @@ class Games extends Listener
         //TODO: Fix this. This could be done better by having a hash containing all games. Keys would
         //be season-playoff-game. This way I can delete the key from the hash, pull the hash, order desc
         //get the first. I could rewind indef.
-
-        $this->redis->hset('gameslist:', $event->season.':'.$event->playoff.':'.$event->gameNumber, $event->gameNumber);
-        $this->redis->hset('seasonslist:', $event->season.':'.$event->playoff.':'.$event->gameNumber, $event->season);
+        $storageKey = str_pad($event->season, 2, "0", STR_PAD_LEFT).$event->playoff.str_pad($event->gameNumber, 2, "0", STR_PAD_LEFT);
+        $this->redis->hset('gameslist:', $storageKey, $event->gameNumber);
+        $this->redis->hset('seasonslist:', $storageKey, $event->season);
 
     }
     public function onGameEdited(GameEdited $event)
@@ -122,10 +122,12 @@ class Games extends Listener
         );
         
 
-        $this->redis->hdel('gameslist:', $priorGame['season'].':'.$priorGame['playoff'].':'.$priorGame['gameNumber']);
-        $this->redis->hdel('seasonslist:', $priorGame['season'].':'.$priorGame['playoff'].':'.$priorGame['gameNumber']);
-        $this->redis->hset('gameslist:', $event->season.':'.$event->playoff.':'.$event->gameNumber, $event->gameNumber);
-        $this->redis->hset('seasonslist:', $event->season.':'.$event->playoff.':'.$event->gameNumber, $event->season);
+        $priorStorageKey = str_pad($priorGame['season'], 2, "0", STR_PAD_LEFT).$priorGame['playoff'].str_pad($priorGame['gameNumber'], 2, "0", STR_PAD_LEFT);
+        $storageKey = str_pad($event->season, 2, "0", STR_PAD_LEFT).$event->playoff.str_pad($event->gameNumber, 2, "0", STR_PAD_LEFT);
+        $this->redis->hdel('gameslist:', $priorStorageKey);
+        $this->redis->hdel('seasonslist:', $priorStorageKey);
+        $this->redis->hset('gameslist:', $storageKey, $event->gameNumber);
+        $this->redis->hset('seasonslist:', $storageKey, $event->season);
     }
 
     public function getLatestSeasonGames()
