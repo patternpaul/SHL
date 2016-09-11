@@ -100,25 +100,25 @@ class RecordsTeamRegularSeasonRecordTest extends \App\Infrastructure\Test\TestCa
 
 
         $command->addWhitePoint(1, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(2, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(3, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(4, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(5, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(6, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(7, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(8, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(9, $this->ghislainD, $this->zachR);
+        $command->addWhitePoint(10, $this->ghislainD, $this->zachR);
 
 
         $command->addBlackPoint(1, $this->chrisR, $this->colinLemoine);
-        $command->addBlackPoint(2, $this->jacquesAuger, $this->jacquesAuger);
-        $command->addBlackPoint(3, $this->jacquesAuger, $this->jacquesAuger);
-        $command->addBlackPoint(4, $this->chrisR, $this->jacquesAuger);
-        $command->addBlackPoint(5, $this->chrisR, $this->jacquesAuger);
-        $command->addBlackPoint(6, $this->chrisR, $this->colinLemoine);
-        $command->addBlackPoint(7, $this->colinLemoine, $this->colinLemoine);
-        $command->addBlackPoint(8, $this->jacquesAuger, $this->colinLemoine);
-        $command->addBlackPoint(9, $this->jacquesAuger, $this->colinLemoine);
-        $command->addBlackPoint(10, $this->jacquesAuger, $this->colinLemoine);
         $this->dispatch($command);
 
 
 
         $records = $this->recordStore->getRecords();
         $entries = $records[\App\Listeners\Records\TeamRegularSeasonRecord::BASE_KEY]['entries'];
-        $this->assertEquals('[season=1]: 0-2', $entries[0]);
+        $this->assertEquals('[season=1]: 1-1', $entries[0]);
     }
 
     private function generateMultipleGamesForAGivenSeason($seasonId = 1, $gameCount = 50, $playoffs = 0)
