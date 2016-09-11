@@ -43,6 +43,60 @@ class RecordsMostAssistsInARegularSeasonTest extends \App\Infrastructure\Test\Te
         $this->assertEquals("[season=1] [playerId=".$this->colinLemoine."] 300 Assists.", $entries[0]);
     }
 
+    public function test_record_game_edit()
+    {
+        $gameId = $this->generateMultipleGamesForAGivenSeason(1, 2);
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $command = new \App\Commands\Game\EditFullGame(
+            $gameId,
+            $gameDate,
+            $start,
+            $end,
+            0,
+            1,
+            2
+        );
+
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addWhitePlayer($this->zachR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addWhitePlayer($this->paulE);
+        $command->addWhitePlayer($this->paulG);
+
+
+        $command->addBlackGoalie($this->davidR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addBlackPlayer($this->colinLemoine);
+
+
+        $command->addWhitePoint(1, $this->ghislainD, $this->zachR);
+
+
+        $command->addBlackPoint(1, $this->chrisR, $this->jacquesAuger);
+        $command->addBlackPoint(2, $this->jacquesAuger, $this->jacquesAuger);
+        $command->addBlackPoint(3, $this->jacquesAuger, $this->jacquesAuger);
+        $command->addBlackPoint(4, $this->chrisR, $this->jacquesAuger);
+        $command->addBlackPoint(5, $this->chrisR, $this->jacquesAuger);
+        $command->addBlackPoint(6, $this->chrisR, $this->jacquesAuger);
+        $command->addBlackPoint(7, $this->colinLemoine, $this->colinLemoine);
+        $command->addBlackPoint(8, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(9, $this->jacquesAuger, $this->colinLemoine);
+        $command->addBlackPoint(10, $this->jacquesAuger, $this->jacquesAuger);
+        $this->dispatch($command);
+
+
+        $records = $this->recordStore->getRecords();
+        $entries = $records[\App\Listeners\Records\MostAssistsInARegularSeason::BASE_KEY]['entries'];
+        $this->assertEquals("[season=1] [playerId=".$this->jacquesAuger."] 11 Assists.", $entries[0]);
+        $this->assertEquals(1, count($entries));
+    }
+
 
     public function test_multi_season()
     {
@@ -63,6 +117,7 @@ class RecordsMostAssistsInARegularSeasonTest extends \App\Infrastructure\Test\Te
         $end = '9:30 AM';
         $playoff = $playoffs;
         $season = $seasonId;
+        $gameId = '';
 
         for ($i = 1; $i <= $gameCount; $i++) {
             $command = new \App\Commands\Game\AddFullGame(
@@ -104,8 +159,8 @@ class RecordsMostAssistsInARegularSeasonTest extends \App\Infrastructure\Test\Te
             $command->addBlackPoint(9, $this->jacquesAuger, $this->colinLemoine);
             $command->addBlackPoint(10, $this->jacquesAuger, $this->colinLemoine);
             $gameId = $this->dispatch($command);
-
         }
+        return $gameId;
     }
 
 
