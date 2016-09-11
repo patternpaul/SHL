@@ -95,7 +95,7 @@ class GoalClub extends Listener
             $this->redis->hmset($this->baseKey.':goalcount', $obj);
 
             foreach ($this->clubValues as $clubValue) {
-                if ($goalCount == $clubValue) {
+                if ($priorGoalCount == $clubValue) {
                     $this->redis->hdel($this->baseKey.':'.$clubValue.':recordholders', $event->goalPlayerId);
                     $this->storeRecord();
                 }
