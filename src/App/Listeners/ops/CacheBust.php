@@ -41,13 +41,22 @@ class CacheBust extends Listener
     {
         $game = $this->games->getById($event->gameId);
 
+
+        $job = (new PurgeUrl('games/'.$event->gameId))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/stats/players/season/'.$game['season'].'/playoff/'.$game['playoff']))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('/stats/players'))->onQueue('purgeurl');
+        $this->dispatch($job);
+
         $job = (new PurgeUrl('/stats/players/season/'.$game['season'].'/playoff/'.$game['playoff']))->onQueue('purgeurl');
         $this->dispatch($job);
         $job = (new PurgeUrl('/stats/goalies/season/'.$game['season'].'/playoff/'.$game['playoff']))->onQueue('purgeurl');
         $this->dispatch($job);
-        $job = (new PurgeUrl('/stats/players'))->onQueue('purgeurl');
-        $this->dispatch($job);
+
         $job = (new PurgeUrl('/stats/goalies'))->onQueue('purgeurl');
+        $this->dispatch($job);
+        $job = (new PurgeUrl('seasons/'.$game['season']))->onQueue('purgeurl');
         $this->dispatch($job);
         
         foreach ($game[Game::BLACK_TEAM."AllPlayers"] as $player) {
