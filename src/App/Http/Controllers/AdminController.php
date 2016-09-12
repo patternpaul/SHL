@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 
 class AdminController extends Controller
-{
+{ 
     private $games;
     private $players;
 
@@ -27,7 +27,6 @@ class AdminController extends Controller
         $this->players = $players;
         $this->middleware('auth');
         $this->middleware('web');
-
     }
 
 
