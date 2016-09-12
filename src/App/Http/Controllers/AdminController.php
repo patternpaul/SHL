@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Aggregates\Game;
 use App\Commands\Game\AddFullGame;
 use App\Commands\Player\AddPlayer;
 use App\Commands\Player\EditPlayer;
@@ -33,7 +34,18 @@ class AdminController extends Controller
     {
         view()->share('active_navbar_addgame', true);
         $players = $this->players->getAll();
-        return view('app.admin.games.add', ["players" => $players]);
+        $latestSeason = $this->games->getLatestSeason();
+        $latestGame = $this->games->getLatestGame();
+        
+        return view(
+            'app.admin.games.add',
+            [
+                "players" => $players,
+                "latestSeason" => $latestSeason,
+                "latestGame" => $latestGame,
+                "playoffOptions" => Game::$PLAYOFF_OPTIONS
+            ]
+        );
     }
 
     public function storeGame(Request $request)
@@ -44,9 +56,9 @@ class AdminController extends Controller
             'gameDate' => 'required|date_format:Y-m-d',
             'start' => 'required|date_format:g:i A',
             'end' => 'required|date_format:g:i A',
-            'playoff' => 'required',
-            'season' => 'required',
-            'gameNumber' => 'required'
+            'playoff' => 'required|numeric',
+            'season' => 'required|numeric',
+            'gameNumber' => 'required|numeric'
         ];
 
         for($i=1; $i<=18; $i++){
@@ -118,6 +130,7 @@ class AdminController extends Controller
 
         return redirect()->route('player-stats');
     }
+
 
     public function addPlayer()
     {

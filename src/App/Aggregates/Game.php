@@ -36,6 +36,11 @@ class Game extends AggregateRoot
     const GOALIE = "g";
     const PLAYER = "p";
 
+    public static $PLAYOFF_OPTIONS = [
+        ["id" => 0, "name" => "Regular Season"],
+        ["id" => 1, "name" => "Playoff"],
+    ];
+
     /**
      * @return mixed
      */

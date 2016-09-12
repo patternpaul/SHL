@@ -5,12 +5,12 @@
     {{ form.error_block(errors) }}
     <form class="form-horizontal" role="form" method="post" action="/admin/games">
         {{  csrf_field()|raw }}
-        {{ form.input_text("gameDate", "Date", '2016-07-27', '2016-07-27', errors)  }}
-        {{ form.input_text("start", "Start", "9:00 AM", "9:00 AM", errors)  }}
-        {{ form.input_text("end", "End", "9:30 AM", "9:30 AM", errors)  }}
-        {{ form.input_text("playoff", "Playoff", "0", '0', errors)  }}
-        {{ form.input_text("season", "Season", "15", '15', errors)  }}
-        {{ form.input_text("gameNumber", "Number", "50", '60', errors)  }}
+        {{ form.input_text("gameDate", "Date", '2016-07-27', null, errors)  }}
+        {{ form.input_text("start", "Start", "9:00 AM", null, errors)  }}
+        {{ form.input_text("end", "End", "9:30 AM", null, errors)  }}
+        {{ form.input_select_custom("playoff", "Playoff", "0", playoffOptions, "id", "name", null, errors)  }}
+        {{ form.input_select_numeric("season", "Season", '', latestSeason+1, latestSeason, errors)  }}
+        {{ form.input_select_numeric("gameNumber", "Number", '', 50, latestGame+1, errors)  }}
 
         <div class="row">
             <div class="col-lg-6">
@@ -204,12 +204,10 @@
             whitePlayerSelected();
 
 
-            $("#input_gameDate").datepicker("destroy")
-            $( "#input_gameDate" ).datepicker({
-                dateFormat: "yy-mm-dd",
-                maxDate: new Date()
+            $('#input_gameDate').datepicker({
+                'format': 'yyyy-mm-dd',
+                'autoclose': true
             }).inputmask('yyyy-mm-dd');
-            $( "#input_gameDate" ).datepicker('refresh');
 
             $('#input_start').timepicker({ 'step': 15, 'timeFormat': 'h:i A' });
             $('#input_end').timepicker({ 'step': 15, 'timeFormat': 'h:i A' });
