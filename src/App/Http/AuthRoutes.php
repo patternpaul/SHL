@@ -16,9 +16,11 @@ class AuthRoutes
     public static function routes(Router $router)
     {
 
-        $router->get('auth/login', ['as' => 'login-form', 'uses' => AuthController::class . '@getLogin']);
-        $router->post('auth/login', AuthController::class . '@postLogin');
-        $router->get('auth/logout', AuthController::class . '@getLogout');
+        $router->group(['middleware' => ['web']], function (Router $router) {
+            $router->get('auth/login', ['as' => 'login-form', 'uses' => AuthController::class . '@getLogin']);
+            $router->post('auth/login', AuthController::class . '@postLogin');
+            $router->get('auth/logout', AuthController::class . '@getLogout');
+        });
 
     }
 }
