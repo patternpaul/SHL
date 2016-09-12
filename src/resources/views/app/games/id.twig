@@ -3,6 +3,7 @@
 {% block content %}
 
     {% include 'base.banner.twig' %}
+    {{ dump(game) }}
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <h1><strong>{% if game.playoff %}Playoff {% endif %}Game {{ game.gameNumber}}, Season {{ game.season }}</strong>{% if auth_user() %} &nbsp;<a type="button" href="/admin/games/{{ game.id }}/edit" class="btn btn-success btn-xs">Edit</a>{% endif %}</h1><br>

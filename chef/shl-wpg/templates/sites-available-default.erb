@@ -1,4 +1,4 @@
-fastcgi_cache_path /tmp/cache levels=1:2 keys_zone=shl-wpg:100m inactive=10080m;
+fastcgi_cache_path /tmp/cache levels=1:2 keys_zone=shl-wpg:100m inactive=40320m;
 fastcgi_cache_key "$scheme$request_method$host$request_uri";
 
 server {
@@ -34,7 +34,10 @@ server {
     {
       set $no_cache 1;
     }
-
+    if ($request_uri ~* "/(auth/)")
+    {
+      set $no_cache 1;
+    }
 
 
     set $punch_cache $http_PunchCache;
@@ -42,7 +45,7 @@ server {
 
     location ~ \.php$ {
       fastcgi_cache shl-wpg;
-      fastcgi_cache_valid 200 10080m; # Only cache 200 responses, cache for 60 minutes
+      fastcgi_cache_valid 200 40320m; # Only cache 200 responses, cache for 60 minutes
       fastcgi_cache_methods GET HEAD; # Only GET and HEAD methods apply
       add_header X-Fastcgi-Cache $upstream_cache_status;
       add_header X-Fastcgi-NoCache $no_cache;
