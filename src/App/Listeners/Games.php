@@ -252,11 +252,11 @@ class Games extends Listener
             $points[$key] = $point;
         }
 
-        /*
-        $points = array_values(array_sort($points, function ($value) {
+
+        $points = array_sort($points, function ($value) {
             return $value['pointNumber'];
-        }));
-        */
+        });
+        
         return $points;
     }
 

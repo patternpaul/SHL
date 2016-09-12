@@ -18,6 +18,8 @@ class AdminRoutes
     {
 
         $router->get('/admin/games/add', ['uses' => AdminController::class . '@addGame']);
+        $router->get('/admin/games/{gameId}/edit', ['uses' => AdminController::class . '@editGame']);
+        $router->post('/admin/games/{gameId}', ['uses' => AdminController::class . '@updateGame']);
         $router->post('/admin/games', ['uses' => AdminController::class . '@storeGame']);
         $router->get('/admin/players/add', ['uses' => AdminController::class . '@addPlayer']);
         $router->post('/admin/players', ['uses' => AdminController::class . '@storePlayer']);

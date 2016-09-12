@@ -3,27 +3,40 @@
 {% block content %}
     {% include 'base.banner.twig' %}
     {{ form.error_block(errors) }}
-    <form class="form-horizontal" role="form" method="post" action="/admin/games">
+
+    <form class="form-horizontal" role="form" method="post" action="/admin/games/{{ game.id }}">
         {{  csrf_field()|raw }}
-        {{ form.input_text("gameDate", "Date", '2016-07-27', null, errors)  }}
-        {{ form.input_text("start", "Start", "9:00 AM", null, errors)  }}
-        {{ form.input_text("end", "End", "9:30 AM", null, errors)  }}
-        {{ form.input_select_custom("playoff", "Playoff", "0", playoffOptions, "id", "name", null, errors)  }}
-        {{ form.input_select_numeric("season", "Season", '', latestSeason+1, latestSeason, errors)  }}
-        {{ form.input_select_numeric("gameNumber", "Number", '', 50, latestGame+1, errors)  }}
+        {{ form.input_text("gameDate", "Date", '2016-07-27', game.gameDate, errors)  }}
+        {{ form.input_text("start", "Start", "09:00:00", game.start, errors)  }}
+        {{ form.input_text("end", "End", "09:30:00", game.end, errors)  }}
+        {{ form.input_select_custom("playoff", "Playoff", "0", playoffOptions, "id", "name", game.playoff, errors)  }}
+        {{ form.input_select_numeric("season", "Season", '', latestSeason+1, game.season, errors)  }}
+        {{ form.input_select_numeric("gameNumber", "Number", '', 50, game.gameNumber, errors)  }}
 
         <div class="row">
             <div class="col-lg-6">
                 <h2>White Players</h2>
-                {{ form.input_select_custom_game("wgoalie", "G", "", players, "id", "fullName", null, errors, 'whiteplayer')  }}
-                {% for i in range(1, 7) %}
+                {{ form.input_select_custom_game("wgoalie", "G", "", players, "id", "fullName", game.whiteGoalie.id, errors, 'whiteplayer')  }}
+
+                {% set loc = 0 %}
+                {% for id, player in game.whitePlayers %}
+                    {% set loc = loc + 1 %}
+                    {{ form.input_select_custom_game("wplayer#{loc}", "P#{loc}", "", players, "id", "fullName", id, errors, 'whiteplayer')  }}
+                {% endfor %}
+                {% for i in range(loc+1, 7) %}
                     {{ form.input_select_custom_game("wplayer#{i}", "P#{i}", "", players, "id", "fullName", null, errors, 'whiteplayer')  }}
                 {% endfor %}
             </div>
             <div class="col-lg-6">
                 <h2>Black Players</h2>
-                {{ form.input_select_custom_game("bgoalie", "G", "", players, "id", "fullName", null, errors, 'blackplayer')  }}
-                {% for i in range(1, 7) %}
+                {{ form.input_select_custom_game("bgoalie", "G", "", players, "id", "fullName", game.blackGoalie.id, errors, 'blackplayer')  }}
+
+                {% set loc = 0 %}
+                {% for id, player in game.blackPlayers %}
+                    {% set loc = loc + 1 %}
+                    {{ form.input_select_custom_game("bplayer#{loc}", "P#{loc}", "", players, "id", "fullName", id, errors, 'blackplayer')  }}
+                {% endfor %}
+                {% for i in range(loc+1, 7) %}
                     {{ form.input_select_custom_game("bplayer#{i}", "P#{i}", "", players, "id", "fullName", null, errors, 'blackplayer')  }}
                 {% endfor %}
             </div>
@@ -35,7 +48,17 @@
         <div class="row">
             <div class="col-lg-6">
                 <h2>White Goals</h2>
-                {% for i in range(1, 18) %}
+                {% for i, goal in game.whiteGoals %}
+                    <div class="row">
+                        <div class="col-lg-6">
+                            {{ form.input_select_custom_game("whiteGoal#{goal.pointNumber}", goal.pointNumber, "", players, "id", "fullName", goal.goalPlayerId, errors, 'whitegoal')  }}
+                        </div>
+                        <div class="col-lg-6">
+                            {{ form.input_select_custom_game("whiteAssist#{goal.pointNumber}", "A", "", players, "id", "fullName", goal.assistPlayerId, errors, 'whiteassist')  }}
+                        </div>
+                    </div>
+                {% endfor %}
+                {% for i in range(game.whiteGoals|length+1, 18) %}
                     <div class="row">
                         <div class="col-lg-6">
                             {{ form.input_select_custom_game("whiteGoal#{i}", i, "", players, "id", "fullName", null, errors, 'whitegoal')  }}
@@ -48,8 +71,17 @@
             </div>
             <div class="col-lg-6">
                 <h2>Black Goals</h2>
-                {% for i in range(1, 18) %}
-
+                {% for goal in game.blackGoals %}
+                    <div class="row">
+                        <div class="col-lg-6">
+                            {{ form.input_select_custom_game("blackGoal#{goal.pointNumber}", goal.pointNumber, "", players, "id", "fullName", goal.goalPlayerId, errors, 'blackgoal')  }}
+                        </div>
+                        <div class="col-lg-6">
+                            {{ form.input_select_custom_game("blackAssist#{goal.pointNumber}", "A", "", players, "id", "fullName", goal.assistPlayerId, errors, 'blackassist')  }}
+                        </div>
+                    </div>
+                {% endfor %}
+                {% for i in range(game.blackGoals|length+1, 18) %}
                     <div class="row">
                         <div class="col-lg-6">
                             {{ form.input_select_custom_game("blackGoal#{i}", i, "", players, "id", "fullName", null, errors, 'blackgoal')  }}
