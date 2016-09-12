@@ -22,3 +22,8 @@ Want to setup your own box?
 ===========================
 There is a Chef cookbook under the chef directory.
 
+TODO
+====
+-Deploy Cache Bust
+-Season Selector on season page
+-Hint overlays for table headers
