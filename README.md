@@ -27,3 +27,7 @@ TODO
 -Deploy Cache Bust
 -Season Selector on season page
 -Hint overlays for table headers
+
+
+
+sudo vagrant plugin install vagrant-vbguest
