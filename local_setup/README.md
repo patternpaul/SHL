@@ -1,4 +1,16 @@
-Get your local environment setup
+Quick and Dirty with Vagrant
+=============================
+This should theoretically bring up a VM with the site running and all production data on your local machine!
+
+1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+2. Install [Vagrant](https://www.vagrantup.com/downloads.html)
+3. Install the vagrant plugin vagrant-vbguest  `sudo vagrant plugin install vagrant-vbguest`
+4. run `vagrant up` from this directory
+5. go to `192.168.10.10` in your browser.
+
+
+
+Get your local environment setup with Homestead
 ================================
 1. Setup [Homestead](https://laravel.com/docs/5.3/homestead) (further Homestead instructions below)
 2. Copy the contents of .env.example and create a .env file in the src directory.
