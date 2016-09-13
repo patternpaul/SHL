@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\ConsumeData;
 use App\Console\Commands\CreateUser;
+use App\Console\Commands\DeployCacheBust;
 use App\Console\Commands\RefreshRedis;
 use App\Console\Commands\SHL;
 use App\Console\Commands\XDebugOff;
@@ -23,7 +24,8 @@ class Kernel extends ConsoleKernel
         XDebugOn::class,
         RefreshRedis::class,
         CreateUser::class,
-        ConsumeData::class
+        ConsumeData::class,
+        DeployCacheBust::class
     ];
 
     /**

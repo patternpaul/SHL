@@ -85,3 +85,4 @@ def deploy():
     sudo('supervisorctl start artisan_job:*')
     with cd('%s' % stg_work_dir):
         sudo('php artisan queue:restart')
+        sudo('php artisan deploycachebust')

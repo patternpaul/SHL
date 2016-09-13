@@ -30,6 +30,21 @@ class Games extends Listener
         $this->redis = $redis;
     }
 
+    public function getAllBase()
+    {
+        $keys = $this->redis->hgetall('games:');
+
+        $games = $this->redis->pipeline(
+            function ($pipeline) use ($keys) {
+                foreach ($keys as $key => $value) {
+                    $pipeline->hgetall('game:' . $key);
+                }
+            }
+        );
+
+        return $games;
+    }
+
     public function getById($key)
     {
         $obj = $this->redis->hgetall('game:' . $key);

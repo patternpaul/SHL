@@ -48,6 +48,8 @@ class CacheBust extends Listener
         $this->dispatch($job);
         $job = (new PurgeUrl('/stats/players'))->onQueue('purgeurl');
         $this->dispatch($job);
+        $job = (new PurgeUrl('/records'))->onQueue('purgeurl');
+        $this->dispatch($job);
 
         $job = (new PurgeUrl('/stats/players/season/'.$game['season'].'/playoff/'.$game['playoff']))->onQueue('purgeurl');
         $this->dispatch($job);
