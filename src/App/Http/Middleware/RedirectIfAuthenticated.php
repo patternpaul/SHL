@@ -18,7 +18,7 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            return redirect('/stats/players');
+            return redirect('/admin/stats/players');
         }
 
         return $next($request);

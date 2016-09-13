@@ -117,6 +117,7 @@ return [
             // 'TwigBridge\Extension\Laravel\Legacy\Facades',
             'App\Infrastructure\Twig\ActiveItem',
             'App\Infrastructure\Twig\SetPlayerLink',
+            'App\Infrastructure\Twig\AdminRoute',
 
 
 

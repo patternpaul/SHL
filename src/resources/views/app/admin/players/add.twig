@@ -11,7 +11,7 @@
         {{ form.input_text("lastName", "Last Name", "", null, errors)  }}
         <div class="form-group">
             <div class="col-lg-offset-2 col-lg-2">
-                <a href="/stats/players" class="btn btn-default" role="button">
+                <a href="{{ adminRoute('player-stats') }}" class="btn btn-default" role="button">
                     Cancel
                 </a>
             </div>

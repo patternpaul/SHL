@@ -2,17 +2,17 @@
 
 {% block content %}
     {% include 'base.banner.twig' %}
-    <h1>{{ player.firstName }} {{ player.lastName }}{% if auth_user() %} &nbsp;<a type="button" href="/admin/players/{{ player.id }}/edit" class="btn btn-success btn-xs">Edit</a>{% endif %}</h1>
+    <h1>{{ player.firstName }} {{ player.lastName }}{% if auth_user() %} &nbsp;<a type="button" href="{{ route('admin-player-edit',[player.id]) }}" class="btn btn-success btn-xs">Edit</a>{% endif %}</h1>
 
     <ul class="nav nav-tabs">
         <li role="presentation">
-            <a href="{{ route('player-page-player-stats', [player.id]) }}">Player Stats</a>
+            <a href="{{ adminRoute('player-page-player-stats', [player.id]) }}">Player Stats</a>
         </li>
         <li role="presentation">
-            <a href="{{ route('player-page-goalie-stats', [player.id]) }}" >Goalie Stats</a>
+            <a href="{{ adminRoute('player-page-goalie-stats', [player.id]) }}" >Goalie Stats</a>
         </li>
         <li role="presentation" class="active">
-            <a href="{{ route('player-page-records', [player.id]) }}" >Records</a>
+            <a href="{{ adminRoute('player-page-records', [player.id]) }}" >Records</a>
         </li>
     </ul>
     {% for record in records %}

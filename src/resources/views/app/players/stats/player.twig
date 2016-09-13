@@ -2,7 +2,7 @@
 
 {% block content %}
     {% include 'base.banner.twig' %}
-    <h1>{{ player.firstName }} {{ player.lastName }}{% if auth_user() %} &nbsp;<a type="button" href="/admin/players/{{ player.id }}/edit" class="btn btn-success btn-xs">Edit</a>{% endif %}</h1>
+    <h1>{{ player.firstName }} {{ player.lastName }}{% if auth_user() %} &nbsp;<a type="button" href="{{ route('admin-player-edit',[player.id]) }}" class="btn btn-success btn-xs">Edit</a>{% endif %}</h1>
 
     <ul class="nav nav-tabs">
         <li role="presentation" class="active">
@@ -39,7 +39,7 @@
         {% for season, statsLine in regStats %}
             {% if season != 'all' %}
             <tr>
-                <td><small><a href="/seasons/{{ statsLine.season }}">{{ statsLine.season }}</a></small></td>
+                <td><small><a href="{{ adminRoute('season-page', [statsLine.season]) }}">{{ statsLine.season }}</a></small></td>
                 <td><small>{{ statsLine.goals }}</small></td>
                 <td><small>{{ statsLine.assists }}</small></td>
                 <td><small>{{ statsLine.points }}</small></td>
@@ -100,7 +100,7 @@
         {% for season, statsLine in playoffStats %}
             {% if season != 'all' %}
                 <tr>
-                    <td><small><a href="/seasons/{{ statsLine.season }}">{{ statsLine.season }}</a></small></td>
+                    <td><small><a href="{{ adminRoute('season-page', [statsLine.season]) }}">{{ statsLine.season }}</a></small></td>
                     <td><small>{{ statsLine.goals }}</small></td>
                     <td><small>{{ statsLine.assists }}</small></td>
                     <td><small>{{ statsLine.points }}</small></td>

@@ -48,12 +48,12 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">SHL<span class="hidden-lg hidden-md hidden-sm"><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;looks best in landscape</small></span></a>
+            <a class="navbar-brand" href="{{ adminRoute('player-stats') }}">SHL<span class="hidden-lg hidden-md hidden-sm"><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;looks best in landscape</small></span></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li class="{{ isActive(active_navbar_stats) }}"><a href="/stats/players">Stats</a></li>
-                <li class="{{ isActive(active_navbar_records) }}"><a href="/records">Records</a></li>
+                <li class="{{ isActive(active_navbar_stats) }}"><a href="{{ adminRoute('player-stats') }}">Stats</a></li>
+                <li class="{{ isActive(active_navbar_records) }}"><a href="{{ adminRoute('records') }}">Records</a></li>
                 {% if auth_user() %}
                     <li class="{{ isActive(active_navbar_addgame) }}"><a href="/admin/games/add">Add Game</a></li>
                     <li class="{{ isActive(active_navbar_addplayer) }}"><a href="/admin/players/add">Add Player</a></li>

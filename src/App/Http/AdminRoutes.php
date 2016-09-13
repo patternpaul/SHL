@@ -17,13 +17,30 @@ class AdminRoutes
     public static function routes(Router $router)
     {
 
-        $router->get('/admin/games/add', ['uses' => AdminController::class . '@addGame']);
-        $router->get('/admin/games/{gameId}/edit', ['uses' => AdminController::class . '@editGame']);
-        $router->post('/admin/games/{gameId}', ['uses' => AdminController::class . '@updateGame']);
-        $router->post('/admin/games', ['uses' => AdminController::class . '@storeGame']);
-        $router->get('/admin/players/add', ['uses' => AdminController::class . '@addPlayer']);
-        $router->post('/admin/players', ['uses' => AdminController::class . '@storePlayer']);
-        $router->get('/admin/players/{playerId}/edit', ['uses' => AdminController::class . '@editPlayer']);
-        $router->post('/admin/players/{playerId}', ['uses' => AdminController::class . '@updatePlayer']);
+
+
+        $router->group(['prefix' => 'admin'], function (Router $router) {
+            $router->get('/games/add', [
+                'as' => 'admin-game-add',
+                'uses' => AdminController::class . '@addGame'
+            ]);
+            $router->get('/games/{gameId}/edit', [
+                'as' => 'admin-game-edit',
+                'uses' => AdminController::class . '@editGame'
+            ]);
+            $router->post('/games/{gameId}', ['uses' => AdminController::class . '@updateGame']);
+            $router->post('/games', ['uses' => AdminController::class . '@storeGame']);
+            $router->get('/players/add', [
+                'as' => 'admin-player-add',
+                'uses' => AdminController::class . '@addPlayer'
+            ]);
+            $router->post('/players', ['uses' => AdminController::class . '@storePlayer']);
+            $router->get('/players/{playerId}/edit', [
+                'as' => 'admin-player-edit',
+                'uses' => AdminController::class . '@editPlayer'
+            ]);
+            $router->post('/players/{playerId}', ['uses' => AdminController::class . '@updatePlayer']);
+            AppRoutes::core($router, 'admin-');
+        });
     }
 }

@@ -20,7 +20,7 @@
                 {% for game in games|reverse %}
                     <tr>
                         <td>{{ game.season }}</td>
-                        <td><a href="/games/{{ game.id }}">{{ game.gameNumber }}</a></td>
+                        <td><a href="{{ adminRoute('game-page', [game.id]) }}">{{ game.gameNumber }}</a></td>
                         <td>{% if game.playoff %}Playoff{% else %}Regular{% endif %}</td>
                         <td>{{ game.whitePoints }}</td>
                         <td>{{ game.blackPoints }}</td>

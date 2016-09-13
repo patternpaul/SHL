@@ -8,8 +8,8 @@
                         <span class="label label-primary">PLAYOFFS</span>
                     {% endif %}
                     <small>
-                        <div class="pull-left">S:<a href="/seasons/{{ game.season }}">{{ game.season }}</a></div>
-                        <div class="pull-right">G:<a href="/games/{{ game.id }}">{{ game.gameNumber }}</a></div><br />
+                        <div class="pull-left">S:<a href="{{ adminRoute('season-page',[game.season]) }}">{{ game.season }}</a></div>
+                        <div class="pull-right">G:<a href="{{ adminRoute('game-page',[game.id]) }}">{{ game.gameNumber }}</a></div><br />
                         <div class="pull-left"><strong>White</strong></div>
                         <div class="pull-right">{{ game.whitePoints }}</div> <br />
                         <div class="pull-left"><strong>Black</strong></div>
