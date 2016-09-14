@@ -14,7 +14,8 @@ Architecture
 ============
 It's a home rolled CQRS (Command Query Responsibility Segregation) and ES (Event Sourced) architecture.
 ![architecture](https://raw.githubusercontent.com/patternpaul/SHL/master/SHL.png "CQRS+ES")
-In this implementation, the commands are self handling commands using Laravel's synchronous [queues](https://laravel.com/docs/5.2/queues). Aggregates contain specific domain business rules. They will then generate events which will be stored locally and sent over an event bus. Event listeners use Laravel's [event subscription](https://laravel.com/docs/5.2/events#event-subscribers) logic to consume the events it cares about. Listeners will then consume those events and store them in a demoralized format optimized for a given query (think materialized views). The same Listener objects will be used to answer specific queries that it has materialized. 
+
+In this implementation, the commands are self handling commands using Laravel's synchronous [queues](https://laravel.com/docs/5.2/queues). Aggregates contain specific domain business rules. They will then generate events which will be stored locally and sent over an event bus. Event listeners use Laravel's [event subscription](https://laravel.com/docs/5.2/events#event-subscribers) logic to consume the events it cares about. Listeners will then consume those events and store them in a de-normalized state optimized for a given query (think materialized views). The same Listener objects will be used to answer specific queries that it has materialized. 
 
  
 How to hack on the SHL codebase
