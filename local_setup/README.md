@@ -8,6 +8,7 @@ This should theoretically bring up a VM with the site running and all production
 4. run `vagrant up` from this directory
 5. go to `192.168.10.10` in your browser.
 
+You can login to the admin pages with username "admin@shl-wpg.ca" and password "password"
 
 
 Get your local environment setup with Homestead

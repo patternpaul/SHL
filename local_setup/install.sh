@@ -15,3 +15,4 @@ php artisan refreshredis
 php artisan route:cache
 php artisan config:cache
 php artisan optimize --force
+php artisan createuser --email=admin@shl-wpg.ca --password=password
