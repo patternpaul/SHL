@@ -74,6 +74,14 @@ package 'php-mysql' do
   action :upgrade
 end
 
+package 'php-opcache' do
+  options "--enablerepo=remi-php70 --enablerepo=remi"
+  action :upgrade
+end
+
+
+
+
 package 'composer' do
   options "--enablerepo=remi-php70 --enablerepo=remi"
   action :upgrade
