@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\AdminRoutes;
+use App\Http\ApiRoutes;
 use App\Http\AppRoutes;
 use App\Http\AuthRoutes;
 use Illuminate\Routing\Router;
@@ -43,6 +44,7 @@ class RouteServiceProvider extends ServiceProvider
         AppRoutes::routes($router);
         AuthRoutes::routes($router);
         AdminRoutes::routes($router);
+        ApiRoutes::routes($router);
     }
 
     /**
