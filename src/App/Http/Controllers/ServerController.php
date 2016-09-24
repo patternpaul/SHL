@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Opcache\Status;
-
 class ServerController extends Controller
 {
 
     public function stats() {
-        $opcache = new Status();
+        $opcache = new \Opcache\Status();
 
         return $opcache->status(true);
     }
