@@ -6,6 +6,7 @@ use App\Http\AdminRoutes;
 use App\Http\ApiRoutes;
 use App\Http\AppRoutes;
 use App\Http\AuthRoutes;
+use App\Http\ServerRoutes;
 use Illuminate\Routing\Router;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -45,6 +46,7 @@ class RouteServiceProvider extends ServiceProvider
         AuthRoutes::routes($router);
         AdminRoutes::routes($router);
         ApiRoutes::routes($router);
+        ServerRoutes::routes($router);
     }
 
     /**

@@ -38,7 +38,10 @@ server {
     {
       set $no_cache 1;
     }
-
+    if ($request_uri ~* "/(server/)")
+    {
+      set $no_cache 1;
+    }
 
     set $punch_cache $http_PunchCache;
 

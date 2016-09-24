@@ -4,7 +4,7 @@ maintainer_email 'pattern.paul@gmail.com'
 license 'no license. Just givr'
 description 'Sets up box for shl-wpg'
 long_description 'Sets up box for shl-wpg'
-version '1.0.11'
+version '1.0.12'
 
 
 depends 'users'
