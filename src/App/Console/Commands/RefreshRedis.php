@@ -46,7 +46,7 @@ class RefreshRedis extends Command
         $aggregateFactory = app(AggregateRepository::class);
         $events = $aggregateFactory->getAll();
         $redis = app('redis');
-        $redis->flushall();
+        $redis->flushdb();
 
         $eventCount = 0;
         foreach ($events as $event) {
