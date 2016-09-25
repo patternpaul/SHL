@@ -37,13 +37,18 @@ class CupWinners extends Listener
         if ($game['playoff'] == 1) {
             $teamA = $this->redis->hgetall($this->baseKey.':season:'.$game['season'].':playoffteam:A');
             $teamB = $this->redis->hgetall($this->baseKey.':season:'.$game['season'].':playoffteam:B');
+            $playoffGamesPlayed = $this->redis->hgetall($this->baseKey.':season:'.$game['season'].':playoffgamesplayed:');
+            $playoffGamesPlayed[$event->playerId] = $this->getOrDefault($playoffGamesPlayed, $event->playerId, 0) + 1;
+            $this->redis->hmset($this->baseKey.':season:'.$game['season'].':playoffgamesplayed:', $playoffGamesPlayed);
+            $this->redis->hset($this->baseKey.':season:'.$game['season'].':gamesscene:', $event->gameId, $event->gameId);
+            $gamesSceneForSeason = $this->redis->hvals($this->baseKey.':season:'.$game['season'].':gamesscene:');
 
-
+            $teamFound = false;
             if (isset($teamA[$event->playerId])) {
                 $teamFound = 'A';
             } elseif (isset($teamB[$event->playerId])) {
                 $teamFound = 'B';
-            } else {
+            } elseif (count($gamesSceneForSeason) == 1) {
                 $altTeam = 'A';
                 $altColour = Game::WHITE_TEAM;
                 if ($event->teamColour == $altColour) {
@@ -53,15 +58,25 @@ class CupWinners extends Listener
                     $altTeam = 'B';
                 }
                 $teamFound = $this->getOrDefault($game, 'team-'.$event->teamColour, $altTeam);
+            } else {
+                $this->redis->hset($this->getBaseKey().':season:'.$game['season'] . ':game:' . $game["gameNumber"].':team:'.$event->teamColour.':lostplayers:', $event->playerId, $event->playerId);
             }
-            $gameWins = $this->redis->hgetall($this->getBaseKey().':season:'.$game['season'].':gamewins:');
-            $wins = $this->getOrDefault($gameWins, $teamFound);
-            $gameWins[$teamFound] = $wins;
-            $this->redis->hmset($this->getBaseKey().':season:'.$game['season'].':gamewins:', $gameWins);
 
-            $this->redis->hset($this->baseKey.':season:'.$game['season'].':playoffteam:'.$teamFound, $event->playerId, $event->playerId);
+            if ($teamFound !== false) {
+                $gameWins = $this->redis->hgetall($this->getBaseKey().':season:'.$game['season'].':gamewins:');
+                $wins = $this->getOrDefault($gameWins, $teamFound);
+                $gameWins[$teamFound] = $wins;
+                $this->redis->hmset($this->getBaseKey().':season:'.$game['season'].':gamewins:', $gameWins);
 
-            $this->redis->hset($this->getBaseKey().':game:' . $event->gameId, 'team-'.$event->teamColour, $teamFound);
+                $this->redis->hset($this->baseKey.':season:'.$game['season'].':playoffteam:'.$teamFound, $event->playerId, $event->playerId);
+
+                $lostPlayers = $this->redis->hvals($this->getBaseKey().':season:'.$game['season'] . ':game:' . $game["gameNumber"].':team:'.$event->teamColour .':lostplayers:');
+                foreach ($lostPlayers as $lostPlayer) {
+                    $this->redis->hset($this->baseKey.':season:'.$game['season'].':playoffteam:'.$teamFound, $lostPlayer, $lostPlayer);
+                }
+                $this->redis->del($this->getBaseKey().':season:'.$game['season'] . ':game:' . $game["gameNumber"].':team:'.$event->teamColour .':lostplayers:');
+                $this->redis->hset($this->getBaseKey().':game:' . $event->gameId, 'team-'.$event->teamColour, $teamFound);
+            }
         }
     }
 
@@ -73,6 +88,12 @@ class CupWinners extends Listener
             $teamA = $this->redis->hgetall($this->baseKey.':season:'.$game['season'].':playoffteam:A');
             $teamB = $this->redis->hgetall($this->baseKey.':season:'.$game['season'].':playoffteam:B');
 
+            $playoffGamesPlayed = $this->redis->hgetall($this->baseKey.':season:'.$game['season'].':playoffgamesplayed:');
+            $newGameCount = $playoffGamesPlayed[$event->playerId] - 1;
+            $playoffGamesPlayed[$event->playerId] = $newGameCount;
+            $this->redis->hmset($this->baseKey.':season:'.$game['season'].':playoffgamesplayed:', $playoffGamesPlayed);
+
+
 
             if (isset($teamA[$event->playerId])) {
                 $teamFound = 'A';
@@ -89,12 +110,11 @@ class CupWinners extends Listener
                 }
                 $teamFound = $this->getOrDefault($game, 'team-'.$event->teamColour, $altTeam);
             }
-            $gameWins = $this->redis->hgetall($this->getBaseKey().':season:'.$game['season'].':gamewins:');
-            $wins = $this->getOrDefault($gameWins, $teamFound);
-            $gameWins[$teamFound] = $wins;
-            $this->redis->hmset($this->getBaseKey().':season:'.$game['season'].':gamewins:', $gameWins);
 
-            $this->redis->hdel($this->baseKey.':season:'.$game['season'].':playoffteam:'.$teamFound, $event->playerId);
+            //we need to track the player teams UNLESS they have never played a game aside from the game being removed
+            if ($newGameCount == 0) {
+                $this->redis->hdel($this->baseKey.':season:'.$game['season'].':playoffteam:'.$teamFound, $event->playerId);
+            }
 
             $this->redis->hdel($this->getBaseKey().':game:' . $event->gameId, 'team-'.$event->teamColour);
         }
@@ -108,6 +128,7 @@ class CupWinners extends Listener
         $obj["id"] = $event->getAggregateId();
         $obj["playoff"] = $event->playoff;
         $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
 
         $this->redis->hmset($this->getBaseKey().':game:' . $event->getAggregateId(), $obj);
         if ($event->playoff == 1) {
@@ -122,6 +143,7 @@ class CupWinners extends Listener
         $obj["id"] = $event->getAggregateId();
         $obj["playoff"] = $event->playoff;
         $obj["season"] = $event->season;
+        $obj["gameNumber"] = $event->gameNumber;
 
         $this->redis->hmset($this->getBaseKey().':game:' . $event->getAggregateId(), $obj);
         if ($event->playoff == 1) {

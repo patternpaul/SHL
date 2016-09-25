@@ -35,7 +35,7 @@ class RecordsCupWinnersTest extends \App\Infrastructure\Test\TestCaseCore
     }
 
 
-    public function test_cup_winners()
+    public function test_cup_winners_when_game_edited()
     {
         $this->generateMultipleGamesForAGivenSeason(1, 50, 0);
         $this->generateGame(1, 1, 1);
@@ -65,18 +65,17 @@ class RecordsCupWinnersTest extends \App\Infrastructure\Test\TestCaseCore
 
 
         $command->addWhiteGoalie($this->chrisLee);
+        $command->addBlackGoalie($this->davidR);
         $command->addWhitePlayer($this->zachR);
+        $command->addBlackPlayer($this->chrisR);
         $command->addWhitePlayer($this->kevenB);
+        $command->addBlackPlayer($this->jeremieR);
         $command->addWhitePlayer($this->ghislainD);
+        $command->addBlackPlayer($this->jacquesAuger);
         $command->addWhitePlayer($this->paulE);
+        $command->addBlackPlayer($this->colinLemoine);
         $command->addWhitePlayer($this->paulG);
 
-
-        $command->addBlackGoalie($this->davidR);
-        $command->addBlackPlayer($this->chrisR);
-        $command->addBlackPlayer($this->jeremieR);
-        $command->addBlackPlayer($this->jacquesAuger);
-        $command->addBlackPlayer($this->colinLemoine);
 
 
 
@@ -106,7 +105,150 @@ class RecordsCupWinnersTest extends \App\Infrastructure\Test\TestCaseCore
 
     }
 
-    public function test_cup_winners_when_game_edited()
+
+
+    public function test_cup_winners_order_of_players_should_not_matter()
+    {
+        $johnDoe = $this->genPlayerWithName("John", "Doe");
+        $jackBlack = $this->genPlayerWithName("Jack", "Black");
+
+
+        $season = 1;
+        $playoff = 1;
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            1
+        );
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addBlackGoalie($this->davidR);
+        $command->addWhitePlayer($this->zachR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addWhitePlayer($this->paulE);
+        $command->addBlackPlayer($this->colinLemoine);
+        $command->addWhitePlayer($this->paulG);
+
+        for ($i=1; $i <= 10; $i++) {
+            $command->addWhitePoint($i, $this->ghislainD, $this->zachR);
+        }
+
+        for ($i=1; $i <= 2; $i++) {
+            $command->addBlackPoint($i, $this->chrisR, $this->colinLemoine);
+        }
+        $this->dispatch($command);
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            2
+        );
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addBlackGoalie($this->davidR);
+        $command->addWhitePlayer($this->zachR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addWhitePlayer($this->paulE);
+        $command->addBlackPlayer($this->colinLemoine);
+        $command->addWhitePlayer($this->paulG);
+
+        for ($i=1; $i <= 10; $i++) {
+            $command->addWhitePoint($i, $this->ghislainD, $this->zachR);
+        }
+
+        for ($i=1; $i <= 2; $i++) {
+            $command->addBlackPoint($i, $this->chrisR, $this->colinLemoine);
+        }
+        $this->dispatch($command);
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            3
+        );
+
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addBlackGoalie($this->davidR);
+        $command->addWhitePlayer($this->zachR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addWhitePlayer($this->paulE);
+        $command->addBlackPlayer($this->colinLemoine);
+        $command->addWhitePlayer($this->paulG);
+
+        for ($i=1; $i <= 10; $i++) {
+            $command->addWhitePoint($i, $this->ghislainD, $this->zachR);
+        }
+
+        for ($i=1; $i <= 2; $i++) {
+            $command->addBlackPoint($i, $this->chrisR, $this->colinLemoine);
+        }
+        $this->dispatch($command);
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            4
+        );
+
+
+        $command->addWhitePlayer($johnDoe);
+        $command->addWhitePlayer($jackBlack);
+        $command->addWhiteGoalie($this->chrisLee);
+        $command->addBlackGoalie($this->davidR);
+        $command->addWhitePlayer($this->zachR);
+        $command->addBlackPlayer($this->chrisR);
+        $command->addWhitePlayer($this->kevenB);
+        $command->addBlackPlayer($this->jeremieR);
+        $command->addWhitePlayer($this->ghislainD);
+        $command->addBlackPlayer($this->jacquesAuger);
+        $command->addWhitePlayer($this->paulE);
+        $command->addBlackPlayer($this->colinLemoine);
+        $command->addWhitePlayer($this->paulG);
+
+        for ($i=1; $i <= 10; $i++) {
+            $command->addWhitePoint($i, $this->ghislainD, $this->zachR);
+        }
+
+        for ($i=1; $i <= 2; $i++) {
+            $command->addBlackPoint($i, $this->chrisR, $this->colinLemoine);
+        }
+        $this->dispatch($command);
+
+        $records = $this->recordStore->getRecords();
+        $entries = $records[\App\Listeners\Records\CupWinners::BASE_KEY.'01']['entries'];
+        $this->assertEquals(8, count($entries));
+
+    }
+
+    public function test_cup_winners()
     {
         $this->generateMultipleGamesForAGivenSeason(1, 50, 0);
         $this->generateGame(1, 1, 1);
