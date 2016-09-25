@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0cfdc3de8c8255eb453939a821c06171",
-    "content-hash": "561fe34857c662711813cd7403c0d864",
+    "hash": "41e22ac938f2e68986ce672a3958c617",
+    "content-hash": "bdeae9bd5821aeef6e6f5dbf7a938c52",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -160,53 +160,6 @@
                 "string"
             ],
             "time": "2015-11-06 14:35:42"
-        },
-        {
-            "name": "domnikl/statsd",
-            "version": "2.4.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/domnikl/statsd-php.git",
-                "reference": "f1a443f6ff2cae6bab46ebe8e27576d9b4cbeabf"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/domnikl/statsd-php/zipball/f1a443f6ff2cae6bab46ebe8e27576d9b4cbeabf",
-                "reference": "f1a443f6ff2cae6bab46ebe8e27576d9b4cbeabf",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">= 5.3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": ">= 4.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Domnikl\\Statsd\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Dominik Liebler",
-                    "email": "liebler.dominik@gmail.com"
-                }
-            ],
-            "description": "a PHP client for statsd",
-            "homepage": "https://domnikl.github.com/statsd-php",
-            "keywords": [
-                "Metrics",
-                "monitoring",
-                "statistics",
-                "statsd",
-                "udp"
-            ],
-            "time": "2016-07-06 07:58:06"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1354,46 +1307,6 @@
                 "twig"
             ],
             "time": "2016-02-22 07:48:48"
-        },
-        {
-            "name": "stevencorona/opcache-json",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/stevencorona/opcache-json.git",
-                "reference": "e7449acd0b22f0d103e7c10f0273f15f651eeb36"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/stevencorona/opcache-json/zipball/e7449acd0b22f0d103e7c10f0273f15f651eeb36",
-                "reference": "e7449acd0b22f0d103e7c10f0273f15f651eeb36",
-                "shasum": ""
-            },
-            "require": {
-                "domnikl/statsd": "*",
-                "ext-json": "*",
-                "php": ">=5.5.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Opcache\\": "src/Opcache"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Steve Corona",
-                    "email": "hello@scalingphpbook.com",
-                    "homepage": "http://scalingphpbook.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Library that grabs some critical stats from Zend Opcache and outputs to JSON for monitoring and alerting. Can also output to statsd sink.",
-            "time": "2014-03-28 12:59:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
