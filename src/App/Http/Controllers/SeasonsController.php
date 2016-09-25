@@ -28,6 +28,7 @@ class SeasonsController extends Controller
 
     public function index($season) {
         $games = $this->games->getSpecificSeasonGames($season);
-        return view('app.seasons.id', ["games" => $games, "season" => $season]);
+        $currentSeason = $this->games->getLatestSeason();
+        return view('app.seasons.id', ["games" => $games, "season" => $season, "currentSeason" => $currentSeason]);
     }
 }

@@ -32,9 +32,8 @@ There is a Chef cookbook under the chef directory.
 
 TODO
 ====
--Season Selector on season page
--Hint overlays for table headers
--API Cache Bust
+* Hint overlays for table headers
+* API Cache Bust
 
 
 
