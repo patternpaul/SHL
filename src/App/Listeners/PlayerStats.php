@@ -156,16 +156,27 @@ class PlayerStats extends Listener
     private function calcStats($statObj)
     {
         $statObj['points'] = $statObj['goals'] + $statObj['assists'];
-        $statObj['goalsPerGame'] = round ($statObj['goals']/$statObj['gamesPlayed'], 2);
-        $statObj['assistsPerGame'] = round ($statObj['assists']/$statObj['gamesPlayed'], 2);
-        $statObj['pointsPerGame'] = round ($statObj['points']/$statObj['gamesPlayed'], 2);
+        if ($statObj['gamesPlayed'] != 0) {
+            $statObj['goalsPerGame'] = round ($statObj['goals']/$statObj['gamesPlayed'], 2);
+            $statObj['assistsPerGame'] = round ($statObj['assists']/$statObj['gamesPlayed'], 2);
+            $statObj['pointsPerGame'] = round ($statObj['points']/$statObj['gamesPlayed'], 2);
+        } else {
+            $statObj['goalsPerGame'] = round (0, 2);
+            $statObj['assistsPerGame'] = round (0, 2);
+            $statObj['pointsPerGame'] = round (0, 2);
+        }
+
         $statObj['teamGoalsPercentage'] = 0;
         if ($statObj['teamGoals'] > 0) {
             $statObj['teamGoalsPercentage'] = round ($statObj['goals']/$statObj['teamGoals']*100, 2);
         }
         $statObj['plusMinus'] = $statObj['wins'] - $statObj['losses'];
-        $statObj['winPercentage'] = round($statObj['wins']/($statObj['wins'] + $statObj['losses'])*100, 2);
 
+        if ($statObj['gamesPlayed'] != 0) {
+            $statObj['winPercentage'] = round($statObj['wins']/($statObj['wins'] + $statObj['losses'])*100, 2);
+        } else {
+            $statObj['winPercentage'] = round(0, 2);
+        }
 
         return $statObj;
     }

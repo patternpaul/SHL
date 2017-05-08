@@ -36,6 +36,30 @@ class GoalieStatsTest extends \App\Infrastructure\Test\TestCaseCore
         $this->colinLemoine = $this->genPlayerWithName("Colin", "Lemoine");
     }
 
+    public function test_player_get_stat_line_scenario_should_not_throw_divide_by_zero_error()
+    {
+        $season = 1;
+        $gameCount = 1;
+        $playoff = 0;
+        $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+
+        $statsLine = $this->goalieStats->getCalcGoalieStatLine($this->paulG, $season, $playoff);
+
+        $this->assertEquals(0, $statsLine['goalsAgainst']);
+        $this->assertEquals(0, $statsLine['gamesPlayed']);
+        $this->assertEquals(0, $statsLine['goalsAgainstAverage']);
+        $this->assertEquals(0, $statsLine['wins']);
+        $this->assertEquals(0, $statsLine['losses']);
+        $this->assertEquals(0, $statsLine['plusMinus']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(0, $statsLine['points']);
+        $this->assertEquals(0, $statsLine['shutOuts']);
+        $this->assertEquals(0, $statsLine['minutesPlayed']);
+        $this->assertEquals(0, $statsLine['goalsPerMinute']);
+    }
+
     public function test_game_scenario()
     {
         $season = 1;

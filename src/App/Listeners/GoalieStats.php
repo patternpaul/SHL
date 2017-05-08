@@ -118,10 +118,18 @@ class GoalieStats extends Listener
 
     private function calcStats($statObj)
     {
-        $statObj['goalsAgainstAverage'] = round($statObj['goalsAgainst']/$statObj['gamesPlayed'], 2);
-        $statObj['goalsPerMinute'] = round($statObj['goalsAgainst']/$statObj['minutesPlayed'], 2);
+        if ($statObj['gamesPlayed'] != 0) {
+            $statObj['goalsAgainstAverage'] = round($statObj['goalsAgainst']/$statObj['gamesPlayed'], 2);
+            $statObj['goalsPerMinute'] = round($statObj['goalsAgainst']/$statObj['minutesPlayed'], 2);
+            $statObj['winPercentage'] = round($statObj['wins']/($statObj['wins'] + $statObj['losses'])*100, 2);
+        } else {
+            $statObj['goalsAgainstAverage'] = round(0, 2);
+            $statObj['goalsPerMinute'] = round(0, 2);
+            $statObj['winPercentage'] = round(0, 2);
+        }
+
         $statObj['plusMinus'] = $statObj['wins'] - $statObj['losses'];
-        $statObj['winPercentage'] = round($statObj['wins']/($statObj['wins'] + $statObj['losses'])*100, 2);
+
         $statObj['points'] = $statObj['goals'] + $statObj['assists'];
         return $statObj;
     }

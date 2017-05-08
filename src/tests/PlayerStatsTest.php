@@ -74,6 +74,29 @@ class PlayerStatsTest extends \App\Infrastructure\Test\TestCaseCore
         $this->assertEquals(50, $statsLine['gameWinningGoals']);
     }
 
+    public function test_goalie_get_stat_line_scenario_should_not_throw_divide_by_zero_error()
+    {
+        $season = 1;
+        $gameCount = 1;
+        $playoff = 0;
+        $this->generateMultipleGamesForAGivenSeason($season, $gameCount, $playoff);
+
+        $statsLine = $this->stats->getCalcPlayerStatLine($this->davidR, $season, $playoff);
+
+        $this->assertEquals(0, $statsLine['goals']);
+        $this->assertEquals(0, $statsLine['assists']);
+        $this->assertEquals(0, $statsLine['points']);
+        $this->assertEquals(0, $statsLine['goalsPerGame']);
+        $this->assertEquals(0, $statsLine['assistsPerGame']);
+        $this->assertEquals(0, $statsLine['pointsPerGame']);
+        $this->assertEquals(0, $statsLine['teamGoalsPercentage']);
+        $this->assertEquals(0, $statsLine['wins']);
+        $this->assertEquals(0, $statsLine['losses']);
+        $this->assertEquals(0, $statsLine['plusMinus']);
+        $this->assertEquals(0, $statsLine['winPercentage']);
+        $this->assertEquals(0, $statsLine['gameWinningGoals']);
+    }
+
 
     public function test_edit_game_scenario()
     {
