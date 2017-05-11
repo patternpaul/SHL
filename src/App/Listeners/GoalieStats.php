@@ -226,7 +226,7 @@ class GoalieStats extends Listener
 
 
         if ($event->position == Game::GOALIE) {
-            
+
             $this->redis->hset(
                 'stats:seasons:'.$game['season'].":playoffs:".$game['playoff'].":goalies",
                 $game['season'].$game['playoff'].$game['gameNumber'].$event->playerId,
@@ -422,8 +422,10 @@ class GoalieStats extends Listener
             );
 
             $obj = $this->getGoalieStatLine($event->playerId, $game['season'], $game['playoff']);
-            $obj['gamesPlayed'] = $obj['gamesPlayed'] - 1;
-            $obj['minutesPlayed'] = $obj['minutesPlayed'] - $minDiff;
+            if ($obj['gamesPlayed'] != 0) {
+                $obj['gamesPlayed'] = $obj['gamesPlayed'] - 1;
+                $obj['minutesPlayed'] = $obj['minutesPlayed'] - $minDiff;
+            }
             $this->storeGoalieStatLine($event->playerId, $game['season'], $game['playoff'], $obj);
         }
 

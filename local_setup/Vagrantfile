@@ -19,6 +19,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.cookbooks_path = ["./../chef","./other-cookbooks"]
     chef.add_recipe "shl-wpg"
 
+    chef.version = "12.5.1"
+
     chef.json = {
       'shl-wpg' => {
         'domains' => '192.168.10.10',

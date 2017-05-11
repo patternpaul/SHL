@@ -270,7 +270,9 @@ class PlayerStats extends Listener
             );
 
             $obj = $this->getPlayerStatLine($event->playerId, $game['season'], $game['playoff']);
-            $obj['gamesPlayed'] = $obj['gamesPlayed'] -1;
+            if ($obj['gamesPlayed'] != 0) {
+                $obj['gamesPlayed'] = $obj['gamesPlayed'] - 1;
+            }
             $this->storePlayerStatLine($event->playerId, $game['season'], $game['playoff'], $obj);
 
         }

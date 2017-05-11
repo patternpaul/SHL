@@ -18,6 +18,11 @@ class AppRoutes
         $router->get('/dump', [
             'uses' => DumpController::class . '@dump'
         ]);
+
+        $router->get('/list', [
+            'uses' => DumpController::class . '@list'  
+        ]);
+
         $router->get('/', [
             'uses' => StatsController::class . '@index'
         ]);
