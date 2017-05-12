@@ -217,13 +217,6 @@ class GoalieStats extends Listener
     {
         $game = $this->redis->hgetall($this->getBaseKey() . ':game:' . $event->gameId);
 
-        $this->redis->hset(
-            $this->getBaseKey() . ':game:' . $event->gameId.':player-positions',
-            $event->playerId,
-            $event->position
-        );
-
-
 
         if ($event->position == Game::GOALIE) {
 
@@ -393,14 +386,6 @@ class GoalieStats extends Listener
         $startTime = Carbon::parse($game['gameDate'].' '.$game['start']);
         $endTime = Carbon::parse($game['gameDate'].' '.$game['end']);
         $minDiff = $startTime->diffInMinutes($endTime);
-
-
-
-
-        $this->redis->hdel(
-            $this->getBaseKey() . ':game:' . $event->gameId.':player-positions',
-            $event->playerId
-        );
 
 
         if ($event->position == Game::GOALIE) {

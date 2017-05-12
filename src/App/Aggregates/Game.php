@@ -89,6 +89,15 @@ class Game extends AggregateRoot
         return $this->gameNumber;
     }
 
+    public function getWhitePlayers()
+    {
+        return $this->players[Game::WHITE_TEAM];
+    }
+
+    public function getBlackPlayers()
+    {
+        return $this->players[Game::BLACK_TEAM];
+    }
 
 
     public static function createGame($gameDate, $start, $end, $playoff, $season, $gameNumber)
@@ -175,7 +184,20 @@ class Game extends AggregateRoot
 
     public function addBlackPlayer($playerId)
     {
-        //todo check if player exists
+        if(in_array($playerId, $this->players[Game::BLACK_TEAM])) {
+            throw new AggregateException("You are adding the same player twice on the black team.");
+        }
+        if($this->blackGoalie == $playerId) {
+            throw new AggregateException("You are adding the same player as a player and a goalie on the black team.");
+        }
+
+        if(in_array($playerId, $this->players[Game::WHITE_TEAM])) {
+            throw new AggregateException("You are adding the same player on the black team and the white team.");
+        }
+        if($this->whiteGoalie == $playerId) {
+            throw new AggregateException("You are adding the same player on the black team and the white team.");
+        }
+
         $this->apply(
             new TeamPlayerAdded($this->getAggregateId(), Game::BLACK_TEAM, $playerId, Game::PLAYER)
         );
@@ -183,7 +205,20 @@ class Game extends AggregateRoot
 
     public function addWhitePlayer($playerId)
     {
-        //todo check if player exists
+        if(in_array($playerId, $this->players[Game::WHITE_TEAM])) {
+            throw new AggregateException("You are adding the same player twice on the white team.");
+        }
+        if($this->whiteGoalie == $playerId) {
+            throw new AggregateException("You are adding the same player as a player and a goalie on the white team.");
+        }
+
+        if(in_array($playerId, $this->players[Game::BLACK_TEAM])) {
+            throw new AggregateException("You are adding the same player on the black team and the white team.");
+        }
+        if($this->blackGoalie == $playerId) {
+            throw new AggregateException("You are adding the same player on the black team and the white team.");
+        }
+
         $this->apply(
             new TeamPlayerAdded($this->getAggregateId(), Game::WHITE_TEAM, $playerId, Game::PLAYER)
         );
@@ -191,6 +226,9 @@ class Game extends AggregateRoot
 
     public function addBlackGoalie($playerId)
     {
+        if(in_array($playerId, $this->players[Game::BLACK_TEAM])) {
+            throw new AggregateException("You are adding the same player twice on the black team.");
+        }
         if (is_null($playerId)) {
             throw new AggregateException("You have not selected a Black Goalie");
         }
@@ -201,6 +239,9 @@ class Game extends AggregateRoot
 
     public function addWhiteGoalie($playerId)
     {
+        if(in_array($playerId, $this->players[Game::WHITE_TEAM])) {
+            throw new AggregateException("You are adding the same player twice on the white team.");
+        }
         if (is_null($playerId)) {
             throw new AggregateException("You have not selected a White Goalie");
         }

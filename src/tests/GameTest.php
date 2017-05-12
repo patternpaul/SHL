@@ -462,10 +462,299 @@ class GameTest extends \App\Infrastructure\Test\TestCaseCore
         $this->assertEquals($paulE, $game[Game::BLACK_TEAM."Goals"][10]['goalPlayerId']);
         $this->assertEquals($colinLemoine, $game[Game::BLACK_TEAM."Goals"][10]['assistPlayerId']);
     }
-    
-    
-    
-    
+
+
+
+    public function test_game_edit_scenario_removes_players()
+    {
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $playoff = 0;
+        $season = 15;
+        $gameNumber = 24;
+        $blackPoints = 10;
+        $whitePoints = 2;
+
+        $chrisLee = $this->genPlayerWithName("Chris", "Lee");
+        $zachR = $this->genPlayerWithName("Zach", "Riet");
+        $kevenB = $this->genPlayerWithName("Keven", "Barron");
+        $ghislainD = $this->genPlayerWithName("Ghislain", "Druwé");
+        $paulE = $this->genPlayerWithName("Paul", "Everton");
+        $paulG = $this->genPlayerWithName("Paul", "Gagne");
+        $davidR = $this->genPlayerWithName("David", "Robin");
+        $chrisR = $this->genPlayerWithName("Chris", "Robin");
+        $jeremieR  = $this->genPlayerWithName("Jeremie", "Robin");
+        $jacquesAuger = $this->genPlayerWithName("Jacques", "Auger");
+        $colinLemoine = $this->genPlayerWithName("Colin", "Lemoine");
+
+
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            $gameNumber
+        );
+
+
+        $command->addWhiteGoalie($chrisLee);
+        $command->addWhitePlayer($zachR);
+        $command->addWhitePlayer($kevenB);
+        $command->addWhitePlayer($ghislainD);
+        $command->addWhitePlayer($paulE);
+        $command->addWhitePlayer($paulG);
+
+
+        $command->addBlackGoalie($davidR);
+        $command->addBlackPlayer($chrisR);
+        $command->addBlackPlayer($jeremieR);
+        $command->addBlackPlayer($jacquesAuger);
+        $command->addBlackPlayer($colinLemoine);
+
+
+        $command->addWhitePoint(1, $ghislainD, $zachR);
+
+
+        $command->addBlackPoint(1, $chrisR, $colinLemoine);
+        $command->addBlackPoint(2, $jacquesAuger, $chrisR);
+        $command->addBlackPoint(3, $jacquesAuger, $chrisR);
+        $command->addBlackPoint(4, $chrisR, $colinLemoine);
+        $command->addBlackPoint(5, $chrisR, '');
+        $command->addBlackPoint(6, $colinLemoine, $jacquesAuger);
+        $command->addBlackPoint(7, $colinLemoine, $chrisR);
+        $command->addBlackPoint(8, $jacquesAuger, $colinLemoine);
+        $command->addBlackPoint(9, $jeremieR, $chrisR);
+        $command->addBlackPoint(10, $colinLemoine, $jeremieR);
+
+        $gameId = $this->dispatch($command);
+
+        $gameDate = '2016-07-28';
+        $start = '9:00 AM';
+        $end = '9:45 AM';
+        $playoff = 1;
+        $season = 16;
+        $gameNumber = 2;
+        $command = new \App\Commands\Game\EditFullGame(
+            $gameId,
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            $gameNumber
+        );
+
+
+        $command->addWhiteGoalie($zachR);
+        $command->addWhitePlayer($chrisLee);
+        $command->addWhitePlayer($kevenB);
+        $command->addWhitePlayer($ghislainD);
+        $command->addWhitePlayer($jeremieR);
+        $command->addWhitePlayer($paulG);
+
+
+        $command->addBlackGoalie($jacquesAuger);
+        $command->addBlackPlayer($davidR);
+        $command->addBlackPlayer($paulE);
+        $command->addBlackPlayer($chrisR);
+        $command->addBlackPlayer($colinLemoine);
+
+
+        $command->addWhitePoint(1, $jeremieR, $paulG);
+        $command->addWhitePoint(2, $jeremieR, $paulG);
+
+
+        $command->addBlackPoint(1, $paulE, $colinLemoine);
+        $command->addBlackPoint(2, $paulE, $chrisR);
+        $command->addBlackPoint(3, $paulE, $chrisR);
+        $command->addBlackPoint(4, $paulE, $colinLemoine);
+        $command->addBlackPoint(5, $paulE, '');
+        $command->addBlackPoint(6, $paulE, '');
+        $command->addBlackPoint(7, $paulE, $chrisR);
+        $command->addBlackPoint(8, $paulE, $colinLemoine);
+        $command->addBlackPoint(9, $paulE, $chrisR);
+        $command->addBlackPoint(10, $paulE, $colinLemoine);
+
+        $gameId = $this->dispatch($command);
+
+        /** @var \App\Aggregates\Game $gameAgg */
+        $gameAgg = $this->aggregateRepository->get($gameId);
+
+        $this->assertEquals(5, count($gameAgg->getBlackPlayers()));
+        $this->assertEquals(6, count($gameAgg->getWhitePlayers()));
+
+    }
+
+
+    public function test_add_game_with_same_black_player_will_fail()
+    {
+        $this->setExpectedException('App\Infrastructure\Aggregate\AggregateException');
+        $blackOne = $this->genPlayerWithName('First', 'Last');
+        $blackTwo = $this->genPlayerWithName('First', 'Last');
+        $whiteOne = $this->genPlayerWithName('First', 'Last');
+        $whiteTwo = $this->genPlayerWithName('First', 'Last');
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $playoff = '1';
+        $season = 1;
+        $gameNumber = 1;
+        $blackPoints = 10;
+        $whitePoints = 6;
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            $gameNumber
+        );
+
+        $command->addBlackPlayer($blackOne);
+        $command->addBlackPlayer($blackOne);
+        $command->addBlackGoalie($blackTwo);
+        $command->addWhitePlayer($whiteOne);
+        $command->addWhiteGoalie($whiteTwo);
+
+        for ($i = 1; $i <= $blackPoints; $i++) {
+            $command->addBlackPoint($i, $blackOne, $blackTwo);
+        }
+        for ($i = 1; $i <= $whitePoints; $i++) {
+            $command->addWhitePoint($i, $whiteOne, $whiteTwo);
+        }
+
+        $gameId = $this->dispatch($command);
+    }
+
+
+    public function test_add_game_with_same_black_player_and_black_goalie_will_fail()
+    {
+        $this->setExpectedException('App\Infrastructure\Aggregate\AggregateException');
+        $blackOne = $this->genPlayerWithName('First', 'Last');
+        $blackTwo = $this->genPlayerWithName('First', 'Last');
+        $whiteOne = $this->genPlayerWithName('First', 'Last');
+        $whiteTwo = $this->genPlayerWithName('First', 'Last');
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $playoff = '1';
+        $season = 1;
+        $gameNumber = 1;
+        $blackPoints = 10;
+        $whitePoints = 6;
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            $gameNumber
+        );
+
+        $command->addBlackPlayer($blackOne);
+        $command->addBlackGoalie($blackOne);
+        $command->addWhitePlayer($whiteOne);
+        $command->addWhiteGoalie($whiteTwo);
+
+        for ($i = 1; $i <= $blackPoints; $i++) {
+            $command->addBlackPoint($i, $blackOne, $blackTwo);
+        }
+        for ($i = 1; $i <= $whitePoints; $i++) {
+            $command->addWhitePoint($i, $whiteOne, $whiteTwo);
+        }
+
+        $gameId = $this->dispatch($command);
+    }
+
+
+    public function test_add_game_with_same_white_player_will_fail()
+    {
+        $this->setExpectedException('App\Infrastructure\Aggregate\AggregateException');
+        $blackOne = $this->genPlayerWithName('First', 'Last');
+        $blackTwo = $this->genPlayerWithName('First', 'Last');
+        $whiteOne = $this->genPlayerWithName('First', 'Last');
+        $whiteTwo = $this->genPlayerWithName('First', 'Last');
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $playoff = '1';
+        $season = 1;
+        $gameNumber = 1;
+        $blackPoints = 10;
+        $whitePoints = 6;
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            $gameNumber
+        );
+
+        $command->addBlackPlayer($blackOne);
+        $command->addBlackGoalie($blackTwo);
+        $command->addWhitePlayer($whiteOne);
+        $command->addWhitePlayer($whiteOne);
+        $command->addWhiteGoalie($whiteTwo);
+
+        for ($i = 1; $i <= $blackPoints; $i++) {
+            $command->addBlackPoint($i, $blackOne, $blackTwo);
+        }
+        for ($i = 1; $i <= $whitePoints; $i++) {
+            $command->addWhitePoint($i, $whiteOne, $whiteTwo);
+        }
+
+        $gameId = $this->dispatch($command);
+    }
+
+
+    public function test_add_game_with_same_white_player_and_white_goalie_will_fail()
+    {
+        $this->setExpectedException('App\Infrastructure\Aggregate\AggregateException');
+        $blackOne = $this->genPlayerWithName('First', 'Last');
+        $blackTwo = $this->genPlayerWithName('First', 'Last');
+        $whiteOne = $this->genPlayerWithName('First', 'Last');
+        $whiteTwo = $this->genPlayerWithName('First', 'Last');
+        $gameDate = '2016-07-27';
+        $start = '9:00 AM';
+        $end = '9:30 AM';
+        $playoff = '1';
+        $season = 1;
+        $gameNumber = 1;
+        $blackPoints = 10;
+        $whitePoints = 6;
+
+        $command = new \App\Commands\Game\AddFullGame(
+            $gameDate,
+            $start,
+            $end,
+            $playoff,
+            $season,
+            $gameNumber
+        );
+
+        $command->addBlackPlayer($blackOne);
+        $command->addBlackGoalie($blackOne);
+        $command->addWhitePlayer($whiteOne);
+        $command->addWhiteGoalie($whiteOne);
+
+        for ($i = 1; $i <= $blackPoints; $i++) {
+            $command->addBlackPoint($i, $blackOne, $blackTwo);
+        }
+        for ($i = 1; $i <= $whitePoints; $i++) {
+            $command->addWhitePoint($i, $whiteOne, $whiteTwo);
+        }
+
+        $gameId = $this->dispatch($command);
+    }
+
+
     private function genPlayerWithName($firstName, $lastName)
     {
         $email = 'email';
