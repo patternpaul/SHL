@@ -56,7 +56,7 @@
         <tbody>
             {% for statsLine in stats %}
                 <tr>
-                    <td><small><a href="{{ adminRoute('player-page-goalie-stats', [statsLine.playerId]) }}">{{ statsLine.shortName }}</a></small></td>
+                    <td><small><a href="{{ adminRoute('player-page-goalie-stats', [statsLine.playerId]) }}"><span class="hidden-xs hidden-sm hidden-md">{{ statsLine.firstName }}&nbsp;{{ statsLine.lastName }}</span><span class="hidden-lg">{{ statsLine.shortName }}</span></a></small></td>
                     <td><small>{{ statsLine.goalsAgainst }}</small></td>
                     <td><small>{{ statsLine.gamesPlayed }}</small></td>
                     <td><small>{{ statsLine.goalsAgainstAverage }}</small></td>
