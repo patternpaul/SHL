@@ -1,23 +1,4 @@
 <div class="row">
     <span class="hidden-xs hidden-sm hidden-md"><img src="/img/newshlbanner-min.jpg" style="width: 100%" /></span>
-    <table class="hidden-xs hidden-sm hidden-md table table-condensed table-responsive table-bordered ">
-        <tr>
-            {% for game in header_games|slice(0, 10) %}
-                <td class="text-center">
-                    {% if game.playoff == 1 %}
-                        <span class="label label-primary">PLAYOFFS</span>
-                    {% endif %}
-                    <small>
-                        <div class="pull-left">S:<a href="{{ adminRoute('season-page',[game.season]) }}">{{ game.season }}</a></div>
-                        <div class="pull-right">G:<a href="{{ adminRoute('game-page',[game.id]) }}">{{ game.gameNumber }}</a></div><br />
-                        <div class="pull-left"><strong>White</strong></div>
-                        <div class="pull-right">{{ game.whitePoints }}</div> <br />
-                        <div class="pull-left"><strong>Black</strong></div>
-                        <div class="pull-right">{{ game.blackPoints }}</div>
-                    </small>
-                </td>
-            {% endfor %}
-        </tr>
-    </table>
     <div class="hidden-lg">&nbsp;</div>
 </div>

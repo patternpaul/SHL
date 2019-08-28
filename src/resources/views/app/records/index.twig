@@ -2,14 +2,42 @@
 
 {% block content %}
     {% include 'base.banner.twig' %}
-    <h1>Records</h1>
+    <h1>Player Records</h1>
     {% for record in records %}
-        <h3>{{ record.header }}</h3>
-        {% for entry in record.parsedEntries %}
-            {{ entry|raw }} <br />
-        {% endfor %}
-    {% endfor %}
+        {% set printRecord = false %}
+        {%  if 'Cup Winners' in record.header %}
+        {% else %}
+            {%  if 'Club' in record.header or 'Player' in record.header %}
+                {% set printRecord = true %}
+            {% endif %}
+        {% endif %}
 
+        {% if printRecord %}
+            <h3>{{ record.header }}</h3>
+            {% for entry in record.parsedEntries %}
+                {{ entry|raw }} <br />
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    <h1>Team Records</h1>
+    {% for record in records %}
+        {% set printRecord = false %}
+        {%  if 'Cup Winners' in record.header %}
+        {% else %}
+            {%  if 'Club' in record.header or 'Player' in record.header %}
+                {% set printRecord = false %}
+            {% else %}
+                {% set printRecord = true %}
+            {% endif %}
+        {% endif %}
+
+        {% if printRecord %}
+            <h3>{{ record.header }}</h3>
+            {% for entry in record.parsedEntries %}
+                {{ entry|raw }} <br />
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
 
     <br /><br /><br /><br /><br /><br />
 {% endblock %}

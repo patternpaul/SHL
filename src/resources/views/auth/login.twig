@@ -58,7 +58,7 @@
 
     <form class="form-signin" method="POST" action="/auth/login">
         {{  csrf_field()|raw }}
-        <h2 class="form-signin-heading">Please sign in</h2>
+        <h2 class="form-signin-heading">Team Manager login for adding players and updating statistics.</h2>
         {% if session('message') %}
             <div class="alert alert-warning text-center" role="alert">{{ session('message') }}</div>
         {% endif %}
